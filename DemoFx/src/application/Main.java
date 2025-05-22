@@ -16,7 +16,7 @@ public class Main extends Application {
 			Scene scene = new Scene(root,600,600);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			stage.setScene(scene);
-			stage.setTitle("Glico");
+			stage.setTitle("Glico Demo");
 			stage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
