@@ -10,7 +10,7 @@ public class HomeController {
 		ViewNavigator.loadView("loginView.fxml");
 	}
 	
-	public void register() {
+	public void register(ActionEvent event) {
 		ViewNavigator.loadView("registerView.fxml");
 	}
 	
