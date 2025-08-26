@@ -17,7 +17,7 @@ public class Main extends Application {
 		try {
 			ViewNavigator.setMainStage(stage);
 			//carica la homeView
-			ViewNavigator.loadView("HomeView.fxml");
+			ViewNavigator.loadView("loginView.fxml");
 			
 		} catch(Exception e) {
 			e.printStackTrace();
