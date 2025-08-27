@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-	private static final String URL = "jdbc:sqlite:Glico.db";
+	private static final String URL = "jdbc:sqlite:Database/Glico.db";
 	
 	public static Connection connect() throws SQLException {
 		Connection conn = DriverManager.getConnection(URL);
