@@ -1,13 +1,9 @@
 package application;
 	
-import java.net.URL;
 import java.sql.SQLException;
 
 import controller.ViewNavigator;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import model.DatabaseConnection;
 
