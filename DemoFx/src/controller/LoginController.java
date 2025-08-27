@@ -35,7 +35,7 @@ public class LoginController implements Initializable{
 	}
 
 	public void login(ActionEvent event) throws ClassNotFoundException, SQLException {
-
+		
 	}
 
 }
