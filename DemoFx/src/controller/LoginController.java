@@ -47,7 +47,7 @@ public class LoginController implements Initializable {
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next() && rs.getInt(1) > 0) { // indica ho trovato un utente che ha username e pw corrispondenti
 					if (rbPatient.isSelected()) {
-						ViewNavigator.loadView("prova.fxml");
+						ViewNavigator.loadView("patientView.fxml");
 					} else {
 						if (rbDoctor.isSelected()) {
 							ViewNavigator.loadView("doctorView.fxml");
