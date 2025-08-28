@@ -47,10 +47,12 @@ public class LoginController implements Initializable {
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next() && rs.getInt(1) > 0) { // indica ho trovato un utente che ha username e pw corrispondenti
 					if (rbPatient.isSelected()) {
-						ViewNavigator.loadView("patientView.fxml");
+						PatientController patient = ViewNavigator.loadViewWithController("patientView.fxml");
+						patient.setUser(userTextField.getText());
 					} else {
 						if (rbDoctor.isSelected()) {
-							ViewNavigator.loadView("doctorView.fxml");
+							DoctorController doctor = ViewNavigator.loadViewWithController("doctorView.fxml");
+							//doctor.setUser(userTextField.getText());
 						}
 						authenticationError(); // in caso l'utente non ha selezionato nessuno degli rbutton facciamo partire un alert
 					}

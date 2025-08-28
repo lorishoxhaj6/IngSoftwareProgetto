@@ -44,6 +44,24 @@ public class ViewNavigator {
 			e.printStackTrace();
 			System.out.println("impossibile caricare la vista");
 		}
-
+	}
+	
+	public static <T> T loadViewWithController(String fxml) {
+		try {
+			URL mainViewUrl = Main.class.getResource("/view/" + fxml);
+			FXMLLoader loader = new FXMLLoader(mainViewUrl);
+			root = loader.load();
+			T controller = loader.getController();
+			scene = new Scene(root);
+			scene.getStylesheets().add(Main.class.getResource("application.css").toExternalForm());
+			stage.setScene(scene);
+			stage.show();
+			return controller;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("impossibile caricare la vista");
+			return null;
+		}
 	}
 }

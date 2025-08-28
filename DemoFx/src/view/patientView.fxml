@@ -1,49 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <left>
-      <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label text="Funzione1" />
-            <Label text="Funzione2" />
-            <Label text="Funzione3" />
-            <Label text="Funzione4" />
-            <Label text="Funzione5" />
-            <Label text="Funzione6" />
-         </children>
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
-         <BorderPane.margin>
-            <Insets top="20.0" />
-         </BorderPane.margin></VBox>
-   </left>
-   <top>
-      <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <children>
-            <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0">
-               <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="GlycoHealth">
-                     <VBox.margin>
-                        <Insets top="5.0" />
-                     </VBox.margin>
-                  </Text>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Benvenuto NomeUtente" />
-               </children>
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin>
-               <padding>
-                  <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
-               </padding>
-            </VBox>
-         </children></HBox>
-   </top>
-</BorderPane>
+
+<AnchorPane fx:id="logoutButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="514.0" prefWidth="697.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.PatientController">
+   <children>
+      <Button layoutX="623.0" layoutY="14.0" mnemonicParsing="false" onAction="#logout" text="logout" />
+      <Label layoutX="110.0" layoutY="18.0" prefHeight="18.0" prefWidth="85.0" text="Benvenuto" />
+      <Label fx:id="userLabel" layoutX="207.0" layoutY="18.0" />
+      <TableView layoutX="83.0" layoutY="89.0" prefHeight="200.0" prefWidth="226.0">
+        <columns>
+          <TableColumn prefWidth="75.0" text="date" />
+          <TableColumn prefWidth="75.0" text="Before meal" />
+            <TableColumn prefWidth="75.0" text="After Meal" />
+        </columns>
+      </TableView>
+   </children>
+</AnchorPane>
