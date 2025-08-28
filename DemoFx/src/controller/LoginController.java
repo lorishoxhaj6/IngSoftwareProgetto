@@ -37,47 +37,65 @@ public class LoginController implements Initializable {
 
 	public void handleLogin(ActionEvent event) throws ClassNotFoundException {
 
-		final String sqlQuery = "SELECT COUNT(*) FROM patient WHERE username = ? AND password = ?";
+		// 1) Validazioni base
+	    String username = userTextField.getText();
+	    String password = passwordField.getText();
 
-		try (Connection con = DatabaseConnection.connect(); PreparedStatement ps = con.prepareStatement(sqlQuery)) {
+	    if (username == null || username.isBlank() || password == null || password.isBlank()) {
+	        showError("Errore di autenticazione", "Dati mancanti", "Inserisci username e password.");
+	        return;
+	    }
+	    if (RoleGroup.getSelectedToggle() == null) {
+	        showError("Errore di autenticazione", "Ruolo non selezionato", "Seleziona Patient o Doctor.");
+	        return;
+	    }
 
-			ps.setString(1, userTextField.getText());
-			ps.setString(2, passwordField.getText());
+	    // 2) Query in base al ruolo scelto
+	    final boolean isPatient = rbPatient.isSelected();
+	    final String sqlQuery = isPatient
+	            ? "SELECT COUNT(*) FROM patient WHERE username = ? AND password = ?"
+	            : "SELECT COUNT(*) FROM doctor  WHERE username = ? AND password = ?";
 
-			try (ResultSet rs = ps.executeQuery()) {
-				if (rs.next() && rs.getInt(1) > 0) { // indica ho trovato un utente che ha username e pw corrispondenti
-					if (rbPatient.isSelected()) {
-						PatientController patient = ViewNavigator.loadViewWithController("patientView.fxml");
-						patient.setUser(userTextField.getText());
-					} else {
-						if (rbDoctor.isSelected()) {
-							DoctorController doctor = ViewNavigator.loadViewWithController("doctorView.fxml");
-							//doctor.setUser(userTextField.getText());
-						}
-						authenticationError(); // in caso l'utente non ha selezionato nessuno degli rbutton facciamo partire un alert
-					}
-				}else {
-					authenticationError(); // in caso password username errate/Null
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace(); 
-		}
+	    try (Connection con = DatabaseConnection.connect();
+	         PreparedStatement ps = con.prepareStatement(sqlQuery)) {
+
+	        ps.setString(1, username);
+	        ps.setString(2, password);
+
+	        try (ResultSet rs = ps.executeQuery()) {
+	            boolean found = rs.next() && rs.getInt(1) > 0;
+	            if (!found) {
+	                showError("Errore di autenticazione", "Credenziali non valide", "Username o password errati.");
+	                return;
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        showError("Errore", "Problema di connessione", "Impossibile contattare il database.");
+	        return;
+	    }
+
+	    // 3) Routing
+	    try {
+	        if (isPatient) {
+	            PatientController patient = ViewNavigator.loadViewWithController("patientView.fxml");
+	            patient.setUser(username);
+	        } else {
+	            DoctorController doctor = ViewNavigator.loadViewWithController("doctorView.fxml");
+	            // doctor.setUser(username);
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        showError("Errore", "Caricamento vista", "Impossibile aprire la schermata.");
+	    }
 	}
 
-	private void authenticationError() {
-		Alert alert = new Alert(Alert.AlertType.ERROR);
-		if (RoleGroup.getSelectedToggle() == null) {
-			alert.setTitle("Errore di autenticazione");
-			alert.setHeaderText("Ruolo non selezionato");
-			alert.setContentText("Per favore selezionare 'Patient' o 'Doctor'prima di continuare");
-			alert.showAndWait();
-		} else {
-			alert.setTitle("Errore di autenticazione");
-			alert.setHeaderText("Errore inserimento dati");
-			alert.setContentText("Username e password non corrispondenti");
-			alert.showAndWait(); 
-		}
+	private void showError(String title, String header, String content) {
+	    Alert a = new Alert(Alert.AlertType.ERROR);
+	    a.setTitle(title);
+	    a.setHeaderText(header);
+	    a.setContentText(content);
+	    a.showAndWait();
 	}
 
 }

@@ -5,6 +5,7 @@ import controller.ViewNavigator;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import model.DatabaseConnection;
+import model.Paziente;
 
 
 public class Main extends Application {
