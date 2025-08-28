@@ -3,13 +3,13 @@ package model;
 public abstract class User {
 	protected String username;
 	protected String pw;
-	protected int medicoId;
+	protected int doctorId;
 	protected Role role;
 	
 	public User(String username,String pw, int medicoId) {
 		this.username = username;
 		this.pw = pw;
-		this.medicoId = medicoId;
+		this.doctorId = medicoId;
 	}
 	
 	public String getUsername() {
@@ -23,6 +23,6 @@ public abstract class User {
 	//paziente: usa per sapere a che medico è associato
 	//dottore: usa per accedere al suo campo medicoId
 	public int getMedicoId() { 
-		return this.medicoId;
+		return this.doctorId;
 	}
 }
