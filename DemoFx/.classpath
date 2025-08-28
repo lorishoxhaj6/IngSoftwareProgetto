@@ -12,5 +12,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/loris/OneDrive/Documenti/Eclipse lib/mysql-lite-connector/sqlite-jdbc-3.50.3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

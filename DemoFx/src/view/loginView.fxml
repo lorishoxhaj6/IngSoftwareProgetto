@@ -1,34 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
-   <children>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="31.0" layoutY="220.0" prefHeight="34.0" prefWidth="338.0" text="username">
+
+<BorderPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
+   <top>
+      <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="47.0" prefWidth="400.0" text="GlychoHealth" textAlignment="CENTER" BorderPane.alignment="CENTER">
          <font>
-            <Font size="18.0" />
+            <Font name="Inter_FXH Bold" size="18.0" />
          </font>
       </Label>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="32.0" layoutY="268.0" prefHeight="47.0" prefWidth="338.0" text="password">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Label>
-      <PasswordField fx:id="passwordField" layoutX="127.0" layoutY="316.0" />
-      <TextField fx:id="userTextField" layoutX="127.0" layoutY="255.0" />
-      <Button layoutX="180.0" layoutY="353.0" mnemonicParsing="false" onAction="#login" text="login" textFill="#54e444" />
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="1.0" layoutY="21.0" prefHeight="47.0" prefWidth="400.0" text="Welcome to Glico" textAlignment="CENTER">
-         <font>
-            <Font name="System Bold Italic" size="18.0" />
-         </font>
-      </Label>
-      <ChoiceBox fx:id="loginChoiceBox" layoutX="126.0" layoutY="186.0" prefWidth="150.0" />
-      <Label layoutX="124.0" layoutY="157.0" text="I am a:" />
-   </children>
-</AnchorPane>
+   </top>
+   <center>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <RadioButton fx:id="rbPatient" mnemonicParsing="false" text="patient">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="RoleGroup" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="rbDoctor" mnemonicParsing="false" text="Doctor" toggleGroup="$RoleGroup" />
+               </children>
+            </HBox>
+            <TextField fx:id="userTextField" maxHeight="40.0" maxWidth="400.0" minHeight="40.0" minWidth="400.0" prefHeight="40.0" prefWidth="400.0" promptText="Username" />
+            <PasswordField fx:id="passwordField" promptText="Password" />
+            <Button mnemonicParsing="false" onAction="#handleLogin" text="login" />
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </VBox>
+   </center>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+</BorderPane>
