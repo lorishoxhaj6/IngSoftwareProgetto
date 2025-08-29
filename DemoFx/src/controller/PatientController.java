@@ -1,5 +1,6 @@
 package controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.RadioButton;
@@ -17,9 +18,9 @@ public class PatientController extends UserController<Patient>{
 	@FXML
 	DatePicker myDatePicker;
 	
-	public void inserisciMisurazione() {
+	/*public void inserisciMisurazione(ActionEvent e) {
 		//fai Query
-	}
+	}*/
 	
 	
 }

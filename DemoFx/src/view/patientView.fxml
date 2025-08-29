@@ -58,7 +58,7 @@
                         <Label layoutX="14.0" layoutY="14.0" text=" valore glicemico mg/DL" />
                         <Label layoutX="12.0" layoutY="87.0" text="momento" />
                         <Label layoutX="7.0" layoutY="184.0" text="data" />
-                        <Button layoutX="113.0" layoutY="279.0" mnemonicParsing="false" onAction="#insericiMisurazione" text="salva" />
+                        <Button layoutX="113.0" layoutY="279.0" mnemonicParsing="false" text="salva" />
                         <DatePicker fx:id="myDatePicker" layoutX="46.0" layoutY="180.0" />
                         <RadioButton fx:id="primaPastoRb" layoutX="2.0" layoutY="123.0" mnemonicParsing="false" text="prima pasto">
                            <toggleGroup>

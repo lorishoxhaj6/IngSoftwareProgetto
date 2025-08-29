@@ -7,14 +7,14 @@ public class Doctor extends User{
 	
 	private List<Patient> pazienti = new ArrayList<>();
 	
-	public Doctor(String user, String pw, int medicoId, Patient paziente) {
-		super(user,pw,medicoId);
+	public Doctor(String user, String pw,int id, int medicoId, Patient paziente) {
+		super(user,pw,id, medicoId);
 		this.pazienti.add(paziente);
 		super.role = Role.Medico;
 	}
 	
-	public Doctor(String user, String pw, int medicoId, List<Patient> paziente) {
-		super(user,pw,medicoId);
+	public Doctor(String user, String pw,int id, int medicoId, List<Patient> paziente) {
+		super(user,pw,id,medicoId);
 		this.pazienti.addAll(paziente);
 		
 		super.role = Role.Medico;
