@@ -78,9 +78,9 @@ public class LoginController implements Initializable {
 	    // 3) Routing
 	    try {
 	        if (isPatient) {
-	        	/*Patient patientObj = new Patient();*/
+	        	/*Patient patientObj = new Patient(             );*/
 	            PatientController patient = ViewNavigator.loadViewWithController("patientView.fxml");
-	            patient.setUser(username);
+	            /*patient.setUser(pateintPbj);*/
 	        } else {
 	        	/*Doctor doctorObj = new Doctor();*/
 	            DoctorController doctor = ViewNavigator.loadViewWithController("doctorView.fxml");
