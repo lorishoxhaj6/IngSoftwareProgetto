@@ -13,11 +13,10 @@ public class Doctor extends User{
 		super.role = Role.Medico;
 	}
 	
-	public Doctor(String user, String pw, int medicoId, Patient... paziente) {
+	public Doctor(String user, String pw, int medicoId, List<Patient> paziente) {
 		super(user,pw,medicoId);
-		for(Patient p:paziente) {
-			this.pazienti.add(p);
-		}
+		this.pazienti.addAll(paziente);
+		
 		super.role = Role.Medico;
 	}
 	

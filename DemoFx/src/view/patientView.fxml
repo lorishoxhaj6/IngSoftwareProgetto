@@ -6,15 +6,24 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane fx:id="logoutButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="514.0" prefWidth="697.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.PatientController">
    <children>
-      <Button layoutX="623.0" layoutY="14.0" mnemonicParsing="false" onAction="#logout" text="logout" />
-      <Label layoutX="14.0" layoutY="20.0" prefHeight="18.0" prefWidth="85.0" text="Benvenuto:" />
-      <Label fx:id="userLabel" layoutX="83.0" layoutY="20.0" prefHeight="18.0" prefWidth="86.0" />
-      <ScrollPane layoutX="374.0" layoutY="98.0" prefHeight="318.0" prefWidth="231.0">
+      <Label layoutX="167.0" layoutY="20.0" prefHeight="38.0" prefWidth="98.0" text="Benvenuto:">
+         <font>
+            <Font size="18.0" />
+         </font></Label>
+      <Label fx:id="userLabel" layoutX="265.0" layoutY="25.0" prefHeight="18.0" prefWidth="86.0">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <ScrollPane layoutX="465.0" layoutY="146.0" prefHeight="367.0" prefWidth="231.0">
          <content>
-            <TableView prefHeight="320.0" prefWidth="226.0">
+            <TableView prefHeight="366.0" prefWidth="226.0">
               <columns>
                 <TableColumn minWidth="2.399993896484375" prefWidth="50.4000244140625" text="date" />
                 <TableColumn prefWidth="100.0" text="Before meal" />
@@ -23,5 +32,12 @@
             </TableView>
          </content>
       </ScrollPane>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#e4e4e4" height="367.0" layoutX="-7.0" layoutY="149.0" stroke="BLACK" strokeType="INSIDE" width="156.0" />
+      <Circle fill="#e4e4e4" layoutX="72.0" layoutY="76.0" radius="69.0" stroke="BLACK" strokeType="INSIDE" />
+      <Button alignment="CENTER" layoutX="-1.0" layoutY="152.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="146.0" style="-fx-background-color: #e4e4e4; -fx-text-fill: black;" text="Button" />
+      <Button alignment="CENTER" layoutX="-1.0" layoutY="208.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="146.0" style="-fx-background-color: #e4e4e4; -fx-text-fill: black;" text="Button" />
+      <Button alignment="CENTER" layoutX="-1.0" layoutY="267.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="146.0" style="-fx-background-color: #e4e4e4; -fx-text-fill: black;" text="Button" />
+      <Button alignment="CENTER" layoutX="-1.0" layoutY="325.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="146.0" style="-fx-background-color: #e4e4e4; -fx-text-fill: black;" text="Button" />
+      <Button contentDisplay="CENTER" layoutX="45.0" layoutY="416.0" mnemonicParsing="false" onAction="#logout" style="-fx-background-color: #e4e4e4; -fx-text-fill: Black;" text="logout" />
    </children>
 </AnchorPane>

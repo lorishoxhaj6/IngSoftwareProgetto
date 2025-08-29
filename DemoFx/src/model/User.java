@@ -16,6 +16,7 @@ public abstract class User {
 		return this.username;
 	}
 	
+
 	public String getPassword() {
 		return this.pw;
 	}
