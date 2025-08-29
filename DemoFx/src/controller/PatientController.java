@@ -1,18 +1,25 @@
 package controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import model.Misurazione;
 import model.Patient;
 
-public class PatientController /*implements Controller*/{
+public class PatientController extends UserController<Patient>{
+	//usa superclasse ma con Patient e non con un tipo generico
+	
 	@FXML
-	Label userLabel;
+	TextField valueTextField;
+	@FXML
+	RadioButton primaPastoRb, dopoPastoRb;
+	@FXML
+	DatePicker myDatePicker;
 	
-	public void setUser(Patient patient) {
-		userLabel.setText(patient.getUsername());
+	public void inserisciMisurazione() {
+		//fai Query
 	}
 	
-	public void logout() {
-		ViewNavigator.loadView("loginView.fxml");
-	}
+	
 }
