@@ -2,7 +2,6 @@ package controller;
 
 import java.net.URL;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,6 +14,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -30,21 +30,25 @@ public class PatientController extends UserController<Patient> implements Initia
 	//usa superclasse ma con Patient e non con un tipo generico
 	
 	@FXML
-	TextField valueTextField;
+	private TextField valueTextField;
 	@FXML
-	RadioButton primaPastoRb, dopoPastoRb;
+	private RadioButton primaPastoRb, dopoPastoRb;
 	@FXML
-	DatePicker myDatePicker;
+	private DatePicker myDatePicker;
 	@FXML
-	ToggleGroup pasto;
+	private ToggleGroup pasto;
 	@FXML
-	TableView<Measurement> measurementsTableView;
+	private TableView<Measurement> measurementsTableView;
 	@FXML
-	TableColumn<Measurement, LocalDate> dateColumn;
+	private TableColumn<Measurement, LocalDate> dateColumn;
 	@FXML
-	TableColumn<Measurement, String> momentColumn;
+	private TableColumn<Measurement, String> momentColumn;
 	@FXML
-	TableColumn<Measurement, Double> valueColumn;
+	private TableColumn<Measurement, Double> valueColumn;
+	@FXML
+	private ListView<String> symptomsListView;
+	
+	
 	
 	
 	
@@ -57,11 +61,6 @@ public class PatientController extends UserController<Patient> implements Initia
 	   
 	}
 	
-	public void visualizza(ActionEvent e) {
-		//carico i dati dal Db 
-	    ObservableList<Measurement> data = loadMeasurementsFromDB();
-	    measurementsTableView.setItems(data);
-	}
 	
 	public void inserisciMisurazione(ActionEvent e) {
 		// controllo se non ci sono errori di input
@@ -113,8 +112,33 @@ public class PatientController extends UserController<Patient> implements Initia
 			myDatePicker.setValue(null);
 			valueTextField.setText("");
 			pasto.selectToggle(null);
-			AppUtils.showError("bene", "dati giusti", "musuraione eseguita con successo!");
-			System.out.println("misurazione inserita!");
+			AppUtils.showConfirmation("bene", "dati giusti", "musurazione eseguita con successo!");
+			
+			/*Sistema di segnalazione per registrazioni oltre le soglie a seconda della gravità
+			if(moment.equals("prima pasto")) {
+					if( value >= 60 && value <= 70 || value >= 140 && value <= 150) { // codice bianco
+						// Invia alert dottore con codice bianco
+					}else {
+						if(value >= 50 && value < 60 || value > 150 && value <= 160) {
+							//Invia alert dottore con codice giallo
+						}else {
+							if(value < 50 || value > 160)
+								//Invia alert dottore codice rosso
+						}
+					}
+					
+			}
+			else {
+				if(value > 180 && value <= 190) {
+					//codice bianco
+				}else {
+					if(value >190 && value <= 200) {
+						//codice arancio
+					}
+					//codice rosso
+				}
+			}*/
+			//System.out.println("misurazione inserita!");
 			
 		} catch (SQLException e2) {
 			// TODO Auto-generated catch block
@@ -144,6 +168,12 @@ public class PatientController extends UserController<Patient> implements Initia
 	    }
 
 	    return list;
+	}
+	
+	public void setUser(Patient user) {
+		super.setUser(user);
+		ObservableList<Measurement> data = loadMeasurementsFromDB();
+		measurementsTableView.setItems(data);
 	}
 
 

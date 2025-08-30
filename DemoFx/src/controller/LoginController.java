@@ -45,10 +45,12 @@ public class LoginController implements Initializable {
 	    
 	    if (username == null || username.isBlank() || password == null || password.isBlank()) {
 	        AppUtils.showError("Errore di autenticazione", "Dati mancanti", "Inserisci username e password.");
+	        cleanFillAutentication();
 	        return;
 	    }
 	    if (RoleGroup.getSelectedToggle() == null) {
 	        AppUtils.showError("Errore di autenticazione", "Ruolo non selezionato", "Seleziona Patient o Doctor.");
+	        cleanFillAutentication();
 	        return;
 	    }
 
@@ -58,9 +60,13 @@ public class LoginController implements Initializable {
 
 	        if (isPatient) {
 	            loginAsPatient(con, username, password);
+	            
 	        } else {
 	            loginAsDoctor(con, username, password);
+	            
 	        }
+	        
+	        cleanFillAutentication();
 
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -69,6 +75,12 @@ public class LoginController implements Initializable {
 	        e.printStackTrace();
 	        AppUtils.showError("Errore", "Caricamento vista", "Impossibile aprire la schermata.");
 	    }
+	}
+
+	private void cleanFillAutentication() {
+		userTextField.clear();
+        passwordField.clear();
+        RoleGroup.selectToggle(null);
 	}
 
 	private void loginAsPatient(Connection con, String username, String password) throws Exception {
@@ -114,7 +126,8 @@ public class LoginController implements Initializable {
 	            }
 
 	            int doctorId = rs.getInt("id");  // qui prendi la PK "id" del medico
-
+	         
+	            
 	            // 2) Recupero lista pazienti associati
 	            List<Patient> pazienti = new ArrayList<>();
 	            String sqlPazienti = "SELECT * FROM patients WHERE doctor_id = ?";
