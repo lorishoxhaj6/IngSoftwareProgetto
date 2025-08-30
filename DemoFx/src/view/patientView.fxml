@@ -42,7 +42,7 @@
                                 <columns>
                                   <TableColumn fx:id="dateColumn" minWidth="2.399993896484375" prefWidth="81.60003358125687" text="date" />
                                   <TableColumn fx:id="momentColumn" prefWidth="87.20001220703125" text="moment" />
-                                    <TableColumn fx:id="valueColumn" prefWidth="57.5999755859375" text="valuel" />
+                                    <TableColumn fx:id="valueColumn" prefWidth="57.5999755859375" text="value" />
                                 </columns>
                               </TableView>
                            </content>
