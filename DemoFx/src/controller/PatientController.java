@@ -1,5 +1,6 @@
 package controller;
 
+import java.awt.TextArea;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,14 +14,19 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Circle;
 import model.AppUtils;
 import model.DatabaseConnection;
 import model.Measurement;
@@ -31,6 +37,8 @@ public class PatientController extends UserController<Patient> implements Initia
 	
 	@FXML
 	private TextField valueTextField;
+	@FXML
+	private Circle avatarCircle;
 	@FXML
 	private RadioButton primaPastoRb, dopoPastoRb;
 	@FXML
@@ -47,7 +55,14 @@ public class PatientController extends UserController<Patient> implements Initia
 	private TableColumn<Measurement, Double> valueColumn;
 	@FXML
 	private ListView<String> symptomsListView;
-	
+	@FXML
+	private TextField symptomsTextField;
+	@FXML
+	private Button symptompsAddButton,symptompsEnter;
+	@FXML
+	private TextArea symptompsNotes;
+	@FXML
+	private ToggleButton symptomsTb1,symptomsTb2,symptomsTb3,symptomsTb4,symptomsTb5;
 	
 	
 	
@@ -58,9 +73,17 @@ public class PatientController extends UserController<Patient> implements Initia
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 	    valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
+	    
+	    Image img = new Image(getClass().getResource("/Image/AvatarPatient.png").toExternalForm());
+	    avatarCircle.setFill(new ImagePattern(img));
+	    
+	    
 	   
 	}
 	
+	public void logout() {
+		super.logout();
+	}
 	
 	public void inserisciMisurazione(ActionEvent e) {
 		// controllo se non ci sono errori di input
@@ -176,6 +199,39 @@ public class PatientController extends UserController<Patient> implements Initia
 		measurementsTableView.setItems(data);
 	}
 
-
+	public void insertToggleSymptoms() {
+		
+		if(symptomsTb1.isSelected()) {
+			symptomsListView.getItems().add(symptomsTb1.getText());
+		}
+		if(symptomsTb2.isSelected()) {
+			symptomsListView.getItems().add(symptomsTb2.getText());
+		}
+		if(symptomsTb3.isSelected()) {
+			symptomsListView.getItems().add(symptomsTb3.getText());
+		}
+		if(symptomsTb4.isSelected()) {
+			symptomsListView.getItems().add(symptomsTb4.getText());
+		}
+		if(symptomsTb5.isSelected()) {
+			symptomsListView.getItems().add(symptomsTb5.getText());
+		}
+		
+		
+	}
+	
+	public void insertSymptomsOnButtonClick() {
+		
+		if(symptomsTextField.getText().isEmpty()) {
+			AppUtils.showError("Nessun sintomo indicato", "Sintomo", "scrivere un sintomo e poi cliccare +");
+		}
+		
+		symptomsListView.getItems().add(symptomsTextField.getText());
+		
+		symptomsTextField.clear();
+		
+	}
+	
+	
 	
 }
