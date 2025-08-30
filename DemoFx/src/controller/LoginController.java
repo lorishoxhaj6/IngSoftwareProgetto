@@ -89,12 +89,13 @@ public class LoginController implements Initializable {
 	            Patient patientObj = new Patient(
 	                rs.getString("username"),
 	                rs.getString("password"),
-	                rs.getInt("doctor_id"),
-	                rs.getInt("id")
+	                rs.getInt("id"),
+	                rs.getInt("doctor_id")
 	            );
-
-	            PatientController controller = ViewNavigator.loadViewWithController("patientView.fxml");
+	            
+	            PatientController controller = ViewNavigator.loadViewWithController("patientView.fxml");;
 	            controller.setUser(patientObj);
+	   
 	        }
 	    }
 	}

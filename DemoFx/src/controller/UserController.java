@@ -14,7 +14,6 @@ public abstract class UserController <T extends User> {
 		this.user = user;
 		userLabel.setText(user.getUsername()); //se non avessi messo extends User qui 
 		//avrei dovuto fare il cast per trovare il metodo getUsername -> ((User)user).getUsername())
-		
 	}
 	
 	public void logout() {

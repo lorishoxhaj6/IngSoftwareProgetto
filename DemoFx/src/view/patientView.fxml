@@ -38,11 +38,11 @@
                      <children>
                         <ScrollPane prefHeight="200.0" prefWidth="200.0">
                            <content>
-                              <TableView prefHeight="386.0" prefWidth="270.0">
+                              <TableView fx:id="measurementsTableView" prefHeight="386.0" prefWidth="270.0">
                                 <columns>
-                                  <TableColumn minWidth="2.399993896484375" prefWidth="50.4000244140625" text="date" />
-                                  <TableColumn prefWidth="100.0" text="moment" />
-                                    <TableColumn prefWidth="75.0" text="valuel" />
+                                  <TableColumn fx:id="dateColumn" minWidth="2.399993896484375" prefWidth="81.60003358125687" text="date" />
+                                  <TableColumn fx:id="momentColumn" prefWidth="87.20001220703125" text="moment" />
+                                    <TableColumn fx:id="valueColumn" prefWidth="57.5999755859375" text="valuel" />
                                 </columns>
                               </TableView>
                            </content>
@@ -58,7 +58,7 @@
                         <Label layoutX="14.0" layoutY="14.0" text=" valore glicemico mg/DL" />
                         <Label layoutX="12.0" layoutY="87.0" text="momento" />
                         <Label layoutX="7.0" layoutY="184.0" text="data" />
-                        <Button layoutX="113.0" layoutY="279.0" mnemonicParsing="false" text="salva" />
+                        <Button layoutX="113.0" layoutY="279.0" mnemonicParsing="false" onAction="#inserisciMisurazione" text="salva" />
                         <DatePicker fx:id="myDatePicker" layoutX="46.0" layoutY="180.0" />
                         <RadioButton fx:id="primaPastoRb" layoutX="2.0" layoutY="123.0" mnemonicParsing="false" text="prima pasto">
                            <toggleGroup>
@@ -76,5 +76,6 @@
           </Tab>
         </tabs>
       </TabPane>
+      <Button layoutX="164.0" layoutY="191.0" mnemonicParsing="false" onAction="#visualizza" text="visualizza" />
    </children>
 </AnchorPane>
