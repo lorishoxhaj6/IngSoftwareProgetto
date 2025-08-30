@@ -93,7 +93,7 @@ public class LoginController implements Initializable {
 	                rs.getInt("doctor_id")
 	            );
 	            
-	            PatientController controller = ViewNavigator.loadViewWithController("patientView.fxml");;
+	            PatientController controller = ViewNavigator.loadViewWithController("patientView.fxml");
 	            controller.setUser(patientObj);
 	   
 	        }
