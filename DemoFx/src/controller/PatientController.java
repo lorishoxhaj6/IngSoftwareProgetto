@@ -47,7 +47,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	@FXML
 	private TableView<Measurement> measurementsTableView;
 	@FXML
-	private TableColumn<Measurement, LocalDate> dateColumn;
+	private TableColumn<Measurement, String> dateColumn;
 	@FXML
 	private TableColumn<Measurement, String> momentColumn;
 	@FXML
@@ -69,7 +69,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		//collega le colonne della tabella alla ai campi della classe Measurement
-		dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 	    valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
  
@@ -98,11 +98,12 @@ public class PatientController extends UserController<Patient> implements Initia
 		}
 		
 		// variabili che mi servono per inserire la misurazione
-		String sql = "INSERT INTO measurements (patientId, moment, date, value) VALUES (?,?,?,?)";
+		String sql = "INSERT INTO measurements (patientId, moment, dateTime, value) VALUES (?,?,?,?)";
 		int idMeasurement = -1;
 		int userId = user.getId();
 		String moment = "";
 		LocalDate date = myDatePicker.getValue();
+		LocalDateTime dateTime = LocalDateTime.of(date, LocalTime.now());
 		
 		// inserisco nel database la nuova misurazione
 		try(Connection con = DatabaseConnection.connect();   
@@ -115,7 +116,7 @@ public class PatientController extends UserController<Patient> implements Initia
 			else {
 				ps.setString(2, "dopo pasto");
 				moment = "dopo pasto";}
-			ps.setString(3, date.toString());
+			ps.setString(3, dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 			ps.setDouble(4, value);
 			
 			ps.executeUpdate();
@@ -124,7 +125,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		        if (rs.next()) idMeasurement = rs.getInt(1);
 		    }
 			
-			Measurement m = new Measurement(idMeasurement, userId,moment, date, value);
+			Measurement m = new Measurement(idMeasurement, userId,moment, dateTime, value);
 			measurementsTableView.getItems().add(m);  // aggiungo la nuova misurazione alla tabella
 			
 			//pulisco tutti i campi dell'inserimento
@@ -167,7 +168,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	
 	public ObservableList<Measurement> loadMeasurementsFromDB() {
 	    ObservableList<Measurement> list = FXCollections.observableArrayList();
-	    String sql = "SELECT date, moment, value FROM measurements WHERE patientId = ?";
+	    String sql = "SELECT dateTime, moment, value FROM measurements WHERE patientId = ?";
 
 	    try (Connection conn = DatabaseConnection.connect();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -176,7 +177,8 @@ public class PatientController extends UserController<Patient> implements Initia
 	        ResultSet rs = ps.executeQuery();
 
 	        while (rs.next()) {
-	            LocalDate date = LocalDate.parse(rs.getString("date"));
+	        	String raw = rs.getString("dateTime");
+	        	LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 	            String moment = rs.getString("moment");
 	            double value = rs.getDouble("value");
 
@@ -224,7 +226,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	public void insertSymptomsOnButtonClick() {
 		
 		if(symptomsTextField.getText().isEmpty()) {
-			AppUtils.showError("Nessun sintomo indicato", "Sintomo", "scrivere un sintomo e poi cliccare +");
+			AppUtils.showError("None symptom selected", "Symptom", "Please, write a symptom and then click +");
 		}
 		
 		symptomsListView.getItems().add(symptomsTextField.getText());

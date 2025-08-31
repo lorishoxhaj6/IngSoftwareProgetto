@@ -1,5 +1,8 @@
 package model;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import javafx.scene.control.Alert;
 
 public class AppUtils {
@@ -20,4 +23,10 @@ public class AppUtils {
 	    a.setContentText(content);
 	    a.showAndWait();
 	}
+	
+	public String getDateTimeFormatted(LocalDateTime dateTime) {
+	    DateTimeFormatter OUT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+	    return (dateTime == null) ? "" : dateTime.format(OUT);
+	}
+
 }
