@@ -32,6 +32,7 @@ import model.AppUtils;
 import model.DatabaseConnection;
 import model.Measurement;
 import model.Patient;
+import model.Symptoms;
 
 public class PatientController extends UserController<Patient> implements Initializable{
 	//usa superclasse ma con Patient e non con un tipo generico
@@ -55,6 +56,8 @@ public class PatientController extends UserController<Patient> implements Initia
 	@FXML
 	private ListView<String> symptomsListView;
 	@FXML
+	private ListView<Symptoms> symptomsVisualization;
+	@FXML
 	private TextField symptomsTextField;
 	@FXML
 	private Button symptompsAddButton,symptompsEnter;
@@ -74,7 +77,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	    valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
  
 
-	   
+
 	}
 	
 	public void logout() {
@@ -182,7 +185,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	            String moment = rs.getString("moment");
 	            double value = rs.getDouble("value");
 
-	            list.add(new Measurement(10, user.getId(),moment, date, value));
+	            list.add(new Measurement(10, user.getId(),moment, date, value)); // perché si passa 10 in id?
 	        }
 	    } catch (SQLException e) {
 	        e.printStackTrace();
@@ -193,8 +196,10 @@ public class PatientController extends UserController<Patient> implements Initia
 	
 	public void setUser(Patient user) {
 		super.setUser(user);
-		ObservableList<Measurement> data = loadMeasurementsFromDB();
-		measurementsTableView.setItems(data);
+		ObservableList<Measurement> measurments = loadMeasurementsFromDB();
+		ObservableList<Symptoms> symptoms = loadSymptomsFromDB();
+		measurementsTableView.setItems(measurments);
+		symptomsVisualization.setItems(symptoms);
 	}
 
 	public void insertToggleSymptoms() {
@@ -279,7 +284,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	    LocalDateTime when = LocalDateTime.of(selectedDate, LocalTime.now());
 
 	    // 3) Prepara SQL
-	    String sql = "INSERT INTO symptoms (id, doctor_id, symptoms, startDateTime, notes) VALUES (?,?,?,?,?)";
+	    String sql = "INSERT INTO symptoms (patient_id, doctor_id, symptoms, startDateTime, notes) VALUES (?,?,?,?,?)";
 
 	    try (Connection con = DatabaseConnection.connect();
 	         PreparedStatement ps = con.prepareStatement(sql)) {
@@ -294,7 +299,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	        ps.setString(3, symptomsText);                     // symptoms
 
 	        
-	        ps.setString(4, when.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));                  
+	        ps.setString(4, when.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));                  
 
 	       
 	        String notes = (symptomsNotes != null) ? symptomsNotes.getText() : "";
@@ -303,7 +308,14 @@ public class PatientController extends UserController<Patient> implements Initia
 	        ps.executeUpdate();
 
 	        AppUtils.showConfirmation("Perfect!", "right data", "symptoms successfully recorded!");
-
+	        
+	        try (ResultSet rs = ps.getGeneratedKeys()) {
+	            if (rs.next()) {
+	                int generatedId = rs.getInt(1);
+	                Symptoms s = new Symptoms(generatedId,user.getId(),user.getMedicoId(),symptomsText, when, notes);
+	                symptomsVisualization.getItems().add(s);
+	            }
+	        }
 	        // 5) Pulizia UI
 	        symptomsListView.getItems().clear();
 	        symptomDatePicker.setValue(null);
@@ -313,6 +325,71 @@ public class PatientController extends UserController<Patient> implements Initia
 	        System.out.println("Errore inserimento sintomi in db");
 	        e.printStackTrace();
 	    }
+	}
+	
+	public ObservableList<Symptoms> loadSymptomsFromDB() {
+		
+	    ObservableList<Symptoms> list = FXCollections.observableArrayList();
+	    String sql = "SELECT id,symptoms, startDateTime, notes FROM symptoms WHERE patient_id = ?";
+
+	    try (Connection conn = DatabaseConnection.connect();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+	        ps.setInt(1, user.getId()); // <-- l'id del paziente loggato
+	        ResultSet rs = ps.executeQuery();
+
+	        while (rs.next()) {
+	        	int symptomId = rs.getInt("id");
+	        	String raw = rs.getString("startDateTime");
+	        	LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+	            String symptoms = rs.getString("symptoms");
+	            String notes = rs.getString("notes");
+
+	            list.add(new Symptoms(symptomId,user.getMedicoId(), user.getId(),symptoms, date, notes));
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+
+	    return list;
+	}
+	
+	public void resolveSymptoms() {
+	
+	    if (symptomsVisualization.getItems().isEmpty()) {
+	        AppUtils.showError("No Symptoms to resolve",
+	                "Unable to resolve the symptoms",
+	                "Please add at least one symptom before attempting to resolve one.");
+	        return;
+	    }
+
+	    
+	    Symptoms selectedSymptom = symptomsVisualization.getSelectionModel().getSelectedItem();
+	    LocalDateTime when = LocalDateTime.now();
+
+	    String sql = "UPDATE symptoms SET endDateTime = ? WHERE id = ?";
+
+	    try (Connection con = DatabaseConnection.connect();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+
+	        ps.setString(1, when.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+	        ps.setInt(2, selectedSymptom.getSymptomId());
+	       
+	        int rows = ps.executeUpdate();
+	        
+	        if(rows>0) {
+	        	AppUtils.showConfirmation("Perfect!", "right resolution", "symptom successfully resolved!");
+	        	symptomsVisualization.getItems().remove(selectedSymptom);
+	        }else {
+	        	AppUtils.showError("Not Found",
+	                    "Symptom not updated",
+	                    "Could not find the selected symptom in the database.");
+	        }
+	    } catch (SQLException e) {
+	        System.out.println("Errore inserimento sintomi in db");
+	        e.printStackTrace();
+	    }
+		
 	}
 
 	
