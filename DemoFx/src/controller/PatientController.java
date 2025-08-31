@@ -1,6 +1,6 @@
 package controller;
 
-import java.awt.TextArea;
+
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,10 +16,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -38,11 +40,9 @@ public class PatientController extends UserController<Patient> implements Initia
 	@FXML
 	private TextField valueTextField;
 	@FXML
-	private Circle avatarCircle;
-	@FXML
 	private RadioButton primaPastoRb, dopoPastoRb;
 	@FXML
-	private DatePicker myDatePicker;
+	private DatePicker myDatePicker, symptomDatePicker;
 	@FXML
 	private ToggleGroup pasto;
 	@FXML
@@ -73,11 +73,8 @@ public class PatientController extends UserController<Patient> implements Initia
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 	    valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-	    
-	    Image img = new Image(getClass().getResource("/Image/AvatarPatient.png").toExternalForm());
-	    avatarCircle.setFill(new ImagePattern(img));
-	    
-	    
+ 
+
 	   
 	}
 	
@@ -89,7 +86,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		// controllo se non ci sono errori di input
 		if(myDatePicker.getValue()== null || valueTextField.getText() == null || 
 				pasto.getSelectedToggle()== null) {
-			AppUtils.showError("Errore", "dati mancanti", "Impossibile caricare misurazione");
+			AppUtils.showError("Error", "data are missing", "Impossible to insert measurement");
 			return;
 		}
 		
@@ -97,7 +94,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		try {
 			value = Double.parseDouble(valueTextField.getText());
 		} catch (NumberFormatException e1){
-			AppUtils.showError("Errore", "dati mancanti", "Impossibile caricare misurazione");
+			AppUtils.showError("Error", "data are missing", "Impossible to insert measurement");
 			return;
 		}
 		
@@ -232,6 +229,50 @@ public class PatientController extends UserController<Patient> implements Initia
 		
 	}
 	
+	public void deleteSymptomSelected() {
+		
+		if(symptomsListView.getItems().isEmpty()) {
+			AppUtils.showError("No Symptoms Available",
+				    "Unable to Delete",
+				    "Please add at least one symptom before attempting to delete.");
+			return;
+		}
+		
+		String sel = symptomsListView.getSelectionModel().getSelectedItem();
+		if(sel == null || sel.isBlank()) {
+			AppUtils.showError("No Symptom Selected",
+				    "Unable to Delete Symptom",
+				    "Please select a symptom from the list before attempting to delete it.");
+			return;
+		}else {
+			symptomsListView.getItems().remove(sel);
+		}
+		
+	}
 	
+	public void enterSymptoms() {
+		
+		String sql = "INSERT INTO symptoms (id,doctor_id,symptoms,startDate,initTime,notes) VALUES (?,?,?,?,?,?)";
+		
+		try(Connection con = DatabaseConnection.connect();
+				PreparedStatement ps = con.prepareStatement(sql)){
+			
+			ObservableList<String> ListSymptoms = symptomsListView.getItems();
+			String symptomsText = "";
+			
+			ps.setInt(1,user.getId());
+			ps.setInt(2,user.getMedicoId());
+			
+			symptomsText = String.join(",", ListSymptoms);
+			
+			
+		}catch(SQLException e) {
+			System.out.println("Errore inserimento sintomi in db");
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
 	
 }
