@@ -7,6 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 import javafx.collections.FXCollections;
@@ -16,7 +19,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
@@ -26,9 +28,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.paint.ImagePattern;
-import javafx.scene.shape.Circle;
 import model.AppUtils;
 import model.DatabaseConnection;
 import model.Measurement;
@@ -60,7 +59,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	@FXML
 	private Button symptompsAddButton,symptompsEnter;
 	@FXML
-	private TextArea symptompsNotes;
+	private TextArea symptomsNotes;
 	@FXML
 	private ToggleButton symptomsTb1,symptomsTb2,symptomsTb3,symptomsTb4,symptomsTb5;
 	
@@ -132,7 +131,7 @@ public class PatientController extends UserController<Patient> implements Initia
 			myDatePicker.setValue(null);
 			valueTextField.setText("");
 			pasto.selectToggle(null);
-			AppUtils.showConfirmation("bene", "dati giusti", "musurazione eseguita con successo!");
+			AppUtils.showConfirmation("Perfect!", "right data", "measurement successfully performed!");
 			
 			/*Sistema di segnalazione per registrazioni oltre le soglie a seconda della gravità
 			if(moment.equals("prima pasto")) {
@@ -200,18 +199,23 @@ public class PatientController extends UserController<Patient> implements Initia
 		
 		if(symptomsTb1.isSelected()) {
 			symptomsListView.getItems().add(symptomsTb1.getText());
+			symptomsTb1.setSelected(false);
 		}
 		if(symptomsTb2.isSelected()) {
 			symptomsListView.getItems().add(symptomsTb2.getText());
+			symptomsTb2.setSelected(false);
 		}
 		if(symptomsTb3.isSelected()) {
 			symptomsListView.getItems().add(symptomsTb3.getText());
+			symptomsTb3.setSelected(false);
 		}
 		if(symptomsTb4.isSelected()) {
 			symptomsListView.getItems().add(symptomsTb4.getText());
+			symptomsTb4.setSelected(false);
 		}
 		if(symptomsTb5.isSelected()) {
 			symptomsListView.getItems().add(symptomsTb5.getText());
+			symptomsTb5.setSelected(false);
 		}
 		
 		
@@ -251,28 +255,63 @@ public class PatientController extends UserController<Patient> implements Initia
 	}
 	
 	public void enterSymptoms() {
-		
-		String sql = "INSERT INTO symptoms (id,doctor_id,symptoms,startDate,initTime,notes) VALUES (?,?,?,?,?,?)";
-		
-		try(Connection con = DatabaseConnection.connect();
-				PreparedStatement ps = con.prepareStatement(sql)){
-			
-			ObservableList<String> ListSymptoms = symptomsListView.getItems();
-			String symptomsText = "";
-			
-			ps.setInt(1,user.getId());
-			ps.setInt(2,user.getMedicoId());
-			
-			symptomsText = String.join(",", ListSymptoms);
-			
-			
-		}catch(SQLException e) {
-			System.out.println("Errore inserimento sintomi in db");
-			e.printStackTrace();
-		}
-		
-		
-		
+
+	    // 1) Validazioni preliminari
+	    if (symptomsListView.getItems().isEmpty()) {
+	        AppUtils.showError("No Symptoms Available",
+	                "Unable to enter the symptoms",
+	                "Please add at least one symptom before attempting to enter.");
+	        return;
+	    }
+
+	    // Verifica che la data sia selezionata PRIMA di creare LocalDateTime
+	    LocalDate selectedDate = symptomDatePicker.getValue();
+	    if (selectedDate == null) {
+	        AppUtils.showError("No date selected",
+	                "Unable to enter the symptoms",
+	                "Please select a Date before attempting to enter");
+	        return;
+	    }
+
+	    // 2) Costruisci il timestamp (ora attuale nel giorno scelto)
+	    LocalDateTime when = LocalDateTime.of(selectedDate, LocalTime.now());
+
+	    // 3) Prepara SQL
+	    String sql = "INSERT INTO symptoms (id, doctor_id, symptoms, startDateTime, notes) VALUES (?,?,?,?,?)";
+
+	    try (Connection con = DatabaseConnection.connect();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+
+	        // Unisci i sintomi in una stringa
+	        ObservableList<String> listSymptoms = symptomsListView.getItems();
+	        String symptomsText = String.join(",", listSymptoms);
+
+	        // 4) Parametri
+	        ps.setInt(1, user.getId());                        // patient_id
+	        ps.setInt(2, user.getMedicoId());                  // doctor_id
+	        ps.setString(3, symptomsText);                     // symptoms
+
+	        
+	        ps.setString(4, when.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));                  
+
+	       
+	        String notes = (symptomsNotes != null) ? symptomsNotes.getText() : "";
+	        ps.setString(5, notes);
+
+	        ps.executeUpdate();
+
+	        AppUtils.showConfirmation("Perfect!", "right data", "symptoms successfully recorded!");
+
+	        // 5) Pulizia UI
+	        symptomsListView.getItems().clear();
+	        symptomDatePicker.setValue(null);
+	        if (symptomsNotes != null) symptomsNotes.clear();
+
+	    } catch (SQLException e) {
+	        System.out.println("Errore inserimento sintomi in db");
+	        e.printStackTrace();
+	    }
 	}
+
 	
 }
