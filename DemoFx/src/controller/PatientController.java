@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.collections.FXCollections;
@@ -18,6 +20,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableCell;
@@ -37,7 +40,9 @@ import model.Symptoms;
 
 public class PatientController extends UserController<Patient> implements Initializable {
 	// usa superclasse ma con Patient e non con un tipo generico
-
+	
+	@FXML
+	private Label doctorLabel;
 	@FXML
 	private TextField valueTextField;
 	@FXML
@@ -129,11 +134,37 @@ public class PatientController extends UserController<Patient> implements Initia
 
 	public void setUser(Patient user) {
 		super.setUser(user);
+		//setta la Label che inidice il medico di rifermento
+		
+		
 		String sqlMeasurments = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
 		String sqlSymptoms = "SELECT id,symptoms, startDateTime, notes FROM symptoms WHERE patient_id = ? AND endDateTime IS NULL";
+		String sqlGetDoctorMail = "SELECT d.username, d.email FROM patients p JOIN doctors d ON p.doctor_id = d.id  WHERE p.username = ?";
 		ObservableList<Measurement> measurments = FXCollections.observableArrayList();
 		ObservableList<Symptoms> symptoms = FXCollections.observableArrayList();
-	
+		//mi ritornano le 2 stringhe con user e mail del dottore di riferimento
+		try {
+			ObservableList<Object> doctorInfo = DatabaseUtil.queryList(
+					sqlGetDoctorMail,
+					ps -> {
+						try {
+							ps.setString(1, user.getUsername());
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					},
+					rs -> {
+						String doctorUser = rs.getString("username");
+						String doctorMail = rs.getString("email");
+						return null; // deve restituire un oggetto Doctror!!!
+					});
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		//doctorLabel.setText("Dottore: " +  firstRo + "emal: " + doctorInfo.get(1));
+		
 		try {
 			measurments = DatabaseUtil.queryList(sqlMeasurments, ps -> {
 				try {
@@ -153,7 +184,6 @@ public class PatientController extends UserController<Patient> implements Initia
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	
 		try {
 			symptoms = DatabaseUtil.queryList(sqlSymptoms, ps -> {
 				try {

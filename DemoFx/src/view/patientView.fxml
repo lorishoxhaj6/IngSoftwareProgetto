@@ -142,5 +142,6 @@
             <Font size="18.0" />
          </font>
       </Text>
+      <Label fx:id="doctorLabel" layoutX="154.0" layoutY="101.0" prefHeight="24.0" prefWidth="225.0" />
    </children>
 </AnchorPane>
