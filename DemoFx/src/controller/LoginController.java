@@ -17,7 +17,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import model.AppUtils;
-import model.DatabaseConnection;
+import model.DatabaseUtil;
 import model.Doctor;
 import model.Patient;
 
@@ -56,7 +56,7 @@ public class LoginController implements Initializable {
 
 	    final boolean isPatient = rbPatient.isSelected();
 
-	    try (Connection con = DatabaseConnection.connect()) {
+	    try (Connection con = DatabaseUtil.connect()) {
 
 	        if (isPatient) {
 	            loginAsPatient(con, username, password);

@@ -30,7 +30,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import model.AppUtils;
-import model.DatabaseConnection;
+import model.DatabaseUtil;
 import model.Measurement;
 import model.Patient;
 import model.Symptoms;
@@ -123,6 +123,57 @@ public class PatientController extends UserController<Patient> implements Initia
 
 	}
 
+	public void setUser(Patient user) {
+		super.setUser(user);
+		String sqlMeasurments = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
+		String sqlSymptoms = "SELECT id,symptoms, startDateTime, notes FROM symptoms WHERE patient_id = ? AND endDateTime IS NULL";
+		ObservableList<Measurement> measurments = FXCollections.observableArrayList();
+		ObservableList<Symptoms> symptoms = FXCollections.observableArrayList();
+	
+		try {
+			measurments = DatabaseUtil.queryList(sqlMeasurments, ps -> {
+				try {
+					ps.setInt(1, user.getId());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}, rs -> {
+				int id = rs.getInt("id");
+				String raw = rs.getString("dateTime");
+				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+				String moment = rs.getString("moment");
+				double value = rs.getDouble("value");
+				return new Measurement(id, user.getId(), moment, date, value);
+			});
+	
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	
+		try {
+			symptoms = DatabaseUtil.queryList(sqlSymptoms, ps -> {
+				try {
+					ps.setInt(1, user.getId());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}, rs -> {
+				int symptomId = rs.getInt("id");
+				String raw = rs.getString("startDateTime");
+				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+				String sympt = rs.getString("symptoms");
+				String notes = rs.getString("notes");
+	
+				return new Symptoms(symptomId, user.getMedicoId(), user.getId(), sympt, date, notes);
+			});
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	
+		measurementsTableView.setItems(measurments);
+		symptomsVisualization.setItems(symptoms);
+	}
+
 	public void logout() {
 		super.logout();
 	}
@@ -151,7 +202,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		LocalDateTime dateTime = LocalDateTime.of(date, LocalTime.now());
 
 		// inserisco nel database la nuova misurazione
-		try (Connection con = DatabaseConnection.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
+		try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
 
 			ps.setInt(1, userId);
 			if (primaPastoRb.isSelected()) {
@@ -200,37 +251,6 @@ public class PatientController extends UserController<Patient> implements Initia
 		}
 	}
 
-	public ObservableList<Measurement> loadMeasurementsFromDB() {
-		ObservableList<Measurement> list = FXCollections.observableArrayList();
-		String sql = "SELECT dateTime, moment, value FROM measurements WHERE patientId = ?";
-
-		try (Connection conn = DatabaseConnection.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
-			ps.setInt(1, user.getId()); // <-- l'id del paziente loggato
-			ResultSet rs = ps.executeQuery();
-
-			while (rs.next()) {
-				String raw = rs.getString("dateTime");
-				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-				String moment = rs.getString("moment");
-				double value = rs.getDouble("value");
-
-				list.add(new Measurement(10, user.getId(), moment, date, value)); // perché si passa 10 in id?
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return list;
-	}
-
-	public void setUser(Patient user) {
-		super.setUser(user);
-		ObservableList<Measurement> measurments = loadMeasurementsFromDB();
-		ObservableList<Symptoms> symptoms = loadSymptomsFromDB();
-		measurementsTableView.setItems(measurments);
-		symptomsVisualization.setItems(symptoms);
-	}
 
 	public void insertToggleSymptoms() {
 
@@ -311,7 +331,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		// 3) Prepara SQL
 		String sql = "INSERT INTO symptoms (patient_id, doctor_id, symptoms, startDateTime, notes) VALUES (?,?,?,?,?)";
 
-		try (Connection con = DatabaseConnection.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
+		try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
 
 			// Unisci i sintomi in una stringa
 			ObservableList<String> listSymptoms = symptomsListView.getItems();
@@ -350,32 +370,6 @@ public class PatientController extends UserController<Patient> implements Initia
 		}
 	}
 
-	public ObservableList<Symptoms> loadSymptomsFromDB() {
-
-		ObservableList<Symptoms> list = FXCollections.observableArrayList();
-		String sql = "SELECT id,symptoms, startDateTime, notes FROM symptoms WHERE patient_id = ? AND endDateTime IS NULL";
-
-		try (Connection conn = DatabaseConnection.connect(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
-			ps.setInt(1, user.getId()); // <-- l'id del paziente loggato
-			ResultSet rs = ps.executeQuery();
-
-			while (rs.next()) {
-				int symptomId = rs.getInt("id");
-				String raw = rs.getString("startDateTime");
-				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-				String symptoms = rs.getString("symptoms");
-				String notes = rs.getString("notes");
-
-				list.add(new Symptoms(symptomId, user.getMedicoId(), user.getId(), symptoms, date, notes));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return list;
-	}
-
 	public void resolveSymptoms() {
 
 		if (symptomsVisualization.getItems().isEmpty()) {
@@ -389,7 +383,7 @@ public class PatientController extends UserController<Patient> implements Initia
 
 		String sql = "UPDATE symptoms SET endDateTime = ? WHERE id = ?";
 
-		try (Connection con = DatabaseConnection.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
+		try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
 
 			ps.setString(1, when.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 			ps.setInt(2, selectedSymptom.getSymptomId());
