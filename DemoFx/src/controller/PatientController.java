@@ -69,14 +69,18 @@ public class PatientController extends UserController<Patient> implements Initia
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// collega le colonne della tabella alla ai campi della classe Measurement
+		// collega le colonne della tabella misurazioni ai campi della classe Measurement
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-
+		
+		//serve per colorare i risultati della colonna value
 		valueColumn.setCellFactory(col -> new TableCell<Measurement, Double>() {
+			//setCell serve a personalizzare come sono disegnate le celle
+			//TableCell è una cella della tabella
 			protected void updateItem(Double n, boolean empty) {
 				super.updateItem(n, empty);
+				//gestione caso cella vuota
 				if (empty || n == null) {
 					setText(null);
 					setTextFill(Color.BLACK);
