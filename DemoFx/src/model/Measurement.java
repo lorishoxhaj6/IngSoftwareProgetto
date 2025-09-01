@@ -25,13 +25,11 @@ public class Measurement {
 	}
 	
     // Getter formattato per la TableView
-    public String getDateTimeFormatted() {
-        return (dateTime == null) ? "" : dateTime.format(OUT_FMT);
-    }
+    public String getDateTimeFormatted() {return (dateTime == null) ? "" : dateTime.format(OUT_FMT);}
 	public int getId() { return this.id; }
 	public int getPatientId() { return this.patientId; }
 	public String getMoment() { return this.moment; }
 	public LocalDateTime getDateTime() { return dateTime;}
 	public double getValue() { return this.value;}
-	
+
 }
