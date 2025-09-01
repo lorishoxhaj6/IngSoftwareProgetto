@@ -443,7 +443,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	}
 	
 	
-	public void modifyElement() {
+	public void modifyElement(ActionEvent e) {
 		Measurement mSelected = measurementsTableView.getSelectionModel().getSelectedItem();
 		
 		if(mSelected != null) {
@@ -455,9 +455,37 @@ public class PatientController extends UserController<Patient> implements Initia
 				dopoPastoRb.setSelected(true);
 			}
 			tabPane1.getSelectionModel().select(1);
+			deleteMeasurement(e);
 		}else {
 			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");
 			return;
+		}
+	}
+	
+	public void deleteMeasurement(ActionEvent e) {
+		Measurement mSelected = measurementsTableView.getSelectionModel().getSelectedItem();
+		if(mSelected != null) {
+			String sql = "DELETE FROM measurements WHERE id = ?";
+			
+			try (Connection con = DatabaseUtil.connect(); 
+					PreparedStatement ps = con.prepareStatement(sql)) {
+				ps.setInt(1, mSelected.getId());
+				
+				int rowsAffected = ps.executeUpdate(); //si usa executeUpdate quando si fanno modifiche e
+													   // non restitusce dati ma quante righe sono state modificate
+				if(rowsAffected > 0) {
+					measurementsTableView.getItems().remove(mSelected);
+				}
+				else
+					AppUtils.showError("Error", "impossible to remove this measurement", "Please select another measurement");
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			measurementsTableView.getItems().remove(mSelected);
+		}
+		else {
+			AppUtils.showError("Attenzione", "measurement not selected", "Please, select a measurement to delete");
 		}
 	}
 
