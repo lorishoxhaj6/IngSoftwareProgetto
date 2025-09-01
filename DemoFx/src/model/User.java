@@ -5,7 +5,7 @@ public abstract class User {
 	protected String pw;
 	protected int id;
 	protected int doctorId;
-	protected Role role;
+
 	
 	public User(String username,String pw, int id, int medicoId) {
 		this.username = username;

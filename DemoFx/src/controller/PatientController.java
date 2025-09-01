@@ -9,8 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.collections.FXCollections;
@@ -23,6 +21,8 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -31,6 +31,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import model.AppUtils;
 import model.DatabaseUtil;
@@ -71,6 +72,9 @@ public class PatientController extends UserController<Patient> implements Initia
 	private TextArea symptomsNotes;
 	@FXML
 	private ToggleButton symptomsTb1, symptomsTb2, symptomsTb3, symptomsTb4, symptomsTb5;
+	@FXML
+	private TabPane tabPane1;
+	
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -436,6 +440,25 @@ public class PatientController extends UserController<Patient> implements Initia
 			e.printStackTrace();
 		}
 
+	}
+	
+	
+	public void modifyElement() {
+		Measurement mSelected = measurementsTableView.getSelectionModel().getSelectedItem();
+		
+		if(mSelected != null) {
+			valueTextField.setText(String.valueOf(mSelected.getValue()));
+			myDatePicker.setValue(mSelected.getDateTime().toLocalDate());
+			if(mSelected.getMoment().equals("prima pasto")){
+				primaPastoRb.setSelected(true);
+			}else {
+				dopoPastoRb.setSelected(true);
+			}
+			tabPane1.getSelectionModel().select(1);
+		}else {
+			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");
+			return;
+		}
 	}
 
 }

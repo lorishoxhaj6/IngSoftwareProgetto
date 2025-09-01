@@ -34,7 +34,7 @@
          </font>
       </Label>
       <Button contentDisplay="CENTER" layoutX="759.0" layoutY="27.0" mnemonicParsing="false" onAction="#logout" style="-fx-background-color: #e4e4e4; -fx-text-fill: Black;" text="logout" />
-      <TabPane layoutX="53.0" layoutY="157.0" prefHeight="455.0" prefWidth="784.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="tabPane1" layoutX="53.0" layoutY="157.0" prefHeight="455.0" prefWidth="784.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab text="le tue misurazioni">
                <content>
@@ -48,8 +48,8 @@
                           </columns>
                         </TableView>
                         <ScrollBar layoutX="354.0" orientation="VERTICAL" prefHeight="399.0" prefWidth="10.0" />
-                        <Button layoutX="424.0" layoutY="302.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="96.0" text="Modifica" />
-                        <Button layoutX="615.0" layoutY="301.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="96.0" text="Elimina" />
+                        <Button layoutX="440.0" layoutY="286.0" mnemonicParsing="false" onAction="#modifyElement" prefHeight="27.0" prefWidth="96.0" text="Modifica" />
+                        <Button layoutX="591.0" layoutY="285.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="96.0" text="Elimina" />
                      </children>
                   </AnchorPane>
                </content>

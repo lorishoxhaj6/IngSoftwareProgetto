@@ -6,7 +6,6 @@ public class Patient extends User{
 	
 	public Patient(String user, String pw,int pazienteId, int medicoId) {
 		super(user,pw,pazienteId, medicoId);
-		super.role = Role.Paziente;
 	}
 	
 }
