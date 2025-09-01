@@ -74,6 +74,8 @@ public class PatientController extends UserController<Patient> implements Initia
 	private ToggleButton symptomsTb1, symptomsTb2, symptomsTb3, symptomsTb4, symptomsTb5;
 	@FXML
 	private TabPane tabPane1;
+	@FXML
+	private Button saveButton;
 	
 
 	@Override
@@ -454,8 +456,13 @@ public class PatientController extends UserController<Patient> implements Initia
 			}else {
 				dopoPastoRb.setSelected(true);
 			}
+			// passa alla schermata di inserimento di un nuovo measurement
 			tabPane1.getSelectionModel().select(1);
-			deleteMeasurement(e);
+			saveButton.setOnAction(event -> {
+				deleteMeasurement(event);
+				inserisciMisurazione(event);
+				event.consume();
+			});
 		}else {
 			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");
 			return;
