@@ -16,12 +16,11 @@ public class DatabaseUtil {
 	public static Connection connect() throws SQLException {
 		Connection conn = DriverManager.getConnection(URL);
 		return conn;
-		
 	}
 	
 	// Converte tutte le righe in una ObservableList<T>
 	
-    public static <T> ObservableList<T> queryList(
+    public static <T> ObservableList<T> queryList( //'centralizza' tutte le query del database
             String sql,
             Consumer<PreparedStatement> binder,
             RowMapper<T> mapper) throws SQLException {
