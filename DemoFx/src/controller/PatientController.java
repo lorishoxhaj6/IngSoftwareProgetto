@@ -462,6 +462,7 @@ public class PatientController extends UserController<Patient> implements Initia
 				deleteMeasurement(event);
 				inserisciMisurazione(event);
 				event.consume();
+				tabPane1.getSelectionModel().select(0);
 			});
 		}else {
 			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");
