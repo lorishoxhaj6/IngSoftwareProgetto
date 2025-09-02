@@ -91,12 +91,12 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="356.0" prefWidth="446.0">
                      <children>
-                        <Text layoutX="11.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Inserisci sintomi:" wrappingWidth="146.78306007385254">
+                        <Text layoutX="14.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Inserisci sintomi e farmaci:" wrappingWidth="297.1829471588135">
                            <font>
                               <Font size="18.0" />
                            </font>
                         </Text>
-                        <TextField fx:id="symptomsTextField" layoutX="11.0" layoutY="114.0" prefHeight="27.0" prefWidth="163.0" promptText="Altri sintomi" style="-fx-background-color: #e4e4e4;" />
+                        <TextField fx:id="symptomsTextField" layoutX="11.0" layoutY="114.0" prefHeight="27.0" prefWidth="163.0" promptText="Altri sintomi e farmaci" style="-fx-background-color: #e4e4e4;" />
                         <TextArea fx:id="symptomsNotes" layoutX="472.0" layoutY="184.0" prefHeight="188.0" prefWidth="287.0" promptText="Note..." />
                         <ToggleButton fx:id="symptomsTb1" layoutX="14.0" layoutY="56.0" mnemonicParsing="false" onAction="#insertToggleSymptoms" style="-fx-background-color: #e4e4e4; -fx-text-fill: black;" text="Spossatezza">
                            <toggleGroup>
@@ -105,12 +105,12 @@
                         </ToggleButton>
                         <ToggleButton fx:id="symptomsTb2" layoutX="190.0" layoutY="56.0" mnemonicParsing="false" onAction="#insertToggleSymptoms" style="-fx-background-color: #e4e4e4; -fx-text-fill: black;" text="Mal di testa" toggleGroup="$symptoms" />
                         <ToggleButton fx:id="symptomsTb3" layoutX="378.0" layoutY="56.0" mnemonicParsing="false" onAction="#insertToggleSymptoms" style="-fx-background-color: #e4e4e4; -fx-text-fill: black;" text="Nausea" toggleGroup="$symptoms" />
-                        <ToggleButton fx:id="symptomsTb4" layoutX="560.0" layoutY="56.0" mnemonicParsing="false" onAction="#insertToggleSymptoms" style="-fx-background-color: #e4e4e4; -fx-text-fill: black;" text="Febbre">
+                        <ToggleButton fx:id="symptomsTb4" layoutX="532.0" layoutY="56.0" mnemonicParsing="false" onAction="#insertToggleSymptoms" style="-fx-background-color: #e4e4e4; -fx-text-fill: black;" text="Metformina">
                            <toggleGroup>
                               <ToggleGroup fx:id="symptoms1" />
                            </toggleGroup>
                         </ToggleButton>
-                        <ToggleButton fx:id="symptomsTb5" layoutX="702.0" layoutY="56.0" mnemonicParsing="false" onAction="#insertToggleSymptoms" style="-fx-background-color: #e4e4e4; -fx-text-fill: black;" text="Fatica">
+                        <ToggleButton fx:id="symptomsTb5" layoutX="679.0" layoutY="56.0" mnemonicParsing="false" onAction="#insertToggleSymptoms" style="-fx-background-color: #e4e4e4; -fx-text-fill: black;" text="Ibuprofene">
                            <toggleGroup>
                               <ToggleGroup fx:id="symptoms2" />
                            </toggleGroup>
@@ -121,7 +121,7 @@
                         <Button fx:id="symptomsDeleteButton" layoutX="275.0" layoutY="113.0" maxHeight="30.0" maxWidth="54.0" minHeight="30.0" minWidth="46.0" mnemonicParsing="false" onAction="#deleteSymptomSelected" prefHeight="30.0" prefWidth="46.0" style="-fx-background-color: #e4e4e4; -fx-text-fill: Black;" text="-" />
                         <DatePicker fx:id="symptomDatePicker" layoutX="476.0" layoutY="115.0" prefHeight="26.0" prefWidth="280.0" />
                         <Separator layoutX="-1.0" layoutY="99.0" prefHeight="4.0" prefWidth="790.0" />
-                        <Label layoutX="472.0" layoutY="157.0" prefHeight="18.0" prefWidth="287.0" text="Aggiungi eventuali farmaci o terapie assunte" />
+                        <Text layoutX="476.0" layoutY="162.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Inserisci le informazioni sui trattamenti farmacologici o terapeutici in uso" textAlignment="CENTER" wrappingWidth="287.1999877929686" />
                      </children>
                   </AnchorPane>
               </content>
@@ -133,12 +133,7 @@
             </Tab>
         </tabs>
       </TabPane>
-      <Label fx:id="userLabel1" layoutX="457.0" layoutY="66.0" prefHeight="27.0" prefWidth="115.0">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Label>
-      <Text layoutX="154.0" layoutY="87.0" strokeType="OUTSIDE" strokeWidth="0.0" text="il medico a cui puoi fare riferimento:" wrappingWidth="287.1999877929687">
+      <Text layoutX="154.0" layoutY="87.0" strokeType="OUTSIDE" strokeWidth="0.0" text="il medico a cui puoi fare riferimento" wrappingWidth="287.1999877929687">
          <font>
             <Font size="18.0" />
          </font>
@@ -148,6 +143,9 @@
             <Font size="18.0" />
          </font>
       </Text>
-      <Label fx:id="doctorLabel" layoutX="154.0" layoutY="101.0" prefHeight="24.0" prefWidth="225.0" />
+      <Label fx:id="doctorLabel" layoutX="445.0" layoutY="66.0" prefHeight="17.0" prefWidth="372.0" style="-fx-text-fill: Black;">
+         <font>
+            <Font size="18.0" />
+         </font></Label>
    </children>
 </AnchorPane>

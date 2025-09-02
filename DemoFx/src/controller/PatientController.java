@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,7 +22,6 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -31,7 +31,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import model.AppUtils;
 import model.DatabaseUtil;
@@ -145,36 +144,17 @@ public class PatientController extends UserController<Patient> implements Initia
 		
 		String sqlMeasurments = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
 		String sqlSymptoms = "SELECT id,symptoms, startDateTime, notes FROM symptoms WHERE patient_id = ? AND endDateTime IS NULL";
-		String sqlGetDoctorMail = "SELECT d.username, d.email FROM patients p JOIN doctors d ON p.doctor_id = d.id  WHERE p.username = ?";
+
 		ObservableList<Measurement> measurments = FXCollections.observableArrayList();
 		ObservableList<Symptoms> symptoms = FXCollections.observableArrayList();
-		//mi ritornano le 2 stringhe con user e mail del dottore di riferimento
-		try {
-			ObservableList<Object> doctorInfo = DatabaseUtil.queryList(
-					sqlGetDoctorMail,
-					ps -> {
-						try {
-							ps.setString(1, user.getUsername());
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					},
-					rs -> {
-						String doctorUser = rs.getString("username");
-						String doctorMail = rs.getString("email");
-						return null; // deve restituire un oggetto Doctror!!!
-					});
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
-		//doctorLabel.setText("Dottore: " +  firstRo + "emal: " + doctorInfo.get(1));
+		
+		
+		loadAndShowDoctorInfo(user);
 		
 		try {
 			measurments = DatabaseUtil.queryList(sqlMeasurments, ps -> {
 				try {
-					ps.setInt(1, user.getId());
+					ps.setInt(1, user.getPatientId());
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -184,7 +164,7 @@ public class PatientController extends UserController<Patient> implements Initia
 				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 				String moment = rs.getString("moment");
 				double value = rs.getDouble("value");
-				return new Measurement(id, user.getId(), moment, date, value);
+				return new Measurement(id, user.getPatientId(), moment, date, value);
 			});
 	
 		} catch (SQLException e) {
@@ -193,7 +173,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		try {
 			symptoms = DatabaseUtil.queryList(sqlSymptoms, ps -> {
 				try {
-					ps.setInt(1, user.getId());
+					ps.setInt(1, user.getPatientId());
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -204,7 +184,7 @@ public class PatientController extends UserController<Patient> implements Initia
 				String sympt = rs.getString("symptoms");
 				String notes = rs.getString("notes");
 	
-				return new Symptoms(symptomId, user.getMedicoId(), user.getId(), sympt, date, notes);
+				return new Symptoms(symptomId, user.getMedicoId(), user.getPatientId(), sympt, date, notes);
 			});
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -217,6 +197,46 @@ public class PatientController extends UserController<Patient> implements Initia
 	public void logout() {
 		super.logout();
 	}
+	
+	private void loadAndShowDoctorInfo(Patient p) {
+	    // 1) prendo l'id medico dall'oggetto Patient
+	    final int medicoId = p.getMedicoId();
+
+	    if (medicoId <= 0) {
+	        doctorLabel.setText("n/d");
+	        return;
+	    }
+
+	    final String sql = "SELECT username, email FROM doctors WHERE id = ?";
+
+	    try (Connection con = DatabaseUtil.connect();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+
+	        ps.setInt(1, medicoId);
+
+	        try (ResultSet rs = ps.executeQuery()) {
+	            if (rs.next()) {
+	                String doctorUser = rs.getString("username");
+	                String doctorEmail = rs.getString("email");
+
+	                // Aggiorno la UI sul thread JavaFX
+	                Platform.runLater(() ->
+	                    doctorLabel.setText(doctorUser + "  -  email: " + doctorEmail)
+	                );
+	            } else {
+	                Platform.runLater(() ->
+	                    doctorLabel.setText("n/d")
+	                );
+	            }
+	        }
+	    } catch (SQLException ex) {
+	        ex.printStackTrace();
+	        Platform.runLater(() ->
+	            doctorLabel.setText("Dottore: errore nel caricamento")
+	        );
+	    }
+	}
+
 
 	public void inserisciMisurazione(ActionEvent e) {
 		// controllo se non ci sono errori di input
@@ -236,7 +256,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		// variabili che mi servono per inserire la misurazione
 		String sql = "INSERT INTO measurements (patientId, moment, dateTime, value) VALUES (?,?,?,?)";
 		int idMeasurement = -1;
-		int userId = user.getId();
+		int userId = user.getPatientId();
 		String moment = "";
 		LocalDate date = myDatePicker.getValue();
 		LocalDateTime dateTime = LocalDateTime.of(date, LocalTime.now());
@@ -378,7 +398,7 @@ public class PatientController extends UserController<Patient> implements Initia
 			String symptomsText = String.join(",", listSymptoms);
 
 			// 4) Parametri
-			ps.setInt(1, user.getId()); // patient_id
+			ps.setInt(1, user.getPatientId()); // patient_id
 			ps.setInt(2, user.getMedicoId()); // doctor_id
 			ps.setString(3, symptomsText); // symptoms
 
@@ -394,7 +414,7 @@ public class PatientController extends UserController<Patient> implements Initia
 			try (ResultSet rs = ps.getGeneratedKeys()) {
 				if (rs.next()) {
 					int generatedId = rs.getInt(1);
-					Symptoms s = new Symptoms(generatedId, user.getId(), user.getMedicoId(), symptomsText, when, notes);
+					Symptoms s = new Symptoms(generatedId, user.getPatientId(), user.getMedicoId(), symptomsText, when, notes);
 					symptomsVisualization.getItems().add(s);
 				}
 			}

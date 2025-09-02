@@ -126,7 +126,7 @@ public class LoginController implements Initializable {
 	            }
 
 	            int doctorId = rs.getInt("id");  // qui prendi la PK "id" del medico
-	         
+	            String email = rs.getString("email");
 	            
 	            // 2) Recupero lista pazienti associati
 	            List<Patient> pazienti = new ArrayList<>();
@@ -148,7 +148,7 @@ public class LoginController implements Initializable {
 	            }
 
 	            // 3) Creo oggetto dottore con la lista pazienti
-	            //Doctor doctorObj = new Doctor(username, password,doctorId, doctorId, pazienti);
+	            Doctor doctorObj = new Doctor(username, password, doctorId, pazienti,email);
 
 	            DoctorController controller = ViewNavigator.loadViewWithController("doctorView.fxml");
 	            controller.setUser(doctorObj);

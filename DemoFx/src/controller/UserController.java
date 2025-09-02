@@ -9,6 +9,7 @@ public abstract class UserController <T extends User> {
 	protected T user;
 	@FXML
 	Label userLabel;
+
 	
 	public void setUser(T user) {
 		this.user = user;

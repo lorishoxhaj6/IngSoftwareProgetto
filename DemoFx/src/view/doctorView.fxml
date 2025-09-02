@@ -16,7 +16,10 @@
             <Font size="18.0" />
          </font>
       </Text>
-      <Label fx:id="userLabel" layoutX="248.0" layoutY="34.0" prefHeight="24.0" prefWidth="74.0" />
+      <Label fx:id="userLabel" layoutX="248.0" layoutY="34.0" prefHeight="27.0" prefWidth="171.0">
+         <font>
+            <Font size="18.0" />
+         </font></Label>
       <ImageView fitHeight="204.0" fitWidth="132.0" layoutY="-22.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../Image/AvatarDoctor.png" />

@@ -5,21 +5,25 @@ import java.util.List;
 
 public class Doctor extends User{
 	
-	//private List<Patient> pazienti = new ArrayList<>();
+	private List<Patient> pazienti = new ArrayList<>();
+	
 	private String email;
 	
-	public Doctor(String user, String pw,int id, int medicoId, /*Paziente paziente*/String email) {
-		super(user,pw,id, medicoId);
+	public Doctor(String user, String pw, int medicoId, Patient paziente, String email) {
+		super(user,pw,medicoId);
 		this.email = email;
-		//pazineti.add(paziente);
+		pazienti.add(paziente);
 	}
 	
-	/*public Doctor(String user, String pw,int id, int medicoId, List<Patient> paziente) {
-		super(user,pw,id,medicoId);
+	public Doctor(String user, String pw, int medicoId, List<Patient> paziente,String email) {
+		super(user,pw,medicoId);
+		this.email = email;
 		this.pazienti.addAll(paziente);
-	}*/
+	}
 	
 	
+	public List<Patient> getPatients(){return this.pazienti;}
+	public String getEmail() {return this.email;};
 	
 	
 }
