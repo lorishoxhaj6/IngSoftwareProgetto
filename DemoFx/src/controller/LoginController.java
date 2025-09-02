@@ -12,6 +12,7 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
@@ -33,10 +34,13 @@ public class LoginController implements Initializable {
 	private RadioButton rbDoctor;
 	@FXML
 	private ToggleGroup RoleGroup;
+	@FXML
+	private Button loginButton;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-
+		// quando premo ENTER è come se premessi in loginButton
+		loginButton.setDefaultButton(true);
 	}
 
 	public void handleLogin(ActionEvent event) throws ClassNotFoundException {
@@ -102,7 +106,9 @@ public class LoginController implements Initializable {
 	                rs.getString("username"),
 	                rs.getString("password"),
 	                rs.getInt("id"),
-	                rs.getInt("doctor_id")
+	                rs.getInt("doctor_id"),
+	                rs.getString("name"),
+	                rs.getString("surname")
 	            );
 	            
 	            PatientController controller = ViewNavigator.loadViewWithController("patientView.fxml");
@@ -141,7 +147,9 @@ public class LoginController implements Initializable {
 	                            rs2.getString("username"),
 	                            rs2.getString("password"),
 	                            rs2.getInt("doctor_id"),
-	                            rs2.getInt("id")
+	                            rs2.getInt("id"),
+	                            rs2.getString("name"),
+	        	                rs2.getString("surname")
 	                        ));
 	                    }
 	                }
