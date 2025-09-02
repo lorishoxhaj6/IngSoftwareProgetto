@@ -10,6 +10,8 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
@@ -19,7 +21,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="620.0" prefWidth="940.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DoctorController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="620.0" prefWidth="940.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DoctorDashboardController">
    <children>
       <Button layoutX="851.0" layoutY="30.0" mnemonicParsing="false" onAction="#logout" prefHeight="31.0" prefWidth="54.0" style="-fx-background-color: #e4e4e4; -fx-text-fill: Black;" text="logout" />
       <Text layoutX="149.0" layoutY="53.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Benvenuto:" wrappingWidth="106.91015625">
@@ -27,10 +29,6 @@
             <Font size="18.0" />
          </font>
       </Text>
-      <Label fx:id="userLabel" layoutX="248.0" layoutY="34.0" prefHeight="27.0" prefWidth="171.0">
-         <font>
-            <Font size="18.0" />
-         </font></Label>
       <ImageView fitHeight="204.0" fitWidth="132.0" layoutY="-22.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../Image/AvatarDoctor.png" />
@@ -75,34 +73,31 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TextArea layoutX="374.0" layoutY="208.0" prefHeight="154.0" prefWidth="206.0" />
-                        <Text layoutX="374.0" layoutY="200.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Note sul paziente" />
-                        <TitledPane animated="false" layoutX="9.0" layoutY="4.0" prefHeight="364.0" prefWidth="345.0" text="Profilo clinico">
+                        <TextArea fx:id="infoPatients" layoutX="269.0" layoutY="212.0" prefHeight="154.0" prefWidth="321.0" />
+                        <Text layoutX="271.0" layoutY="208.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Note sul paziente" />
+                        <TitledPane animated="false" layoutX="14.0" layoutY="5.0" prefHeight="364.0" prefWidth="238.0" text="Profilo clinico">
                           <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="302.0" prefWidth="332.0">
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="338.0" prefWidth="298.0">
                                  <children>
-                                    <TextField layoutX="14.0" layoutY="51.0" />
-                                    <Button layoutX="181.0" layoutY="51.0" mnemonicParsing="false" text="Add" />
+                                    <TextField fx:id="riskField" layoutX="14.0" layoutY="51.0" promptText="Alcol,Fumatore,Obesità..." />
+                                    <Button layoutX="181.0" layoutY="51.0" mnemonicParsing="false" onAction="#insertInMedicalHistory" text="Add" />
                                     <Text layoutX="14.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Fattori di rischio" wrappingWidth="96.79998397827148" />
-                                    <Button layoutX="238.0" layoutY="51.0" mnemonicParsing="false" text="Remove" />
-                                    <TextField layoutX="14.0" layoutY="117.0" />
-                                    <Button layoutX="181.0" layoutY="117.0" mnemonicParsing="false" text="Add" />
+                                    <TextField fx:id="pathologiesField" layoutX="14.0" layoutY="117.0" promptText="Polmonite, Depressione..." />
+                                    <Button layoutX="181.0" layoutY="117.0" mnemonicParsing="false" onAction="#insertInMedicalHistory" text="Add" />
                                     <Text layoutX="14.0" layoutY="105.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Patologie pregresse" wrappingWidth="125.59997177124023" />
-                                    <Button layoutX="238.0" layoutY="117.0" mnemonicParsing="false" text="Remove" />
-                                    <TextField layoutX="14.0" layoutY="192.0" />
-                                    <Button layoutX="181.0" layoutY="192.0" mnemonicParsing="false" text="Add" />
+                                    <TextField fx:id="comorbitField" layoutX="14.0" layoutY="192.0" promptText="Ipertensione Arteriosa, Insufficenza renale..." />
+                                    <Button layoutX="181.0" layoutY="192.0" mnemonicParsing="false" onAction="#insertInMedicalHistory" text="Add" />
                                     <Text layoutX="14.0" layoutY="175.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Comorbità attuali" wrappingWidth="96.79998397827148" />
-                                    <Button layoutX="238.0" layoutY="192.0" mnemonicParsing="false" text="Remove" />
-                                    <TextField layoutX="14.0" layoutY="269.0" />
-                                    <Button layoutX="180.0" layoutY="269.0" mnemonicParsing="false" text="Add" />
+                                    <TextField fx:id="allergyField" layoutX="14.0" layoutY="269.0" promptText="Intolleranza al lattosio, Allergia a polline di graminiacee..." />
+                                    <Button layoutX="180.0" layoutY="269.0" mnemonicParsing="false" onAction="#insertInMedicalHistory" text="Add" />
                                     <Text layoutX="14.0" layoutY="248.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Allergie note" wrappingWidth="96.79998397827148" />
-                                    <Button layoutX="237.0" layoutY="269.0" mnemonicParsing="false" text="Remove" />
                                  </children></AnchorPane>
                           </content>
                         </TitledPane>
-                        <ListView layoutX="374.0" layoutY="37.0" prefHeight="133.0" prefWidth="206.0" />
-                        <ScrollBar layoutX="565.0" layoutY="39.0" orientation="VERTICAL" prefHeight="130.0" prefWidth="14.0" />
-                        <Text layoutX="374.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Storia medica sintetica" />
+                        <ListView fx:id="historyView" layoutX="271.0" layoutY="37.0" prefHeight="146.0" prefWidth="202.0" />
+                        <ScrollBar layoutX="459.0" layoutY="38.0" orientation="VERTICAL" prefHeight="145.0" prefWidth="14.0" />
+                        <Text layoutX="272.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Storia medica sintetica" />
+                        <Button layoutX="503.0" layoutY="98.0" mnemonicParsing="false" onAction="#removeFromMedicalHistory" text="Remove" />
                      </children>
                   </AnchorPane>
             </content>
@@ -111,16 +106,39 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TextField layoutX="14.0" layoutY="51.0" />
-                        <Text layoutX="14.0" layoutY="39.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Specifica il farmaco" wrappingWidth="122.40000000000009" />
-                        <Button layoutX="174.0" layoutY="51.0" mnemonicParsing="false" text="add" />
+                        <TextField fx:id="medicineField" layoutX="219.0" layoutY="37.0" prefHeight="26.0" prefWidth="132.0" />
+                        <Text layoutX="232.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Specifica il farmaco" wrappingWidth="106.91015624999989" />
+                        <Text layoutX="195.0" layoutY="85.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Numero di assunzioni giornaliere" wrappingWidth="184.8000244140626" />
+                        <TextField fx:id="numberOfIntakes" layoutX="248.0" layoutY="99.0" prefHeight="26.0" prefWidth="74.0" />
+                        <Text layoutX="179.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Quantita di farmaco per ogni assunzione" wrappingWidth="215.99999999999994" />
+                        <TextField fx:id="amount" layoutX="248.0" layoutY="157.0" prefHeight="26.0" prefWidth="74.0" />
+                        <Text layoutX="230.0" layoutY="200.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Eventuali indicazioni" wrappingWidth="114.40002441406244" />
+                        <TextArea fx:id="otherIndication" layoutX="141.0" layoutY="214.0" prefHeight="64.0" prefWidth="312.0" />
+                        <Button fx:id="saveButton" layoutX="248.0" layoutY="304.0" mnemonicParsing="false" onAction="#insertTherapy" prefHeight="26.0" prefWidth="73.0" text="Salva" />
                      </children></AnchorPane>
               </content>
             </Tab>
-            <Tab text="Anagrafica">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-              </content>
+            <Tab text="Visualizza terapia paziente">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ScrollPane layoutX="7.0" layoutY="6.0" prefHeight="242.0" prefWidth="580.0">
+                           <content>
+                              <TableView fx:id="tableTherapyView" prefHeight="228.0" prefWidth="594.0">
+                                 <columns>
+                                    <TableColumn prefWidth="62.4000244140625" text="Farmaco" />
+                                    <TableColumn prefWidth="213.5999755859375" text="Numero di assunzioni giornaliere" />
+                                    <TableColumn prefWidth="168.00006103515625" text="quantià per ogni assunzione" />
+                                    <TableColumn prefWidth="148.00006103515625" text="Eventuali indicazioni" />
+                                 </columns>
+                              </TableView>
+                           </content>
+                        </ScrollPane>
+                        <Button fx:id="modifyTherapyBut" layoutX="128.0" layoutY="284.0" mnemonicParsing="false" onAction="#modifyTherapy" text="Modifica terapia" />
+                        <Button fx:id="delTherapyBut" layoutX="338.0" layoutY="284.0" mnemonicParsing="false" onAction="#deleteTherapy" text="Elimina terapia" />
+                     </children>
+                  </AnchorPane>
+               </content>
             </Tab>
         </tabs>
       </TabPane>

@@ -28,7 +28,8 @@ public class DoctorController extends UserController<Doctor>{
 	public void  visualize(ActionEvent e) {
 		Patient selectedPatient = (Patient) patientsListView.getSelectionModel().getSelectedItem();
 		if(selectedPatient != null) {
-			DoctorDashboardController docControl = ViewNavigator.loadView("doctorViewDashboard.fxml");
+			DoctorDashboardController docControl = ViewNavigator.loadViewWithController("doctorViewDashboard.fxml");
+			//docControl.setUser(selectedPatient); metodo ancora da creare
 		}
 		else
 			AppUtils.showError("Errore caricamento", "no patient selected", "Please. select a patient to visualize");
