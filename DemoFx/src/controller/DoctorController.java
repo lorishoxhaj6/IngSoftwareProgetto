@@ -20,6 +20,7 @@ public class DoctorController extends UserController<Doctor>{
 	
 	public void setUser(Doctor user) {
 		super.setUser(user);
+		// serve per visualizzare i pazienti
 		ObservableList<Patient> observableList = FXCollections.observableArrayList(user.getPatients());
 		patientsListView.setItems(observableList);
 	}
