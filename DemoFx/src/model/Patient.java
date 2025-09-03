@@ -27,10 +27,6 @@ public class Patient extends User{
 	public List<Measurement> getMeasurementBloodSugar(Patient p) throws SQLException{
 		
 		String sql = "SELECT id,dateTime,moment,value FROM measurements WHERE patientId = ?";
-		System.out.println("nome del paziente selezionato: "+this.username);
-		System.out.println("id del paziente selezionato: "+this.patientId);
-		System.out.println("pw del paziente selezionato: "+this.getPassword());
-		System.out.println("surname del paziente selezionato: "+this.surname);
 		ObservableList<Measurement> obsList = DatabaseUtil.queryList(sql, ps -> {
 			try {ps.setInt(1, this.getPatientId());} catch (SQLException e) {e.printStackTrace();}
 		}, rs -> {

@@ -50,14 +50,11 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Text layoutX="14.0" layoutY="40.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Andamento della glicemia" />
-                        <Text layoutX="333.0" layoutY="39.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sintomi e farmaci assunti" />
-                        <ListView fx:id="symptomsMedicinesView" layoutX="333.0" layoutY="43.0" prefHeight="177.0" prefWidth="200.0" />
-                        <ScrollBar layoutX="519.0" layoutY="43.0" orientation="VERTICAL" prefHeight="177.0" prefWidth="14.0" />
-                        <Text layoutX="14.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Messaggi recenti del paziente" />
-                        <ListView fx:id="mailBox" layoutX="13.0" layoutY="248.0" prefHeight="110.0" prefWidth="556.0" />
-                        <ScrollBar layoutX="554.0" layoutY="248.0" orientation="VERTICAL" prefHeight="109.0" prefWidth="14.0" />
-                        <ScrollPane layoutX="14.0" layoutY="44.0" prefHeight="174.0" prefWidth="298.0">
+                        <Text layoutX="14.0" layoutY="64.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Andamento della glicemia" />
+                        <Text layoutX="343.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sintomi e farmaci assunti" />
+                        <ListView fx:id="symptomsMedicinesView" layoutX="343.0" layoutY="78.0" prefHeight="186.0" prefWidth="202.0" />
+                        <ScrollBar layoutX="530.0" layoutY="78.0" orientation="VERTICAL" prefHeight="186.0" prefWidth="14.0" />
+                        <ScrollPane layoutX="14.0" layoutY="78.0" prefHeight="186.0" prefWidth="310.0">
                            <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="162.0" prefWidth="290.0">
                                  <children>
@@ -130,7 +127,7 @@
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <ScrollPane layoutX="7.0" layoutY="6.0" prefHeight="242.0" prefWidth="580.0">
+                        <ScrollPane layoutX="7.0" layoutY="7.0" prefHeight="242.0" prefWidth="580.0">
                            <content>
                               <TableView fx:id="tableTherapyView" prefHeight="228.0" prefWidth="594.0">
                                  <columns>
