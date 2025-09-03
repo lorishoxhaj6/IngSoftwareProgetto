@@ -23,9 +23,13 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.paint.Color;
 import model.AppUtils;
 import model.DatabaseUtil;
 import model.Doctor;
@@ -94,6 +98,14 @@ public class DoctorDashboardController extends DoctorController implements Initi
     private Button visualizeButton;
     @FXML
     private Label namePatientLabel;
+    @FXML
+	private TableView<Measurement> measurementsTableView;
+    @FXML
+	private TableColumn<Measurement, String> dateColumn;
+	@FXML
+	private TableColumn<Measurement, String> momentColumn;
+	@FXML
+	private TableColumn<Measurement, Double> valueColumn;
     
     private Doctor doctor;
     private Patient patient;
@@ -102,7 +114,62 @@ public class DoctorDashboardController extends DoctorController implements Initi
     
     @Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+    	// collega le colonne della tabella misurazioni ai campi della classe Measurement
+		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
+		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
+		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
 		
+		//serve per colorare i risultati della colonna value
+		valueColumn.setCellFactory(col -> new TableCell<Measurement, Double>() {
+			//setCell serve a personalizzare come sono disegnate le celle
+			//TableCell è una cella della tabella
+			protected void updateItem(Double n, boolean empty) {
+				super.updateItem(n, empty);
+				//gestione caso cella vuota
+				if (empty || n == null) {
+					setText(null);
+					setTextFill(Color.BLACK);
+					return;
+				}
+
+				double value = n.doubleValue();
+				setText(String.valueOf(value));
+
+				Measurement m = getTableView().getItems().get(getIndex());
+				String moment = m.getMoment();
+
+				if (moment.equals("prima pasto")) {
+					if (value >= 80 && value <= 130) {
+						// codice verde
+						setTextFill(Color.GREEN);
+					} else {
+						if (value >= 50 && value < 80 || value > 130 && value <= 160) {
+							// codice arancione
+							setTextFill(Color.ORANGE);
+						} else {
+							if (value < 50 || value > 160)
+								// codice rosso
+								setTextFill(Color.RED);
+						}
+					}
+
+				} else {
+					if (value < 180) {
+						// codice verde
+						setTextFill(Color.GREEN);
+					} else {
+						if (value > 190 && value <= 210) {
+							// codice arancio
+							setTextFill(Color.ORANGE);
+						}
+						// codice rosso
+						setTextFill(Color.RED);
+					}
+				}
+
+			}
+		});
+
 	}
     
     public void setEnviroment(SharedDataModelDoc instance, Patient selectedPatient, Doctor doctor) throws SQLException {
@@ -146,12 +213,35 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		}
 	
     	historyView.setItems(symptoms);
+    	// visualizzo la tableView
+    	String sqlMeasurments = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
+    	ObservableList<Measurement> measurments = FXCollections.observableArrayList();
     	
+    	try {
+			measurments = DatabaseUtil.queryList(sqlMeasurments, ps -> {
+				try {
+					ps.setInt(1, patient.getPatientId());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}, rs -> {
+				int id = rs.getInt("id");
+				String raw = rs.getString("dateTime");
+				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+				String moment = rs.getString("moment");
+				double value = rs.getDouble("value");
+				return new Measurement(id, patient.getPatientId(), moment, date, value);
+			});
+	
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	measurementsTableView.setItems(measurments);
     }
 
 	@FXML
 	public void visualize() throws SQLException {
-		super.visualize();
+		
 	}
 
 	public void updateNotes(ActionEvent event) {

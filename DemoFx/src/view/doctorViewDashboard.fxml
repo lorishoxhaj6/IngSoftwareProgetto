@@ -6,7 +6,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.ScrollBar?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -47,28 +46,30 @@
         <tabs>
           <Tab text="Dati paziente">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="271.0" prefWidth="594.0">
                      <children>
-                        <Text layoutX="14.0" layoutY="64.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Andamento della glicemia" />
-                        <Text layoutX="343.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sintomi e farmaci assunti" />
-                        <ListView fx:id="symptomsMedicinesView" layoutX="343.0" layoutY="78.0" prefHeight="186.0" prefWidth="202.0" />
-                        <ScrollBar layoutX="530.0" layoutY="78.0" orientation="VERTICAL" prefHeight="186.0" prefWidth="14.0" />
-                        <ScrollPane layoutX="14.0" layoutY="78.0" prefHeight="186.0" prefWidth="310.0">
+                        <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Andamento della glicemia" />
+                        <Text layoutX="328.0" layoutY="81.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sintomi e farmaci assunti" />
+                        <ListView fx:id="symptomsMedicinesView" layoutX="328.0" layoutY="85.0" prefHeight="186.0" prefWidth="254.0" />
+                        <ScrollPane layoutY="34.0">
                            <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="162.0" prefWidth="290.0">
-                                 <children>
-                                    <LineChart fx:id="bloodSugarGraph" layoutY="-1.0" prefHeight="169.0" prefWidth="286.0">
-                                      <xAxis>
-                                        <CategoryAxis side="BOTTOM" />
-                                      </xAxis>
-                                      <yAxis>
-                                        <NumberAxis side="LEFT" />
-                                      </yAxis>
-                                    </LineChart>
-                                 </children>
-                              </AnchorPane>
+                              <LineChart fx:id="bloodSugarGraph" prefHeight="180.0" prefWidth="287.0">
+                                <xAxis>
+                                  <CategoryAxis side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis side="LEFT" />
+                                </yAxis>
+                              </LineChart>
                            </content>
                         </ScrollPane>
+                        <TableView fx:id="measurementsTableView" layoutX="14.0" layoutY="237.0" prefHeight="122.0" prefWidth="290.0">
+                          <columns>
+                            <TableColumn fx:id="dateColumn" prefWidth="100.0" text="date" />
+                            <TableColumn fx:id="momentColumn" prefWidth="100.0" text="moment" />
+                              <TableColumn fx:id="valueColumn" prefWidth="100.0" text="value" />
+                          </columns>
+                        </TableView>
                      </children>
                   </AnchorPane>
             </content>
@@ -94,7 +95,7 @@
                   </AnchorPane>
             </content>
           </Tab>
-            <Tab text="Terapia">
+            <Tab text="Aggiungi terapia">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>

@@ -47,7 +47,6 @@
                               <TableColumn fx:id="valueColumn" prefWidth="106.39999999999998" text="value" />
                           </columns>
                         </TableView>
-                        <ScrollBar layoutX="354.0" orientation="VERTICAL" prefHeight="399.0" prefWidth="10.0" />
                         <Button layoutX="440.0" layoutY="286.0" mnemonicParsing="false" onAction="#modifyElement" prefHeight="27.0" prefWidth="96.0" text="Modifica" />
                         <Button layoutX="591.0" layoutY="285.0" mnemonicParsing="false" onAction="#deleteMeasurement" prefHeight="30.0" prefWidth="96.0" text="Elimina" />
                      </children>
