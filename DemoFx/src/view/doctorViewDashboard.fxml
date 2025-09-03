@@ -50,21 +50,29 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <LineChart fx:id="bloodSugarGraph" layoutX="-8.0" layoutY="38.0" prefHeight="186.0" prefWidth="291.0">
-                          <xAxis>
-                            <CategoryAxis side="BOTTOM" />
-                          </xAxis>
-                          <yAxis>
-                            <NumberAxis side="LEFT" />
-                          </yAxis>
-                        </LineChart>
-                        <Text layoutX="42.0" layoutY="41.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Andamento della glicemia" />
-                        <Text layoutX="333.0" layoutY="41.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sintomi e farmaci assunti" />
-                        <ListView fx:id="symptomsMedicinesView" layoutX="333.0" layoutY="54.0" prefHeight="154.0" prefWidth="200.0" />
-                        <ScrollBar layoutX="519.0" layoutY="54.0" orientation="VERTICAL" prefHeight="154.0" prefWidth="14.0" />
-                        <Text layoutX="27.0" layoutY="236.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Messaggi recenti del paziente" />
-                        <ListView fx:id="mailBox" layoutX="25.0" layoutY="248.0" prefHeight="110.0" prefWidth="544.0" />
+                        <Text layoutX="14.0" layoutY="40.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Andamento della glicemia" />
+                        <Text layoutX="333.0" layoutY="39.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sintomi e farmaci assunti" />
+                        <ListView fx:id="symptomsMedicinesView" layoutX="333.0" layoutY="43.0" prefHeight="177.0" prefWidth="200.0" />
+                        <ScrollBar layoutX="519.0" layoutY="43.0" orientation="VERTICAL" prefHeight="177.0" prefWidth="14.0" />
+                        <Text layoutX="14.0" layoutY="244.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Messaggi recenti del paziente" />
+                        <ListView fx:id="mailBox" layoutX="13.0" layoutY="248.0" prefHeight="110.0" prefWidth="556.0" />
                         <ScrollBar layoutX="554.0" layoutY="248.0" orientation="VERTICAL" prefHeight="109.0" prefWidth="14.0" />
+                        <ScrollPane layoutX="14.0" layoutY="44.0" prefHeight="174.0" prefWidth="298.0">
+                           <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="162.0" prefWidth="290.0">
+                                 <children>
+                                    <LineChart fx:id="bloodSugarGraph" layoutY="-1.0" prefHeight="169.0" prefWidth="286.0">
+                                      <xAxis>
+                                        <CategoryAxis side="BOTTOM" />
+                                      </xAxis>
+                                      <yAxis>
+                                        <NumberAxis side="LEFT" />
+                                      </yAxis>
+                                    </LineChart>
+                                 </children>
+                              </AnchorPane>
+                           </content>
+                        </ScrollPane>
                      </children>
                   </AnchorPane>
             </content>
