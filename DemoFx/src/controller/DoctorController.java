@@ -24,6 +24,7 @@ public class DoctorController extends UserController<Doctor>{
 	
 	public void setUser(Doctor user, SharedDataModelDoc docModel) {
 		super.setUser(user);
+		// salvo l'istanza per ottenere la lista dei pazienti
 		this.instance = docModel;
 		// serve per visualizzare i pazienti
 		patientsListView.setItems(instance.getItemList());
