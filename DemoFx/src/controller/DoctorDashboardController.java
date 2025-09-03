@@ -92,11 +92,13 @@ public class DoctorDashboardController extends DoctorController implements Initi
     
     public void setEnviroment(SharedDataModelDoc instance, Patient selectedPatient) throws SQLException {
     	this.instance = instance;
+    	// qui serve per avere la lista dei pazienti
     	patientsListView.setItems(instance.getItemList());
     	
     	if (selectedPatient != null) {
             // Recupera le misurazioni del paziente e aggiorna il grafico
             List<Measurement> misurazioni = selectedPatient.getMeasurementBloodSugar(selectedPatient); 
+            // serve per ternere il grafico aggiornato
             updateGraphBloodSugar(misurazioni);
         }
     	
@@ -140,7 +142,8 @@ public class DoctorDashboardController extends DoctorController implements Initi
   
 
     public void updateGraphBloodSugar(List<Measurement> measurements) {
-        bloodSugarGraph.getData().clear();
+        //ripulisce il grafico dai dati
+    	bloodSugarGraph.getData().clear();
 
         if (measurements.isEmpty()) {
             return;
@@ -148,13 +151,13 @@ public class DoctorDashboardController extends DoctorController implements Initi
 
         // 1. Definisci il periodo settimanale
         LocalDate today = LocalDate.now();
-        LocalDate sevenDaysAgo = today.minusDays(7);
+        LocalDate monthAgo = today.minusDays(30);
 
-        // 2. Filtra le misurazioni per includere solo quelle dell'ultima settimana
+        // 2. Filtra le misurazioni per includere solo quelle dell'ultimo mese
         List<Measurement> weeklyMeasurements = measurements.stream()
                 .filter(m -> {
                     LocalDate measurementDate = m.getDateTime().toLocalDate();
-                    return !measurementDate.isBefore(sevenDaysAgo) && !measurementDate.isAfter(today);
+                    return !measurementDate.isBefore(monthAgo) && !measurementDate.isAfter(today);
                 })
                 .collect(Collectors.toList());
                 
@@ -164,7 +167,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
         }
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Andamento Glicemia Settimanale");
+        series.setName("Andamento Glicemia Mensile");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM", Locale.ITALY);
 
@@ -173,6 +176,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 
         for (Measurement m : weeklyMeasurements) {
             String dataFormattata = m.getDateTime().format(formatter);
+            //data formatta punto x e m.getValue punto y nel piano xy
             XYChart.Data<String, Number> dataPoint = new XYChart.Data<>(dataFormattata, m.getValue());
             series.getData().add(dataPoint);
         }
