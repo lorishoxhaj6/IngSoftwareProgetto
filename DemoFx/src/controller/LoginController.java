@@ -21,6 +21,7 @@ import model.AppUtils;
 import model.DatabaseUtil;
 import model.Doctor;
 import model.Patient;
+import model.SharedDataModelDoc;
 
 public class LoginController implements Initializable {
 
@@ -157,9 +158,11 @@ public class LoginController implements Initializable {
 
 	            // 3) Creo oggetto dottore con la lista pazienti
 	            Doctor doctorObj = new Doctor(username, password, doctorId, pazienti,email);
-
+	            SharedDataModelDoc docModel = SharedDataModelDoc.getInstance(doctorObj);
+	            
 	            DoctorController controller = ViewNavigator.loadViewWithController("doctorView.fxml");
-	            controller.setUser(doctorObj);
+	            
+	            controller.setUser(doctorObj,docModel);
 	        }
 	    }
 	}

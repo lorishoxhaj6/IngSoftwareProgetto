@@ -1,15 +1,21 @@
 package controller;
 
+import java.net.URL;
+import java.util.ResourceBundle;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import model.Patient;
+import model.SharedDataModelDoc;
 
-public class DoctorDashboardController {
+public class DoctorDashboardController extends DoctorController implements Initializable{
 
     @FXML
     private TextField allergyField;
@@ -51,7 +57,7 @@ public class DoctorDashboardController {
     private TextField pathologiesField;
 
     @FXML
-    private ListView<?> patientsListView;
+    private ListView<Patient> patientsListView;
 
     @FXML
     private TextField riskField;
@@ -67,8 +73,27 @@ public class DoctorDashboardController {
 
     @FXML
     private Button visualizeButton;
+    
 
-    @FXML
+    
+    @Override
+	public void initialize(URL arg0, ResourceBundle arg1) {
+
+		
+	}
+    
+    public void setEnviroment(SharedDataModelDoc instance, Patient selectedPatient) {
+    	this.instance = instance;
+    	patientsListView.setItems(instance.getItemList());
+    	
+    }
+
+	@FXML
+	public void visualize(ActionEvent event) {
+		patientsListView.setItems(instance.getItemList());
+	}
+
+	@FXML
     void deleteTherapy(ActionEvent event) {
 
     }
@@ -85,7 +110,7 @@ public class DoctorDashboardController {
 
     @FXML
     void logout(ActionEvent event) {
-
+    	super.logout();
     }
 
     @FXML
@@ -95,11 +120,6 @@ public class DoctorDashboardController {
 
     @FXML
     void removeFromMedicalHistory(ActionEvent event) {
-
-    }
-
-    @FXML
-    void visualize(ActionEvent event) {
 
     }
 
