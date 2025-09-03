@@ -1,5 +1,7 @@
 package controller;
 
+import java.sql.SQLException;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -27,7 +29,7 @@ public class DoctorController extends UserController<Doctor>{
 		patientsListView.setItems(instance.getItemList());
 	}
 	
-	public void visualize(ActionEvent e) {
+	public void visualize() throws SQLException {
 		Patient selectedPatient = (Patient) patientsListView.getSelectionModel().getSelectedItem();
 		if(selectedPatient != null) {
 			DoctorDashboardController docControl = ViewNavigator.loadViewWithController("doctorViewDashboard.fxml");

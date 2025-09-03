@@ -101,7 +101,8 @@ public class LoginController implements Initializable {
 	                AppUtils.showError("Errore di autenticazione", "Credenziali non valide", "Username o password errati.");
 	                return;
 	            }
-
+	        	
+	        	
 	            // Creo oggetto paziente dal DB
 	            Patient patientObj = new Patient(
 	                rs.getString("username"),
@@ -147,8 +148,8 @@ public class LoginController implements Initializable {
 	                        pazienti.add(new Patient(
 	                            rs2.getString("username"),
 	                            rs2.getString("password"),
-	                            rs2.getInt("doctor_id"),
 	                            rs2.getInt("id"),
+	                            rs2.getInt("doctor_id"),
 	                            rs2.getString("name"),
 	        	                rs2.getString("surname")
 	                        ));
