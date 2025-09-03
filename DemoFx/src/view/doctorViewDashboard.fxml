@@ -14,7 +14,6 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -78,31 +77,19 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TextArea fx:id="infoPatients" layoutX="269.0" layoutY="212.0" prefHeight="154.0" prefWidth="321.0" />
-                        <Text layoutX="271.0" layoutY="208.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Note sul paziente" />
-                        <TitledPane animated="false" layoutX="14.0" layoutY="5.0" prefHeight="364.0" prefWidth="238.0" text="Profilo clinico">
-                          <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="338.0" prefWidth="298.0">
-                                 <children>
-                                    <TextField fx:id="riskField" layoutX="14.0" layoutY="51.0" promptText="Alcol,Fumatore,Obesità..." />
-                                    <Button layoutX="181.0" layoutY="51.0" mnemonicParsing="false" onAction="#insertInMedicalHistory" text="Add" />
-                                    <Text layoutX="14.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Fattori di rischio" wrappingWidth="96.79998397827148" />
-                                    <TextField fx:id="pathologiesField" layoutX="14.0" layoutY="117.0" promptText="Polmonite, Depressione..." />
-                                    <Button layoutX="181.0" layoutY="117.0" mnemonicParsing="false" onAction="#insertInMedicalHistory" text="Add" />
-                                    <Text layoutX="14.0" layoutY="105.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Patologie pregresse" wrappingWidth="125.59997177124023" />
-                                    <TextField fx:id="comorbitField" layoutX="14.0" layoutY="192.0" promptText="Ipertensione Arteriosa, Insufficenza renale..." />
-                                    <Button layoutX="181.0" layoutY="192.0" mnemonicParsing="false" onAction="#insertInMedicalHistory" text="Add" />
-                                    <Text layoutX="14.0" layoutY="175.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Comorbità attuali" wrappingWidth="96.79998397827148" />
-                                    <TextField fx:id="allergyField" layoutX="14.0" layoutY="269.0" promptText="Intolleranza al lattosio, Allergia a polline di graminiacee..." />
-                                    <Button layoutX="180.0" layoutY="269.0" mnemonicParsing="false" onAction="#insertInMedicalHistory" text="Add" />
-                                    <Text layoutX="14.0" layoutY="248.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Allergie note" wrappingWidth="96.79998397827148" />
-                                 </children></AnchorPane>
-                          </content>
-                        </TitledPane>
-                        <ListView fx:id="historyView" layoutX="271.0" layoutY="37.0" prefHeight="146.0" prefWidth="202.0" />
-                        <ScrollBar layoutX="459.0" layoutY="38.0" orientation="VERTICAL" prefHeight="145.0" prefWidth="14.0" />
-                        <Text layoutX="272.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Storia medica sintetica" />
-                        <Button layoutX="503.0" layoutY="98.0" mnemonicParsing="false" onAction="#removeFromMedicalHistory" text="Remove" />
+                        <ScrollPane layoutX="14.0" layoutY="41.0">
+                           <content>
+                              <TextArea fx:id="infoPatients" prefHeight="146.0" prefWidth="246.0" />
+                           </content>
+                        </ScrollPane>
+                        <Text layoutX="14.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Note sul paziente" />
+                        <ScrollPane layoutX="271.0" layoutY="37.0">
+                           <content>
+                              <ListView fx:id="historyView" prefHeight="146.0" prefWidth="317.0" />
+                           </content>
+                        </ScrollPane>
+                        <Text layoutX="271.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="segnalazioni del paziente" />
+                        <Button fx:id="updateNotesButton" layoutX="14.0" layoutY="196.0" mnemonicParsing="false" onAction="#updateNotes" text="update notes" />
                      </children>
                   </AnchorPane>
             </content>
@@ -147,5 +134,6 @@
             </Tab>
         </tabs>
       </TabPane>
+      <Label fx:id="namePatientLabel" layoutX="283.0" layoutY="121.0" prefHeight="18.0" prefWidth="216.0" textFill="#3047dc" />
    </children>
 </AnchorPane>

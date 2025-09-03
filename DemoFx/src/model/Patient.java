@@ -16,7 +16,6 @@ public class Patient extends User{
 	
 	public Patient(String user, String pw,int pazienteId, int medicoId, String name, String surname) {
 		super(user,pw,medicoId);
-		System.out.println("pazienteId: "+pazienteId);
 		this.patientId = pazienteId;
 		this.name = name;
 		this.surname = surname;

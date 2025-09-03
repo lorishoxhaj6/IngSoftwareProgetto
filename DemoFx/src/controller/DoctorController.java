@@ -30,11 +30,11 @@ public class DoctorController extends UserController<Doctor>{
 		patientsListView.setItems(instance.getItemList());
 	}
 	
-	public void visualize() throws SQLException {
+	public void visualize(ActionEvent event) throws SQLException {
 		Patient selectedPatient = (Patient) patientsListView.getSelectionModel().getSelectedItem();
 		if(selectedPatient != null) {
 			DoctorDashboardController docControl = ViewNavigator.loadViewWithController("doctorViewDashboard.fxml");
-			docControl.setEnviroment(this.instance,selectedPatient);
+			docControl.setEnviroment(this.instance,selectedPatient, user);
 		}
 		else
 			AppUtils.showError("Errore caricamento", "no patient selected", "Please. select a patient to visualize");
