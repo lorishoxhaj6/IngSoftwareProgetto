@@ -150,7 +150,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		
 		
 		loadAndShowDoctorInfo(user);
-		
+		// serve per visualizzare la tabella
 		try {
 			measurments = DatabaseUtil.queryList(sqlMeasurments, ps -> {
 				try {
@@ -236,7 +236,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	        );
 	    }
 	}
-
+	
 
 	public void inserisciMisurazione(ActionEvent e) {
 		// controllo se non ci sono errori di input
@@ -260,7 +260,6 @@ public class PatientController extends UserController<Patient> implements Initia
 		String moment = "";
 		LocalDate date = myDatePicker.getValue();
 		LocalDateTime dateTime = LocalDateTime.of(date, LocalTime.now());
-
 		// inserisco nel database la nuova misurazione
 		try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -440,26 +439,20 @@ public class PatientController extends UserController<Patient> implements Initia
 
 		Symptoms selectedSymptom = symptomsVisualization.getSelectionModel().getSelectedItem();
 		LocalDateTime when = LocalDateTime.now();
-
+		
+		
 		String sql = "UPDATE symptoms SET endDateTime = ? WHERE id = ?";
-
-		try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
-
+		int rows = DatabaseUtil.executeUpdate(sql, ps -> {
 			ps.setString(1, when.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 			ps.setInt(2, selectedSymptom.getSymptomId());
-
-			int rows = ps.executeUpdate();
-
-			if (rows > 0) {
-				AppUtils.showConfirmation("Perfect!", "right resolution", "symptom successfully resolved!");
-				symptomsVisualization.getItems().remove(selectedSymptom);
-			} else {
-				AppUtils.showError("Not Found", "Symptom not updated",
-						"Could not find the selected symptom in the database.");
-			}
-		} catch (SQLException e) {
-			System.out.println("Errore inserimento sintomi in db");
-			e.printStackTrace();
+		});
+		
+		if (rows > 0) {
+			AppUtils.showConfirmation("Perfect!", "right resolution", "symptom successfully resolved!");
+			symptomsVisualization.getItems().remove(selectedSymptom);
+		} else {
+			AppUtils.showError("Not Found", "Symptom not updated",
+					"Could not find the selected symptom in the database.");
 		}
 
 	}
@@ -495,21 +488,14 @@ public class PatientController extends UserController<Patient> implements Initia
 		if(mSelected != null) {
 			String sql = "DELETE FROM measurements WHERE id = ?";
 			
-			try (Connection con = DatabaseUtil.connect(); 
-					PreparedStatement ps = con.prepareStatement(sql)) {
+			int rows = DatabaseUtil.executeUpdate(sql, ps ->{
 				ps.setInt(1, mSelected.getId());
-				
-				int rowsAffected = ps.executeUpdate(); //si usa executeUpdate quando si fanno modifiche e
-													   // non restitusce dati ma quante righe sono state modificate
-				if(rowsAffected > 0) {
-					measurementsTableView.getItems().remove(mSelected);
-				}
-				else
-					AppUtils.showError("Error", "impossible to remove this measurement", "Please select another measurement");
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			});
+			if(rows > 0) {
+				measurementsTableView.getItems().remove(mSelected);
 			}
+			else
+				AppUtils.showError("Error", "impossible to remove this measurement", "Please select another measurement");
 			measurementsTableView.getItems().remove(mSelected);
 		}
 		else {

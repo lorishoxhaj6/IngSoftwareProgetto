@@ -23,11 +23,6 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="620.0" prefWidth="940.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DoctorDashboardController">
    <children>
       <Button layoutX="851.0" layoutY="30.0" mnemonicParsing="false" onAction="#logout" prefHeight="31.0" prefWidth="54.0" style="-fx-background-color: #e4e4e4; -fx-text-fill: Black;" text="logout" />
-      <Text layoutX="149.0" layoutY="53.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Benvenuto:" wrappingWidth="106.91015625">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Text>
       <ImageView fitHeight="204.0" fitWidth="132.0" layoutY="-22.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../Image/AvatarDoctor.png" />
@@ -43,7 +38,7 @@
          </content>
       </ScrollPane>
       <Button fx:id="visualizeButton" layoutX="88.0" layoutY="485.0" mnemonicParsing="false" onAction="#visualize" text="visualize" />
-      <TabPane layoutX="256.0" layoutY="139.0" prefHeight="458.0" prefWidth="629.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="tabPane1" layoutX="256.0" layoutY="139.0" prefHeight="458.0" prefWidth="629.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab text="Dati paziente">
             <content>
@@ -59,18 +54,14 @@
                               <TableColumn fx:id="valueColumn" prefWidth="100.0" text="value" />
                           </columns>
                         </TableView>
-                        <ScrollPane layoutX="14.0" layoutY="39.0" prefHeight="174.0" prefWidth="290.0">
-                           <content>
-                              <LineChart fx:id="bloodSugarGraph" prefHeight="173.0" prefWidth="288.0">
-                                <xAxis>
-                                  <CategoryAxis side="BOTTOM" />
-                                </xAxis>
-                                <yAxis>
-                                  <NumberAxis side="LEFT" />
-                                </yAxis>
-                              </LineChart>
-                           </content>
-                        </ScrollPane>
+                        <LineChart fx:id="bloodSugarGraph" layoutX="15.0" layoutY="39.0" prefHeight="173.0" prefWidth="288.0">
+                          <xAxis>
+                            <CategoryAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis side="LEFT" />
+                          </yAxis>
+                        </LineChart>
                      </children>
                   </AnchorPane>
             </content>
@@ -130,5 +121,10 @@
         </tabs>
       </TabPane>
       <Label fx:id="namePatientLabel" layoutX="283.0" layoutY="121.0" prefHeight="18.0" prefWidth="216.0" textFill="#3047dc" />
+      <Label fx:id="doctorNameLabel" layoutX="149.0" layoutY="45.0" prefHeight="26.0" prefWidth="193.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

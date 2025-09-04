@@ -25,6 +25,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -117,6 +118,10 @@ public class DoctorDashboardController extends DoctorController implements Initi
 	private TableColumn<Measurement, String> momentColumn;
 	@FXML
 	private TableColumn<Measurement, Double> valueColumn;
+	@FXML
+	private Label doctorNameLabel;
+	@FXML
+	private TabPane tabPane1;
 	
 	private Doctor doctor;
 	private Patient patient;
@@ -240,6 +245,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		}
 
 		symptomsMedicinesView.setItems(symptoms);
+		
 		// visualizzo la tableView
 		String sqlMeasurments = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
 		ObservableList<Measurement> measurments = FXCollections.observableArrayList();
@@ -264,6 +270,32 @@ public class DoctorDashboardController extends DoctorController implements Initi
 			e.printStackTrace();
 		}
 		measurementsTableView.setItems(measurments);
+		
+		//visualizza le presciptions
+		String sqlPrescriptions = "SELECT id, doses, quantity, indications, drug FROM prescriptions WHERE patientId = ?";
+		ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
+		try {
+			prescriptions = DatabaseUtil.queryList(sqlPrescriptions, ps -> {
+				try {
+					ps.setInt(1, patient.getPatientId());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}, rs -> {
+				int id = rs.getInt("id");
+				String doses = rs.getString("doses");
+				int quantity = rs.getInt("quantity");
+				String indications = rs.getString("indications");
+				int patientId = patient.getPatientId();
+				int doctorId = doctor.getMedicoId();
+				String drug = rs.getString("drug");
+				return new Prescription(id, doses, quantity, indications, patientId, doctorId, drug);
+			});
+	
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		tableTherapyView.setItems(prescriptions);
 	}
 
 	
@@ -271,25 +303,18 @@ public class DoctorDashboardController extends DoctorController implements Initi
 	public void updateNotes(ActionEvent event) {
 		boolean confermation = AppUtils.showConfirmationWithBoolean("data update ", "data updated",
 				"sure to update data?");
-		System.out.println("prova");
 		String newText = infoPatients.getText();
 		String sql = "UPDATE patients SET informations = ? WHERE id = ?";
 		if (confermation) {
-			try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
+			int rows = DatabaseUtil.executeUpdate(sql, ps -> {
 				ps.setString(1, newText);
 				ps.setInt(2, patient.getPatientId());
-
-				int rowAffected = ps.executeUpdate();
-				if (rowAffected > 0)
-					AppUtils.showInfo("data updated! ", "data updated", "new data has been saved");
-				else
-					AppUtils.showError("Errore caricamento dati", "nessun dato è stato aggionato",
-							"modifica la casella di testo per aggiornare le note sul paziente");
-			}
-
-			catch (SQLException e) {
-				e.printStackTrace();
-			}
+			});
+			if (rows > 0)
+				AppUtils.showInfo("data updated! ", "data updated", "new data has been saved");
+			else
+				AppUtils.showError("Errore caricamento dati", "nessun dato è stato aggionato",
+						"modifica la casella di testo per aggiornare le note sul paziente");
 		} else {
 			loadInformations();
 		}
@@ -337,12 +362,11 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		bloodSugarGraph.getData().add(series);
 	}
 
-	@FXML
-	void insertTherapy(ActionEvent event) {
+	public void insertTherapy(ActionEvent event) {
 		// controllo se non ci sono errori di input
 		if (medicineField.getText() == null || numberOfIntakes.getValue() == null || amount.getText() == null
 				|| otherIndication.getText() == null) {
-			AppUtils.showError("Error", "data are missing", "Impossible to insert measurement");
+			AppUtils.showError("Error", "data are missing", "Impossible to insert prescription");
 			return;
 		}
 
@@ -383,7 +407,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 			numberOfIntakes.getValueFactory().setValue(1);
 			amount.setText("");
 			otherIndication.setText("");
-			AppUtils.showConfirmation("Perfect!", "right data", "measurement successfully performed!");
+			AppUtils.showConfirmation("Perfect!", "right data", "prescription successfully performed!");
 
 		} catch (SQLException e2) {
 			// TODO Auto-generated catch block
@@ -391,13 +415,51 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		}
 	}
 
-	@FXML
-	void modifyTherapy(ActionEvent event) {
-
+	
+	public void modifyTherapy(ActionEvent e) {
+		Prescription pSelected = tableTherapyView.getSelectionModel().getSelectedItem();
+		
+		if(pSelected != null) {
+			medicineField.setText(pSelected.getDrug());
+			numberOfIntakes.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
+			amount.setText(pSelected.getDoses());
+			otherIndication.setText(pSelected.getIndications());
+			
+			// passa alla schermata di inserimento di un nuovo measurement
+			tabPane1.getSelectionModel().select(2);
+			saveButton.setOnAction(event -> {
+				deleteTherapy(event);
+				insertTherapy(event);
+				event.consume();
+				tabPane1.getSelectionModel().select(3);
+			});
+		}else {
+			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");
+			return;
+		}
+		e.consume();
 	}
 
-	@FXML
-	void deleteTherapy(ActionEvent event) {
+
+	public void deleteTherapy(ActionEvent event) {
+		Prescription pSelected = tableTherapyView.getSelectionModel().getSelectedItem();
+		if(pSelected != null) {
+			String sql = "DELETE FROM prescriptions WHERE id = ?";
+			
+			int rows = DatabaseUtil.executeUpdate(sql, ps ->{
+				ps.setInt(1, pSelected.getIdPrescription());
+			});
+			if(rows > 0) {
+				tableTherapyView.getItems().remove(pSelected);
+			}
+			else
+				AppUtils.showError("Error", "impossible to remove this prescriptioin", "Please select another prescriptioin");
+			tableTherapyView.getItems().remove(pSelected);
+		}
+		else {
+			AppUtils.showError("Attenzione", "prescription not selected", "Please, select a prescription to delete");
+		}
+		event.consume();
 	}
 
 	private void loadInformations() {
@@ -416,5 +478,5 @@ public class DoctorDashboardController extends DoctorController implements Initi
 			e.printStackTrace();
 		}
 	}
-
+	
 }
