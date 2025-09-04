@@ -1,11 +1,14 @@
 package controller;
 
+import java.io.IOException;
 import java.net.URL;
 
 import application.Main;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class ViewNavigator {
@@ -44,6 +47,19 @@ public class ViewNavigator {
 			e.printStackTrace();
 			System.out.println("impossibile caricare la vista");
 		}
+	}
+	
+	public static <T> T loadViewOver(String fxml) throws IOException {
+		URL mainViewUrl = Main.class.getResource("/view/" + fxml);
+		FXMLLoader loader = new FXMLLoader(mainViewUrl);
+		root = loader.load();
+		T controller = loader.getController();
+		Stage stage = new Stage();
+		stage.setTitle("Nuova Finestra");
+		stage.setScene(new Scene(root));
+		stage.initModality(Modality.APPLICATION_MODAL); // blocca interazione con la finestra sotto
+		stage.show();
+		return controller;
 	}
 	
 	public static <T> T loadViewWithController(String fxml) {

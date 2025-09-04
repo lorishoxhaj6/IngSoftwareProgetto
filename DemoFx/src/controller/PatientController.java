@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +17,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -31,7 +34,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import model.AppUtils;
 import model.DatabaseUtil;
 import model.Measurement;
@@ -75,6 +81,8 @@ public class PatientController extends UserController<Patient> implements Initia
 	private TabPane tabPane1;
 	@FXML
 	private Button saveButton;
+	@FXML
+	private AnchorPane patientPane;
 	
 
 	@Override
@@ -239,6 +247,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	
 
 	public void inserisciMisurazione(ActionEvent e) {
+		System.out.println("sto eseguendo l' inserimento");
 		// controllo se non ci sono errori di input
 		if (myDatePicker.getValue() == null || valueTextField.getText() == null || pasto.getSelectedToggle() == null) {
 			AppUtils.showError("Error", "data are missing", "Impossible to insert measurement");
@@ -458,29 +467,19 @@ public class PatientController extends UserController<Patient> implements Initia
 	}
 	
 	
-	public void modifyElement(ActionEvent e) {
+	public void modifyElement(ActionEvent e) throws IOException {
 		Measurement mSelected = measurementsTableView.getSelectionModel().getSelectedItem();
 		
 		if(mSelected != null) {
-			valueTextField.setText(String.valueOf(mSelected.getValue()));
-			myDatePicker.setValue(mSelected.getDateTime().toLocalDate());
-			if(mSelected.getMoment().equals("prima pasto")){
-				primaPastoRb.setSelected(true);
-			}else {
-				dopoPastoRb.setSelected(true);
-			}
-			// passa alla schermata di inserimento di un nuovo measurement
-			tabPane1.getSelectionModel().select(1);
-			saveButton.setOnAction(event -> {
-				deleteMeasurement(event);
-				inserisciMisurazione(event);
-				event.consume();
-				tabPane1.getSelectionModel().select(0);
-			});
-		}else {
+			UpdateMeasurementController controller = ViewNavigator.loadViewOver("updateMeasurementView.fxml");
+			controller.setMeasurement(mSelected);
+
+		}
+		else {
 			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");
 			return;
 		}
+		Platform.runLater(() -> loadAndShowMeasurements());
 	}
 	
 	public void deleteMeasurement(ActionEvent e) {
@@ -502,5 +501,31 @@ public class PatientController extends UserController<Patient> implements Initia
 			AppUtils.showError("Attenzione", "measurement not selected", "Please, select a measurement to delete");
 		}
 	}
-
+	private void loadAndShowMeasurements() {
+		String sqlMeasurments = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
+		ObservableList<Measurement> measurments = FXCollections.observableArrayList();
+		try {
+			measurments = DatabaseUtil.queryList(sqlMeasurments, ps -> {
+				try {
+					ps.setInt(1, user.getPatientId());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}, rs -> {
+				int id = rs.getInt("id");
+				String raw = rs.getString("dateTime");
+				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+				String moment = rs.getString("moment");
+				double value = rs.getDouble("value");
+				return new Measurement(id, user.getPatientId(), moment, date, value);
+			});
+	
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		// provato a riaggiornale la tabella ma non funziona
+		measurementsTableView.setItems(measurments);
+		measurementsTableView.refresh();
+	}
 }

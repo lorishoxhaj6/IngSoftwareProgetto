@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="301.0" prefWidth="462.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.UpdateMeasurementController">
+   <children>
+      <Label alignment="CENTER" layoutX="151.0" layoutY="14.0" prefHeight="18.0" prefWidth="159.0" text=" valore glicemico [mg/DL]" />
+      <Label alignment="CENTER" layoutX="197.0" layoutY="94.0" prefHeight="18.0" prefWidth="66.0" text="momento" textAlignment="CENTER" />
+      <Label layoutX="84.0" layoutY="179.0" prefHeight="18.0" prefWidth="38.0" text="data:" />
+      <Button layoutX="205.0" layoutY="227.0" mnemonicParsing="false" onAction="#update" text="update" textFill="#53df2d" />
+      <DatePicker fx:id="myDatePicker" layoutX="142.0" layoutY="176.0" />
+      <RadioButton fx:id="primaPastoRb" layoutX="84.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="123.0" text="prima pasto">
+         <toggleGroup>
+            <ToggleGroup fx:id="pasto" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="dopoPastoRb" layoutX="279.0" layoutY="121.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="111.0" text="dopo pasto" toggleGroup="$pasto" />
+      <TextField fx:id="valueTextField" layoutX="156.0" layoutY="40.0" />
+      <Separator layoutY="74.0" prefHeight="10.0" prefWidth="462.0" />
+      <Separator layoutX="-2.0" layoutY="159.0" prefHeight="10.0" prefWidth="462.0" />
+   </children>
+</AnchorPane>
