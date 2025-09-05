@@ -24,6 +24,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -39,6 +40,7 @@ import model.Measurement;
 import model.Patient;
 import model.Prescription;
 import model.Symptoms;
+import model.Unit;
 
 public class PatientController extends UserController<Patient> implements Initializable {
 	// usa superclasse ma con Patient e non con un tipo generico
@@ -89,7 +91,9 @@ public class PatientController extends UserController<Patient> implements Initia
 	@FXML
 	private ComboBox<Prescription> drugDropList;
 	@FXML
-	private TextField amountField;
+	private Spinner<Double> amountSpinner;
+	@FXML
+	private ComboBox<Unit> unitDropList;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -99,7 +103,8 @@ public class PatientController extends UserController<Patient> implements Initia
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
 		dropList.getItems().addAll("assuzione insulina","assunzione faramaci antidiabetici orali");
-
+		
+		
 		AppUtils.colorMeasurments(valueColumn);
 	}
 
