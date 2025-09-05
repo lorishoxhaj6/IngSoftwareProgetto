@@ -49,13 +49,13 @@ public class ViewNavigator {
 		}
 	}
 	
-	public static <T> T loadViewOver(String fxml) throws IOException {
+	public static <T> T loadViewOver(String fxml,String title) throws IOException {
 		URL mainViewUrl = Main.class.getResource("/view/" + fxml);
 		FXMLLoader loader = new FXMLLoader(mainViewUrl);
 		root = loader.load();
 		T controller = loader.getController();
 		Stage stage = new Stage();
-		stage.setTitle("Nuova Finestra");
+		stage.setTitle(title);
 		stage.setScene(new Scene(root));
 		stage.initModality(Modality.APPLICATION_MODAL); // blocca interazione con la finestra sotto
 		stage.show();

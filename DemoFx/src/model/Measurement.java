@@ -31,6 +31,9 @@ public class Measurement {
 	public String getMoment() { return this.moment; }
 	public LocalDateTime getDateTime() { return dateTime;}
 	public double getValue() { return this.value;}
+	public void setMoment(String moment) {this.moment = moment;}
+	public void setDateTime(LocalDateTime dateTime) {this.dateTime = dateTime;}
+	public void setValue(double value) {this.value = value;}
 	
 
 }

@@ -50,12 +50,10 @@ public class LoginController implements Initializable {
 	    
 	    if (username == null || username.isBlank() || password == null || password.isBlank()) {
 	        AppUtils.showError("Errore di autenticazione", "Dati mancanti", "Inserisci username e password.");
-	        cleanFillAutentication();
 	        return;
 	    }
 	    if (RoleGroup.getSelectedToggle() == null) {
-	        AppUtils.showError("Errore di autenticazione", "Ruolo non selezionato", "Seleziona Patient o Doctor.");
-	        cleanFillAutentication();
+	        AppUtils.showError("Errore di autenticazione", "Ruolo non selezionato", "Seleziona Patient o Doctor.");  
 	        return;
 	    }
 
@@ -67,8 +65,7 @@ public class LoginController implements Initializable {
 	            loginAsPatient(con, username, password);
 	            
 	        } else {
-	            loginAsDoctor(con, username, password);
-	            
+	            loginAsDoctor(con, username, password);  
 	        }
 	        
 	        cleanFillAutentication();
