@@ -21,35 +21,16 @@ public class Prescription {
         this.drug = drug;
     }
 
-    public int getIdPrescription() {
-        return idPrescription;
-    }
-
-    public String getDoses() {
-        return doses;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public String getIndications() {
-        return indications;
-    }
-
-    public int getPatientId() {
-        return patientId;
-    }
-
-    public int getDoctorId() {
-        return doctorId;
-    }
-
-    public String getDrug() {
-        return drug;
-    }
+    public int getIdPrescription() {return idPrescription;}
+    public String getDoses() {return doses;}
+    public int getQuantity() {return quantity;}
+    public String getIndications() {return indications;}
+    public int getPatientId() {return patientId;}
+    public int getDoctorId() {return doctorId;}
+    public String getDrug() {return drug;}
     public void setDoses(String doses) {this.doses = doses;}
 	public void setQuantity(int quantity) {this.quantity = quantity;}
 	public void setIndications(String indications) {this.indications = indications;}
 	public void setDrug (String drug) { this.drug = drug; }
+	public String toString(){return drug;}
 }

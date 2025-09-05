@@ -19,6 +19,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -83,6 +84,12 @@ public class PatientController extends UserController<Patient> implements Initia
 	// terapie che dovrà essere condivisa
 	@FXML
 	private TherapyTableController therapyTableAsController;
+	@FXML 
+	private ComboBox<String> dropList;
+	@FXML
+	private ComboBox<Prescription> drugDropList;
+	@FXML
+	private TextField amountField;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -91,16 +98,20 @@ public class PatientController extends UserController<Patient> implements Initia
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
+		dropList.getItems().addAll("assuzione insulina","assunzione faramaci antidiabetici orali");
 
 		AppUtils.colorMeasurments(valueColumn);
 	}
 
 	public void setUser(Patient user) {
 		super.setUser(user);
+		ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
+		
 		loadAndShowDoctorInfo(user);
 		loadAndShowMeasurements();
 		loadAndShowSymptoms();
-		loadAndShowPrescriptions();
+		prescriptions = loadAndShowPrescriptions(prescriptions);
+		drugDropList.getItems().addAll(prescriptions);
 	}
 
 	public void logout() {
@@ -450,12 +461,11 @@ public class PatientController extends UserController<Patient> implements Initia
 		symptomsVisualization.setItems(symptoms);
 	}
 
-	private void loadAndShowPrescriptions() {
+	private ObservableList<Prescription> loadAndShowPrescriptions(ObservableList<Prescription> prescriptions) {
 		// PRESCRIPTIONS
 		String sqlPrescriptions = "SELECT id, doses, quantity, indications, drug, doctorId "
 				+ "FROM prescriptions WHERE patientId = ?";
-
-		ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
+		
 
 		try {
 			prescriptions = DatabaseUtil.queryList(sqlPrescriptions, ps -> {
@@ -479,6 +489,6 @@ public class PatientController extends UserController<Patient> implements Initia
 		}
 
 		therapyTableAsController.setItems(prescriptions);
-
+		return prescriptions;
 	}
 }
