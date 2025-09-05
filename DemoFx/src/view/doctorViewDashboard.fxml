@@ -102,18 +102,11 @@
             </Tab>
             <Tab text="Visualizza terapia paziente">
                <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="390.0" prefWidth="596.0">
                      <children>
-                        <TableView fx:id="tableTherapyView" layoutX="14.0" layoutY="14.0" prefHeight="228.0" prefWidth="594.0">
-                           <columns>
-                              <TableColumn fx:id="drugColumn" prefWidth="62.4000244140625" text="Farmaco" />
-                              <TableColumn fx:id="quantityColumn" prefWidth="213.5999755859375" text="Numero di assunzioni giornaliere" />
-                              <TableColumn fx:id="dosesColumn" prefWidth="168.00006103515625" text="quantià per ogni assunzione" />
-                              <TableColumn fx:id="indicationColumn" prefWidth="148.00006103515625" text="Eventuali indicazioni" />
-                           </columns>
-                        </TableView>
-                        <Button fx:id="modifyTherapyBut" layoutX="177.0" layoutY="284.0" mnemonicParsing="false" onAction="#modifyTherapy" text="Modifica terapia" />
-                        <Button fx:id="delTherapyBut" layoutX="359.0" layoutY="284.0" mnemonicParsing="false" onAction="#deleteTherapy" text="Elimina terapia" />
+                     	<fx:include fx:id="therapyTableAs" source="therapyTableView.fxml" />
+                     	 <Button fx:id="modifyTherapyBut" layoutX="120.0" layoutY="377.0" mnemonicParsing="false" onAction="#modifyTherapy" text="Modifica terapia" />
+        				<Button fx:id="delTherapyBut" layoutX="315.0" layoutY="377.0" mnemonicParsing="false" onAction="#deleteTherapy" text="Elimina terapia" />
                      </children>
                   </AnchorPane>
                </content>

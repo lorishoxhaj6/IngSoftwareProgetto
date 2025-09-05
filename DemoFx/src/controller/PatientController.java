@@ -38,6 +38,7 @@ import model.AppUtils;
 import model.DatabaseUtil;
 import model.Measurement;
 import model.Patient;
+import model.Prescription;
 import model.Symptoms;
 
 public class PatientController extends UserController<Patient> implements Initializable {
@@ -79,6 +80,10 @@ public class PatientController extends UserController<Patient> implements Initia
 	private Button saveButton;
 	@FXML
 	private AnchorPane patientPane;
+	// Magia di fx:include: puoi iniettare il controller del child così:
+	// il child è la view therapyTableView, ovvero la view della tabella delle terapie che dovrà essere condivisa
+	@FXML
+	private TherapyTableController therapyTableAsController;
 	
 
 	@Override
@@ -87,6 +92,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
+		
 		
 		//serve per colorare i risultati della colonna value
 		valueColumn.setCellFactory(col -> new TableCell<Measurement, Double>() {
@@ -189,9 +195,38 @@ public class PatientController extends UserController<Patient> implements Initia
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	
+		
+		// --- PRESCRIPTIONS (per la tableView riusabile) ---
+		String sqlPrescriptions =
+		    "SELECT id, doses, quantity, indications, drug, doctorId " +
+		    "FROM prescriptions WHERE patientId = ?";
+
+		ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
+
+		try {
+		    prescriptions = DatabaseUtil.queryList(sqlPrescriptions, ps -> {
+		        try {
+		            ps.setInt(1, user.getPatientId());
+		        } catch (SQLException e) {
+		            e.printStackTrace();
+		        }
+		    }, rs -> {
+		        int id = rs.getInt("id");
+		        String doses = rs.getString("doses");
+		        int quantity = rs.getInt("quantity");
+		        String indications = rs.getString("indications");
+		        int patientId = user.getPatientId();
+		        int doctorId = rs.getInt("doctorId");   // meglio dal DB
+		        String drug = rs.getString("drug");
+		        return new Prescription(id, doses, quantity, indications, patientId, doctorId, drug);
+		    });
+		} catch (SQLException e) {
+		    e.printStackTrace();
+		}
+
 		measurementsTableView.setItems(measurments);
 		symptomsVisualization.setItems(symptoms);
+		therapyTableAsController.setItems(prescriptions);
 	}
 
 	public void logout() {
@@ -466,7 +501,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		if(mSelected != null) {
 			controller = ViewNavigator.loadViewOver("updateMeasurementView.fxml","Update");
 			controller.setMeasurement(mSelected);
-			//aggiunto metodo consumer per aggiornare la tabella nella classe UpdateMeasurementController
+			//passo una task -> oggetto runnable, per aggiornare la tabella nella classe UpdateMeasurementController
 			controller.setOnUpdate(() -> {measurementsTableView.refresh();});
 		}
 		else {

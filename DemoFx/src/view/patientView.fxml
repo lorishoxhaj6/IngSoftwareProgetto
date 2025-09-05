@@ -40,7 +40,7 @@
                <content>
                   <AnchorPane prefHeight="398.0" prefWidth="379.0">
                      <children>
-                        <TableView fx:id="measurementsTableView" maxWidth="370.0" minWidth="350.0" prefHeight="398.0" prefWidth="357.0">
+                        <TableView fx:id="measurementsTableView" maxWidth="370.0" minWidth="346.0" prefHeight="400.0" prefWidth="346.0">
                           <columns>
                             <TableColumn fx:id="dateColumn" minWidth="2.399993896484375" prefWidth="123.19998550415039" text="date" />
                             <TableColumn fx:id="momentColumn" prefWidth="120.80000305175781" text="moment" />
@@ -129,14 +129,9 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TableView layoutX="34.0" layoutY="60.0" prefHeight="306.0" prefWidth="404.0">
-                          <columns>
-                            <TableColumn prefWidth="75.0" text="C1" />
-                            <TableColumn prefWidth="75.0" text="C2" />
-                          </columns>
-                        </TableView>
-                        <Text layoutX="34.0" layoutY="43.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Terapie prescritte dal medico" wrappingWidth="235.58303260803223" />
-                     </children></AnchorPane>
+                     	<fx:include fx:id="therapyTableAs" source="therapyTableView.fxml" />   
+                     </children>
+				</AnchorPane>
               </content>
             </Tab>
         </tabs>
