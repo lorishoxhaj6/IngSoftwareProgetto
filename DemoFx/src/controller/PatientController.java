@@ -466,8 +466,8 @@ public class PatientController extends UserController<Patient> implements Initia
 		if(mSelected != null) {
 			controller = ViewNavigator.loadViewOver("updateMeasurementView.fxml","Update");
 			controller.setMeasurement(mSelected);
-			//aggiunto metodo consumer per aggiornare la tabella 
-			controller.setOnUpdate(updated -> {measurementsTableView.refresh();});
+			//aggiunto metodo consumer per aggiornare la tabella nella classe UpdateMeasurementController
+			controller.setOnUpdate(() -> {measurementsTableView.refresh();});
 		}
 		else {
 			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");

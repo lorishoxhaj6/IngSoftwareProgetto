@@ -31,7 +31,7 @@ public class UpdateMeasurementController {
 	private ToggleGroup pasto;
 	
 	// Callback da invocare dopo update riuscito per aggiornare la view parent
-    private Consumer<Measurement> onUpdate;
+    private Runnable onUpdate;
 	
 	private Measurement m;
 	
@@ -46,11 +46,13 @@ public class UpdateMeasurementController {
 		}
 	}
 	
-	public void setOnUpdate(Consumer<Measurement> onUpdate) {
+	public void setOnUpdate(Runnable onUpdate) {
+		//faccio il set della funzione consumer
 		this.onUpdate = onUpdate;
 	}
 	
 	public void update(ActionEvent event) {
+		//aggiorno il db con i campi modificati
 		if (myDatePicker.getValue() == null || valueTextField.getText() == null || pasto.getSelectedToggle() == null) {
 			AppUtils.showError("Error", "data are missing", "Impossible to insert measurement");
 			return;
@@ -77,12 +79,14 @@ public class UpdateMeasurementController {
 			
 		});
 		if(rows > 0) {
+			//aggiorno l'oggetto in memoria attraverso i metodi set per ogni campo
 			m.setMoment(moment);
             m.setDateTime(dateTime);
             m.setValue(value);
             
+            //se onUpdate è stato settato allora posso
             if(onUpdate != null)
-            	onUpdate.accept(m);
+            	onUpdate.run();
             
 			AppUtils.showConfirmation("ottimo", "measurement updated", " ");
 			stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
