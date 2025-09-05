@@ -20,7 +20,10 @@ public class TherapyTableController implements Initializable {
 	@FXML
 	private TableView<Prescription> table;
 	@FXML
-	private TableColumn<Prescription, String> dosesColumn;
+	private TableColumn<Prescription, Double> dosesColumn;
+	
+	@FXML
+	private TableColumn<Prescription,String> unitColumn;
 
 	@FXML
 	private TableColumn<Prescription, String> drugColumn;
@@ -43,12 +46,13 @@ public class TherapyTableController implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		
 		//equivalente all'injection che viene fatta per iniettare i valori di un oggetto all'interno di una colonna
-		dosesColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getDoses()));
+		dosesColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper(data.getValue().getDoses()));
+		unitColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getMeasurementUnit()));
 		indicationColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getIndications()));
 		quantityColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getQuantity()));
 		drugColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getDrug()));
 		
-		table.getSelectionModel().selectedItemProperty().addListener((_, _, it) -> {
+		table.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, it) -> {
             if (it != null && onSelect.get() != null) onSelect.get().accept(it);
         });
 	}

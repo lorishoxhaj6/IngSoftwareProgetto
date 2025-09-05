@@ -22,18 +22,17 @@ import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.paint.Color;
 import model.AppUtils;
 import model.DatabaseUtil;
 import model.Doctor;
@@ -46,8 +45,6 @@ import model.Symptoms;
 public class DoctorDashboardController extends DoctorController implements Initializable {
 
 
-	@FXML
-	private TextField amount;
 
 	@FXML
 	private LineChart<String, Number> bloodSugarGraph;
@@ -105,6 +102,10 @@ public class DoctorDashboardController extends DoctorController implements Initi
 	private Label doctorNameLabel;
 	@FXML
 	private TabPane tabPane1;
+	@FXML
+	private ComboBox<String> measurementUnitDropList;
+	@FXML
+	private TextField amount; 
 
 	private Doctor doctor;
 	private Patient patient;
@@ -120,7 +121,15 @@ public class DoctorDashboardController extends DoctorController implements Initi
 
 		// faccio il setup dello spinner con un range(min,max,init value)
 		numberOfIntakes.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
+		measurementUnitDropList.getItems().addAll(
+			    "mg",          // milligrammi
+			    "ml",          // millilitri
+			    "UI",          // unità internazionali (es. insulina)
+			    "compresse",   // numero di compresse
+			    "gocce"        // utile per certi farmaci liquidi
+			);
 
+		
 		AppUtils.colorMeasurments(valueColumn);
 
 	}
@@ -138,7 +147,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		this.patient = selectedPatient;
 		// aggiorno label di benvenuto
 		doctorNameLabel.setText("Benvenuto " + this.doctor.toString());
-		// aggiono label col nome del paziente che sto visualizzando
+		// aggiorno label col nome del paziente che sto visualizzando
 		namePatientLabel.setText("nome Paziente: " + selectedPatient.toString());
 		// qui serve per avere la lista dei pazienti
 		patientsListView.setItems(instance.getItemList());
@@ -203,7 +212,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		measurementsTableView.setItems(measurments);
 
 		// visualizza le presciptions
-		String sqlPrescriptions = "SELECT id, doses, quantity, indications, drug FROM prescriptions WHERE patientId = ?";
+		String sqlPrescriptions = "SELECT id, doses, measurementUnit,quantity, indications, drug FROM prescriptions WHERE patientId = ?";
 
 		try {
 			prescriptions = DatabaseUtil.queryList(sqlPrescriptions, ps -> {
@@ -214,13 +223,14 @@ public class DoctorDashboardController extends DoctorController implements Initi
 				}
 			}, rs -> {
 				int id = rs.getInt("id");
-				String doses = rs.getString("doses");
+				Double doses = rs.getDouble("doses");
+				String measurementUnit = rs.getString("measurementUnit");
 				int quantity = rs.getInt("quantity");
 				String indications = rs.getString("indications");
 				int patientId = patient.getPatientId();
 				int doctorId = this.doctor.getMedicoId();
 				String drug = rs.getString("drug");
-				return new Prescription(id, doses, quantity, indications, patientId, doctorId, drug);
+				return new Prescription(id, doses,measurementUnit, quantity, indications, patientId, doctorId, drug);
 			});
 
 		} catch (SQLException e) {
@@ -294,17 +304,18 @@ public class DoctorDashboardController extends DoctorController implements Initi
 	public void insertTherapy(ActionEvent event) {
 		// controllo se non ci sono errori di input
 		if (medicineField.getText() == null || numberOfIntakes.getValue() == null || amount.getText() == null
-				|| otherIndication.getText() == null) {
+				|| otherIndication.getText() == null || measurementUnitDropList.getValue() == null) {
 			AppUtils.showError("Error", "data are missing", "Impossible to insert prescription");
 			return;
 		}
 
 		// variabili che mi servono per inserire la terapia/prescrizione
-		String sql = "INSERT INTO prescriptions (doses, quantity, indications, patientId,doctorId,drug) VALUES (?,?,?,?,?,?)";
+		String sql = "INSERT INTO prescriptions (doses, quantity,measurementUnit, indications, patientId,doctorId,drug) VALUES (?,?,?,?,?,?,?)";
 
 		int patientId = patient.getPatientId();
 		int doctorId = doctor.getMedicoId();
 		String doses = amount.getText();
+		String mU = measurementUnitDropList.getValue();
 		int quantity = numberOfIntakes.getValue();
 		String indications = otherIndication.getText();
 		String drug = medicineField.getText();
@@ -315,10 +326,11 @@ public class DoctorDashboardController extends DoctorController implements Initi
 
 			ps.setString(1, doses);
 			ps.setInt(2, quantity);
-			ps.setString(3, indications);
-			ps.setInt(4, patientId);
-			ps.setInt(5, doctorId);
-			ps.setString(6, drug);
+			ps.setString(3, mU);
+			ps.setString(4, indications);
+			ps.setInt(5, patientId);
+			ps.setInt(6, doctorId);
+			ps.setString(7, drug);
 
 			ps.executeUpdate();
 
@@ -327,7 +339,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 					idPrescription = rs.getInt(1);
 			}
 
-			Prescription p = new Prescription(idPrescription, doses, quantity, indications, patientId, doctorId, drug);
+			Prescription p = new Prescription(idPrescription, Double.parseDouble(doses),mU, quantity, indications, patientId, doctorId, drug);
 			prescriptions.add(p);
 
 			// pulisco tutti i campi dell'inserimento

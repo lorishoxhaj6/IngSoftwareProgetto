@@ -9,7 +9,6 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollBar?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -157,11 +156,11 @@
                                  </VBox.margin></ComboBox>
                               <HBox alignment="CENTER" prefHeight="69.0" prefWidth="237.0">
                                  <children>
-                                    <Spinner fx:id="amountSpinner" prefHeight="26.0" prefWidth="95.0">
+                                    <TextField fx:id="amount" prefHeight="26.0" prefWidth="135.0">
                                        <HBox.margin>
                                           <Insets bottom="20.0" />
                                        </HBox.margin>
-                                    </Spinner>
+                                    </TextField>
                                     <ComboBox fx:id="unitDropList" prefHeight="28.0" prefWidth="68.0">
                                        <HBox.margin>
                                           <Insets bottom="20.0" left="10.0" />

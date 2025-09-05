@@ -91,7 +91,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	@FXML
 	private ComboBox<Prescription> drugDropList;
 	@FXML
-	private Spinner<Double> amountSpinner;
+	private TextField amount;
 	@FXML
 	private ComboBox<Unit> unitDropList;
 
@@ -468,7 +468,7 @@ public class PatientController extends UserController<Patient> implements Initia
 
 	private ObservableList<Prescription> loadAndShowPrescriptions(ObservableList<Prescription> prescriptions) {
 		// PRESCRIPTIONS
-		String sqlPrescriptions = "SELECT id, doses, quantity, indications, drug, doctorId "
+		String sqlPrescriptions = "SELECT id, doses, measurementUnit, quantity, indications, drug, doctorId "
 				+ "FROM prescriptions WHERE patientId = ?";
 		
 
@@ -481,13 +481,14 @@ public class PatientController extends UserController<Patient> implements Initia
 				}
 			}, rs -> {
 				int id = rs.getInt("id");
-				String doses = rs.getString("doses");
+				Double doses = rs.getDouble("doses");
+				String mU = rs.getString("measurementUnit");
 				int quantity = rs.getInt("quantity");
 				String indications = rs.getString("indications");
 				int patientId = user.getPatientId();
 				int doctorId = rs.getInt("doctorId"); // meglio dal DB
 				String drug = rs.getString("drug");
-				return new Prescription(id, doses, quantity, indications, patientId, doctorId, drug);
+				return new Prescription(id, doses,mU, quantity, indications, patientId, doctorId, drug);
 			});
 		} catch (SQLException e) {
 			e.printStackTrace();
