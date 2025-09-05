@@ -8,7 +8,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -32,7 +31,6 @@ public class TherapyTableController implements Initializable {
 	@FXML
 	private TableColumn<Prescription, Integer> quantityColumn;
 
-	private final ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
 	// binding = collegamento automatico tra due property
 	// contenitore osservabile che può tenere al suo interno qualsiasi oggetto di
 	// tipo T, è una proprety più generica
@@ -50,7 +48,7 @@ public class TherapyTableController implements Initializable {
 		quantityColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getQuantity()));
 		drugColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getDrug()));
 		
-		table.getSelectionModel().selectedItemProperty().addListener((obs, old, it) -> {
+		table.getSelectionModel().selectedItemProperty().addListener((_, _, it) -> {
             if (it != null && onSelect.get() != null) onSelect.get().accept(it);
         });
 	}

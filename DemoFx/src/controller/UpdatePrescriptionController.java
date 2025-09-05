@@ -1,10 +1,5 @@
 package controller;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -12,18 +7,16 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
 import model.AppUtils;
 import model.DatabaseUtil;
-import model.Measurement;
 import model.Prescription;
 
 public class UpdatePrescriptionController {
 	@FXML
 	private TextField medicineField;
 	@FXML
-	private Spinner numberOfIntakes;
+	private Spinner<Integer> numberOfIntakes;
 	@FXML
 	private TextField amount;
 	@FXML

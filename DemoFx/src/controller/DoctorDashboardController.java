@@ -121,45 +121,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		// faccio il setup dello spinner con un range(min,max,init value)
 		numberOfIntakes.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
 
-		// serve per colorare i risultati della colonna value
-		valueColumn.setCellFactory(col -> new TableCell<Measurement, Double>() {
-			// setCell serve a personalizzare come sono disegnate le celle
-			// TableCell è una cella della tabella
-			protected void updateItem(Double n, boolean empty) {
-				super.updateItem(n, empty);
-				// gestione caso cella vuota
-				if (empty || n == null) {
-					setText(null);
-					setTextFill(Color.BLACK);
-					return;
-				}
-
-				double value = n.doubleValue();
-				setText(String.valueOf(value));
-
-				Measurement m = getTableView().getItems().get(getIndex());
-				String moment = m.getMoment();
-
-				if ("prima pasto".equals(moment)) {
-				      if (value >= 80 && value <= 130) {
-				        setTextFill(Color.GREEN);
-				      } else if ((value >= 50 && value < 80) || (value > 130 && value <= 160)) {
-				        setTextFill(Color.ORANGE);
-				      } else { // <50 o >160
-				        setTextFill(Color.RED);
-				      }
-				    } else { // dopo pasto
-				      if (value < 180) {
-				        setTextFill(Color.GREEN);
-				      } else if (value > 190 && value <= 210) {
-				        setTextFill(Color.ORANGE);
-				      } else { // 180-190 inclusi oppure >210
-				        setTextFill(Color.RED);
-				      }
-				}
-
-			}
-		});
+		AppUtils.colorMeasurments(valueColumn);
 
 	}
 

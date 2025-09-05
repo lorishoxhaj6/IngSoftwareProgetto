@@ -24,7 +24,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -33,7 +32,6 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
 import model.AppUtils;
 import model.DatabaseUtil;
 import model.Measurement;
@@ -43,7 +41,7 @@ import model.Symptoms;
 
 public class PatientController extends UserController<Patient> implements Initializable {
 	// usa superclasse ma con Patient e non con un tipo generico
-	
+	// ------------ FXML ------------
 	@FXML
 	private Label doctorLabel;
 	@FXML
@@ -81,200 +79,36 @@ public class PatientController extends UserController<Patient> implements Initia
 	@FXML
 	private AnchorPane patientPane;
 	// Magia di fx:include: puoi iniettare il controller del child così:
-	// il child è la view therapyTableView, ovvero la view della tabella delle terapie che dovrà essere condivisa
+	// il child è la view therapyTableView, ovvero la view della tabella delle
+	// terapie che dovrà essere condivisa
 	@FXML
 	private TherapyTableController therapyTableAsController;
-	
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// collega le colonne della tabella misurazioni ai campi della classe Measurement
+		// collega le colonne della tabella misurazioni ai campi della classe
+		// Measurement
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-		
-		
-		//serve per colorare i risultati della colonna value
-		valueColumn.setCellFactory(col -> new TableCell<Measurement, Double>() {
-			//setCell serve a personalizzare come sono disegnate le celle
-			//TableCell è una cella della tabella
-			protected void updateItem(Double n, boolean empty) {
-				super.updateItem(n, empty);
-				//gestione caso cella vuota
-				if (empty || n == null) {
-					setText(null);
-					setTextFill(Color.BLACK);
-					return;
-				}
 
-				double value = n.doubleValue();
-				setText(String.valueOf(value));
-
-				Measurement m = getTableView().getItems().get(getIndex());
-				String moment = m.getMoment();
-
-				if (moment.equals("prima pasto")) {
-					if (value >= 80 && value <= 130) {
-						// codice verde
-						setTextFill(Color.GREEN);
-					} else {
-						if (value >= 50 && value < 80 || value > 130 && value <= 160) {
-							// codice arancione
-							setTextFill(Color.ORANGE);
-						} else {
-							if (value < 50 || value > 160)
-								// codice rosso
-								setTextFill(Color.RED);
-						}
-					}
-
-				} else { // dopo pasto
-		            if (value < 180) {
-		                setTextFill(Color.GREEN);
-		            } else if (value > 190 && value <= 210) {
-		                setTextFill(Color.ORANGE);
-		            } else { // >=180 e non nel range arancio
-		                setTextFill(Color.RED);
-		            }
-		        }
-
-			}
-		});
-
+		AppUtils.colorMeasurments(valueColumn);
 	}
 
 	public void setUser(Patient user) {
 		super.setUser(user);
-		//setta la Label che inidice il medico di rifermento
-		
-		
-		String sqlMeasurments = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
-		String sqlSymptoms = "SELECT id,symptoms, startDateTime, notes FROM symptoms WHERE patient_id = ? AND endDateTime IS NULL";
-
-		ObservableList<Measurement> measurments = FXCollections.observableArrayList();
-		ObservableList<Symptoms> symptoms = FXCollections.observableArrayList();
-		
-		
 		loadAndShowDoctorInfo(user);
-		// serve per visualizzare la tabella
-		try {
-			measurments = DatabaseUtil.queryList(sqlMeasurments, ps -> {
-				try {
-					ps.setInt(1, user.getPatientId());
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}, rs -> {
-				int id = rs.getInt("id");
-				String raw = rs.getString("dateTime");
-				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-				String moment = rs.getString("moment");
-				double value = rs.getDouble("value");
-				return new Measurement(id, user.getPatientId(), moment, date, value);
-			});
-	
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		try {
-			symptoms = DatabaseUtil.queryList(sqlSymptoms, ps -> {
-				try {
-					ps.setInt(1, user.getPatientId());
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}, rs -> {
-				int symptomId = rs.getInt("id");
-				String raw = rs.getString("startDateTime");
-				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-				String sympt = rs.getString("symptoms");
-				String notes = rs.getString("notes");
-	
-				return new Symptoms(symptomId, user.getMedicoId(), user.getPatientId(), sympt, date, notes);
-			});
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		// --- PRESCRIPTIONS (per la tableView riusabile) ---
-		String sqlPrescriptions =
-		    "SELECT id, doses, quantity, indications, drug, doctorId " +
-		    "FROM prescriptions WHERE patientId = ?";
-
-		ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
-
-		try {
-		    prescriptions = DatabaseUtil.queryList(sqlPrescriptions, ps -> {
-		        try {
-		            ps.setInt(1, user.getPatientId());
-		        } catch (SQLException e) {
-		            e.printStackTrace();
-		        }
-		    }, rs -> {
-		        int id = rs.getInt("id");
-		        String doses = rs.getString("doses");
-		        int quantity = rs.getInt("quantity");
-		        String indications = rs.getString("indications");
-		        int patientId = user.getPatientId();
-		        int doctorId = rs.getInt("doctorId");   // meglio dal DB
-		        String drug = rs.getString("drug");
-		        return new Prescription(id, doses, quantity, indications, patientId, doctorId, drug);
-		    });
-		} catch (SQLException e) {
-		    e.printStackTrace();
-		}
-
-		measurementsTableView.setItems(measurments);
-		symptomsVisualization.setItems(symptoms);
-		therapyTableAsController.setItems(prescriptions);
+		loadAndShowMeasurements();
+		loadAndShowSymptoms();
+		loadAndShowPrescriptions();
 	}
 
 	public void logout() {
 		super.logout();
 	}
-	
-	private void loadAndShowDoctorInfo(Patient p) {
-	    // 1) prendo l'id medico dall'oggetto Patient
-	    final int medicoId = p.getMedicoId();
-
-	    if (medicoId <= 0) {
-	        doctorLabel.setText("n/d");
-	        return;
-	    }
-
-	    final String sql = "SELECT username, email FROM doctors WHERE id = ?";
-
-	    try (Connection con = DatabaseUtil.connect();
-	         PreparedStatement ps = con.prepareStatement(sql)) {
-
-	        ps.setInt(1, medicoId);
-
-	        try (ResultSet rs = ps.executeQuery()) {
-	            if (rs.next()) {
-	                String doctorUser = rs.getString("username");
-	                String doctorEmail = rs.getString("email");
-
-	                // Aggiorno la UI sul thread JavaFX
-	                Platform.runLater(() ->
-	                    doctorLabel.setText(doctorUser + "  -  email: " + doctorEmail)
-	                );
-	            } else {
-	                Platform.runLater(() ->
-	                    doctorLabel.setText("n/d")
-	                );
-	            }
-	        }
-	    } catch (SQLException ex) {
-	        ex.printStackTrace();
-	        Platform.runLater(() ->
-	            doctorLabel.setText("Dottore: errore nel caricamento")
-	        );
-	    }
-	}
-	
 
 	public void inserisciMisurazione(ActionEvent e) {
-		System.out.println("sto eseguendo l' inserimento");
+
 		// controllo se non ci sono errori di input
 		if (myDatePicker.getValue() == null || valueTextField.getText() == null || pasto.getSelectedToggle() == null) {
 			AppUtils.showError("Error", "data are missing", "Impossible to insert measurement");
@@ -346,6 +180,44 @@ public class PatientController extends UserController<Patient> implements Initia
 		}
 	}
 
+	public void modifyElement(ActionEvent e) throws IOException {
+		Measurement mSelected = measurementsTableView.getSelectionModel().getSelectedItem();
+		UpdateMeasurementController controller;
+
+		if (mSelected != null) {
+			controller = ViewNavigator.loadViewOver("updateMeasurementView.fxml", "Update");
+			controller.setMeasurement(mSelected);
+			// passo una task -> oggetto runnable, per aggiornare la tabella nella classe
+			// UpdateMeasurementController
+			controller.setOnUpdate(() -> {
+				measurementsTableView.refresh();
+			});
+		} else {
+			AppUtils.showError("Error", "you must select an Item",
+					"Please, select an item if you would like to modify it");
+			return;
+		}
+
+	}
+
+	public void deleteMeasurement(ActionEvent e) {
+		Measurement mSelected = measurementsTableView.getSelectionModel().getSelectedItem();
+		if (mSelected != null) {
+			String sql = "DELETE FROM measurements WHERE id = ?";
+
+			int rows = DatabaseUtil.executeUpdate(sql, ps -> {
+				ps.setInt(1, mSelected.getId());
+			});
+			if (rows > 0) {
+				measurementsTableView.getItems().remove(mSelected);
+			} else
+				AppUtils.showError("Error", "impossible to remove this measurement",
+						"Please select another measurement");
+			measurementsTableView.getItems().remove(mSelected);
+		} else {
+			AppUtils.showError("Attenzione", "measurement not selected", "Please, select a measurement to delete");
+		}
+	}
 
 	public void insertToggleSymptoms() {
 
@@ -449,7 +321,8 @@ public class PatientController extends UserController<Patient> implements Initia
 			try (ResultSet rs = ps.getGeneratedKeys()) {
 				if (rs.next()) {
 					int generatedId = rs.getInt(1);
-					Symptoms s = new Symptoms(generatedId, user.getPatientId(), user.getMedicoId(), symptomsText, when, notes);
+					Symptoms s = new Symptoms(generatedId, user.getPatientId(), user.getMedicoId(), symptomsText, when,
+							notes);
 					symptomsVisualization.getItems().add(s);
 				}
 			}
@@ -475,14 +348,13 @@ public class PatientController extends UserController<Patient> implements Initia
 
 		Symptoms selectedSymptom = symptomsVisualization.getSelectionModel().getSelectedItem();
 		LocalDateTime when = LocalDateTime.now();
-		
-		
+
 		String sql = "UPDATE symptoms SET endDateTime = ? WHERE id = ?";
 		int rows = DatabaseUtil.executeUpdate(sql, ps -> {
 			ps.setString(1, when.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 			ps.setInt(2, selectedSymptom.getSymptomId());
 		});
-		
+
 		if (rows > 0) {
 			AppUtils.showConfirmation("Perfect!", "right resolution", "symptom successfully resolved!");
 			symptomsVisualization.getItems().remove(selectedSymptom);
@@ -492,45 +364,39 @@ public class PatientController extends UserController<Patient> implements Initia
 		}
 
 	}
-	
-	
-	public void modifyElement(ActionEvent e) throws IOException {
-		Measurement mSelected = measurementsTableView.getSelectionModel().getSelectedItem();
-		UpdateMeasurementController controller;
-		
-		if(mSelected != null) {
-			controller = ViewNavigator.loadViewOver("updateMeasurementView.fxml","Update");
-			controller.setMeasurement(mSelected);
-			//passo una task -> oggetto runnable, per aggiornare la tabella nella classe UpdateMeasurementController
-			controller.setOnUpdate(() -> {measurementsTableView.refresh();});
-		}
-		else {
-			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");
+
+	private void loadAndShowDoctorInfo(Patient p) {
+		// 1) prendo l'id medico dall'oggetto Patient
+		final int medicoId = p.getMedicoId();
+
+		if (medicoId <= 0) {
+			doctorLabel.setText("n/d");
 			return;
 		}
-		
-	}
-	
-	public void deleteMeasurement(ActionEvent e) {
-		Measurement mSelected = measurementsTableView.getSelectionModel().getSelectedItem();
-		if(mSelected != null) {
-			String sql = "DELETE FROM measurements WHERE id = ?";
-			
-			int rows = DatabaseUtil.executeUpdate(sql, ps ->{
-				ps.setInt(1, mSelected.getId());
-			});
-			if(rows > 0) {
-				measurementsTableView.getItems().remove(mSelected);
+
+		final String sql = "SELECT username, email FROM doctors WHERE id = ?";
+
+		try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+			ps.setInt(1, medicoId);
+
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					String doctorUser = rs.getString("username");
+					String doctorEmail = rs.getString("email");
+
+					// Aggiorno la UI sul thread JavaFX
+					Platform.runLater(() -> doctorLabel.setText(doctorUser + "  -  email: " + doctorEmail));
+				} else {
+					Platform.runLater(() -> doctorLabel.setText("n/d"));
+				}
 			}
-			else
-				AppUtils.showError("Error", "impossible to remove this measurement", "Please select another measurement");
-			measurementsTableView.getItems().remove(mSelected);
-		}
-		else {
-			AppUtils.showError("Attenzione", "measurement not selected", "Please, select a measurement to delete");
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+			Platform.runLater(() -> doctorLabel.setText("Dottore: errore nel caricamento"));
 		}
 	}
-	
+
 	private void loadAndShowMeasurements() {
 		String sqlMeasurments = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
 		ObservableList<Measurement> measurments = FXCollections.observableArrayList();
@@ -549,13 +415,70 @@ public class PatientController extends UserController<Patient> implements Initia
 				double value = rs.getDouble("value");
 				return new Measurement(id, user.getPatientId(), moment, date, value);
 			});
-	
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		// provato a riaggiornale la tabella ma non funziona
 		measurementsTableView.setItems(measurments);
-		
+
+	}
+
+	private void loadAndShowSymptoms() {
+		String sqlSymptoms = "SELECT id,symptoms, startDateTime, notes FROM symptoms WHERE patient_id = ? AND endDateTime IS NULL";
+		ObservableList<Symptoms> symptoms = FXCollections.observableArrayList();
+		try {
+			symptoms = DatabaseUtil.queryList(sqlSymptoms, ps -> {
+				try {
+					ps.setInt(1, user.getPatientId());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}, rs -> {
+				int symptomId = rs.getInt("id");
+				String raw = rs.getString("startDateTime");
+				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+				String sympt = rs.getString("symptoms");
+				String notes = rs.getString("notes");
+
+				return new Symptoms(symptomId, user.getMedicoId(), user.getPatientId(), sympt, date, notes);
+			});
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		symptomsVisualization.setItems(symptoms);
+	}
+
+	private void loadAndShowPrescriptions() {
+		// PRESCRIPTIONS
+		String sqlPrescriptions = "SELECT id, doses, quantity, indications, drug, doctorId "
+				+ "FROM prescriptions WHERE patientId = ?";
+
+		ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
+
+		try {
+			prescriptions = DatabaseUtil.queryList(sqlPrescriptions, ps -> {
+				try {
+					ps.setInt(1, user.getPatientId());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}, rs -> {
+				int id = rs.getInt("id");
+				String doses = rs.getString("doses");
+				int quantity = rs.getInt("quantity");
+				String indications = rs.getString("indications");
+				int patientId = user.getPatientId();
+				int doctorId = rs.getInt("doctorId"); // meglio dal DB
+				String drug = rs.getString("drug");
+				return new Prescription(id, doses, quantity, indications, patientId, doctorId, drug);
+			});
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		therapyTableAsController.setItems(prescriptions);
+
 	}
 }
