@@ -156,12 +156,12 @@
                                  </VBox.margin></ComboBox>
                               <HBox alignment="CENTER" prefHeight="69.0" prefWidth="237.0">
                                  <children>
-                                    <TextField fx:id="amount" prefHeight="26.0" prefWidth="135.0">
+                                    <TextField fx:id="amount" prefHeight="26.0" prefWidth="88.0" promptText="Dose">
                                        <HBox.margin>
                                           <Insets bottom="20.0" />
                                        </HBox.margin>
                                     </TextField>
-                                    <ComboBox fx:id="unitDropList" prefHeight="28.0" prefWidth="68.0">
+                                    <ComboBox fx:id="unitDropList" onAction="#showUnit" prefHeight="30.0" prefWidth="70.0" promptText="Unit">
                                        <HBox.margin>
                                           <Insets bottom="20.0" left="10.0" />
                                        </HBox.margin>

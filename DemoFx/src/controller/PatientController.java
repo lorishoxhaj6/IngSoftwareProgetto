@@ -117,6 +117,18 @@ public class PatientController extends UserController<Patient> implements Initia
 		loadAndShowSymptoms();
 		prescriptions = loadAndShowPrescriptions(prescriptions);
 		drugDropList.getItems().addAll(prescriptions);
+		
+		
+	}
+	
+	public void showUnit(ActionEvent e) {
+		Prescription p = drugDropList.getSelectionModel().getSelectedItem();
+		
+		if(p == null) {
+			AppUtils.showInfo("Ordine di selezione", "Selezionare prima il farmaco per ottenere le unità di misura relative", "");
+		}
+		
+		//if(drugDropList.getItems())
 	}
 
 	public void logout() {
@@ -471,7 +483,6 @@ public class PatientController extends UserController<Patient> implements Initia
 		String sqlPrescriptions = "SELECT id, doses, measurementUnit, quantity, indications, drug, doctorId "
 				+ "FROM prescriptions WHERE patientId = ?";
 		
-
 		try {
 			prescriptions = DatabaseUtil.queryList(sqlPrescriptions, ps -> {
 				try {
