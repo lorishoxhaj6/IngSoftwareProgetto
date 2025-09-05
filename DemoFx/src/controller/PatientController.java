@@ -17,9 +17,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -36,12 +34,11 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import model.AppUtils;
 import model.DatabaseUtil;
 import model.Measurement;
 import model.Patient;
+import model.Prescription;
 import model.Symptoms;
 
 public class PatientController extends UserController<Patient> implements Initializable {
@@ -83,6 +80,10 @@ public class PatientController extends UserController<Patient> implements Initia
 	private Button saveButton;
 	@FXML
 	private AnchorPane patientPane;
+	// Magia di fx:include: puoi iniettare il controller del child così:
+	// il child è la view therapyTableView, ovvero la view della tabella delle terapie che dovrà essere condivisa
+	@FXML
+	private TherapyTableController therapyTableAsController;
 	
 
 	@Override
@@ -91,6 +92,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
+		
 		
 		//serve per colorare i risultati della colonna value
 		valueColumn.setCellFactory(col -> new TableCell<Measurement, Double>() {
@@ -126,19 +128,15 @@ public class PatientController extends UserController<Patient> implements Initia
 						}
 					}
 
-				} else {
-					if (value < 180) {
-						// codice verde
-						setTextFill(Color.GREEN);
-					} else {
-						if (value > 190 && value <= 210) {
-							// codice arancio
-							setTextFill(Color.ORANGE);
-						}
-						// codice rosso
-						setTextFill(Color.RED);
-					}
-				}
+				} else { // dopo pasto
+		            if (value < 180) {
+		                setTextFill(Color.GREEN);
+		            } else if (value > 190 && value <= 210) {
+		                setTextFill(Color.ORANGE);
+		            } else { // >=180 e non nel range arancio
+		                setTextFill(Color.RED);
+		            }
+		        }
 
 			}
 		});
@@ -197,9 +195,38 @@ public class PatientController extends UserController<Patient> implements Initia
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	
+		
+		// --- PRESCRIPTIONS (per la tableView riusabile) ---
+		String sqlPrescriptions =
+		    "SELECT id, doses, quantity, indications, drug, doctorId " +
+		    "FROM prescriptions WHERE patientId = ?";
+
+		ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
+
+		try {
+		    prescriptions = DatabaseUtil.queryList(sqlPrescriptions, ps -> {
+		        try {
+		            ps.setInt(1, user.getPatientId());
+		        } catch (SQLException e) {
+		            e.printStackTrace();
+		        }
+		    }, rs -> {
+		        int id = rs.getInt("id");
+		        String doses = rs.getString("doses");
+		        int quantity = rs.getInt("quantity");
+		        String indications = rs.getString("indications");
+		        int patientId = user.getPatientId();
+		        int doctorId = rs.getInt("doctorId");   // meglio dal DB
+		        String drug = rs.getString("drug");
+		        return new Prescription(id, doses, quantity, indications, patientId, doctorId, drug);
+		    });
+		} catch (SQLException e) {
+		    e.printStackTrace();
+		}
+
 		measurementsTableView.setItems(measurments);
 		symptomsVisualization.setItems(symptoms);
+		therapyTableAsController.setItems(prescriptions);
 	}
 
 	public void logout() {
@@ -469,17 +496,19 @@ public class PatientController extends UserController<Patient> implements Initia
 	
 	public void modifyElement(ActionEvent e) throws IOException {
 		Measurement mSelected = measurementsTableView.getSelectionModel().getSelectedItem();
+		UpdateMeasurementController controller;
 		
 		if(mSelected != null) {
-			UpdateMeasurementController controller = ViewNavigator.loadViewOver("updateMeasurementView.fxml");
+			controller = ViewNavigator.loadViewOver("updateMeasurementView.fxml","Update");
 			controller.setMeasurement(mSelected);
-
+			//passo una task -> oggetto runnable, per aggiornare la tabella nella classe UpdateMeasurementController
+			controller.setOnUpdate(() -> {measurementsTableView.refresh();});
 		}
 		else {
 			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");
 			return;
 		}
-		Platform.runLater(() -> loadAndShowMeasurements());
+		
 	}
 	
 	public void deleteMeasurement(ActionEvent e) {
@@ -501,6 +530,7 @@ public class PatientController extends UserController<Patient> implements Initia
 			AppUtils.showError("Attenzione", "measurement not selected", "Please, select a measurement to delete");
 		}
 	}
+	
 	private void loadAndShowMeasurements() {
 		String sqlMeasurments = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
 		ObservableList<Measurement> measurments = FXCollections.observableArrayList();
@@ -526,6 +556,6 @@ public class PatientController extends UserController<Patient> implements Initia
 		
 		// provato a riaggiornale la tabella ma non funziona
 		measurementsTableView.setItems(measurments);
-		measurementsTableView.refresh();
+		
 	}
 }

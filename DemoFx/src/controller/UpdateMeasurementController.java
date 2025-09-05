@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.function.Consumer;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -29,6 +30,9 @@ public class UpdateMeasurementController {
 	@FXML
 	private ToggleGroup pasto;
 	
+	// Callback da invocare dopo update riuscito per aggiornare la view parent
+    private Runnable onUpdate;
+	
 	private Measurement m;
 	
 	public void setMeasurement(Measurement mSelected) {
@@ -42,7 +46,13 @@ public class UpdateMeasurementController {
 		}
 	}
 	
+	public void setOnUpdate(Runnable onUpdate) {
+		//faccio il set della funzione consumer
+		this.onUpdate = onUpdate;
+	}
+	
 	public void update(ActionEvent event) {
+		//aggiorno il db con i campi modificati
 		if (myDatePicker.getValue() == null || valueTextField.getText() == null || pasto.getSelectedToggle() == null) {
 			AppUtils.showError("Error", "data are missing", "Impossible to insert measurement");
 			return;
@@ -57,13 +67,10 @@ public class UpdateMeasurementController {
 		String sql = "UPDATE measurements SET moment = ?, dateTime = ?, value = ? WHERE id = ?";
 		LocalDate date = myDatePicker.getValue();
 		LocalDateTime dateTime = LocalDateTime.of(date, LocalTime.now());
+		final String moment = primaPastoRb.isSelected() ? "prima_pasto" : "dopo_pasto";
 		Stage stage;
 		int rows = DatabaseUtil.executeUpdate(sql, ps ->{
-			if (primaPastoRb.isSelected()) {
-				ps.setString(1, "prima pasto");		
-			} else {
-				ps.setString(1, "dopo pasto");
-			}
+			ps.setString(1,moment);
 			ps.setString(2, dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 			ps.setDouble(3, value);
 			ps.setInt(4, m.getId());
@@ -72,6 +79,15 @@ public class UpdateMeasurementController {
 			
 		});
 		if(rows > 0) {
+			//aggiorno l'oggetto in memoria attraverso i metodi set per ogni campo
+			m.setMoment(moment);
+            m.setDateTime(dateTime);
+            m.setValue(value);
+            
+            //se onUpdate è stato settato allora posso
+            if(onUpdate != null)
+            	onUpdate.run();
+            
 			AppUtils.showConfirmation("ottimo", "measurement updated", " ");
 			stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 			stage.close();

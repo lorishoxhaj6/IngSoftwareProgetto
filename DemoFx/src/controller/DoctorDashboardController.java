@@ -44,20 +44,12 @@ import model.Symptoms;
 
 public class DoctorDashboardController extends DoctorController implements Initializable {
 
-	@FXML
-	private TextField allergyField;
 
 	@FXML
 	private TextField amount;
 
 	@FXML
 	private LineChart<String, Number> bloodSugarGraph;
-
-	@FXML
-	private TextField comorbitField;
-
-	@FXML
-	private Button delTherapyBut;
 
 	@FXML
 	private ListView<Symptoms> historyView;
@@ -87,25 +79,15 @@ public class DoctorDashboardController extends DoctorController implements Initi
 	private ListView<Patient> patientsListView;
 
 	@FXML
-	private TextField riskField;
-
-	@FXML
 	private Button saveButton;
 
 	@FXML
 	private ListView<Symptoms> symptomsMedicinesView;
+	@FXML
+	private TherapyTableController therapyTableAsController; 
 
-	@FXML
-	private TableView<Prescription> tableTherapyView;
+	private ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
 
-	@FXML
-	private TableColumn<Prescription, String> drugColumn;
-	@FXML
-	private TableColumn<Prescription, Integer> quantityColumn;
-	@FXML
-	private TableColumn<Prescription, String> dosesColumn;
-	@FXML
-	private TableColumn<Prescription, String> indicationColumn;
 	@FXML
 	private Button visualizeButton;
 	@FXML
@@ -122,9 +104,10 @@ public class DoctorDashboardController extends DoctorController implements Initi
 	private Label doctorNameLabel;
 	@FXML
 	private TabPane tabPane1;
-	
+
 	private Doctor doctor;
 	private Patient patient;
+	
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -133,18 +116,10 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-		
-		// collega le colonne della tabella tableTherapyView ai campi della classe Prescription
-		drugColumn.setCellValueFactory(new PropertyValueFactory<>("drug"));
-		quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-		dosesColumn.setCellValueFactory(new PropertyValueFactory<>("doses"));
-		indicationColumn.setCellValueFactory(new PropertyValueFactory<>("indications"));
-		
-		
+
 		// faccio il setup dello spinner con un range(min,max,init value)
 		numberOfIntakes.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
-		
-		
+
 		// serve per colorare i risultati della colonna value
 		valueColumn.setCellFactory(col -> new TableCell<Measurement, Double>() {
 			// setCell serve a personalizzare come sono disegnate le celle
@@ -164,33 +139,22 @@ public class DoctorDashboardController extends DoctorController implements Initi
 				Measurement m = getTableView().getItems().get(getIndex());
 				String moment = m.getMoment();
 
-				if (moment.equals("prima pasto")) {
-					if (value >= 80 && value <= 130) {
-						// codice verde
-						setTextFill(Color.GREEN);
-					} else {
-						if (value >= 50 && value < 80 || value > 130 && value <= 160) {
-							// codice arancione
-							setTextFill(Color.ORANGE);
-						} else {
-							if (value < 50 || value > 160)
-								// codice rosso
-								setTextFill(Color.RED);
-						}
-					}
-
-				} else {
-					if (value < 180) {
-						// codice verde
-						setTextFill(Color.GREEN);
-					} else {
-						if (value > 190 && value <= 210) {
-							// codice arancio
-							setTextFill(Color.ORANGE);
-						}
-						// codice rosso
-						setTextFill(Color.RED);
-					}
+				if ("prima pasto".equals(moment)) {
+				      if (value >= 80 && value <= 130) {
+				        setTextFill(Color.GREEN);
+				      } else if ((value >= 50 && value < 80) || (value > 130 && value <= 160)) {
+				        setTextFill(Color.ORANGE);
+				      } else { // <50 o >160
+				        setTextFill(Color.RED);
+				      }
+				    } else { // dopo pasto
+				      if (value < 180) {
+				        setTextFill(Color.GREEN);
+				      } else if (value > 190 && value <= 210) {
+				        setTextFill(Color.ORANGE);
+				      } else { // 180-190 inclusi oppure >210
+				        setTextFill(Color.RED);
+				      }
 				}
 
 			}
@@ -245,7 +209,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		}
 
 		symptomsMedicinesView.setItems(symptoms);
-		
+
 		// visualizzo la tableView
 		String sqlMeasurments = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
 		ObservableList<Measurement> measurments = FXCollections.observableArrayList();
@@ -270,10 +234,10 @@ public class DoctorDashboardController extends DoctorController implements Initi
 			e.printStackTrace();
 		}
 		measurementsTableView.setItems(measurments);
-		
-		//visualizza le presciptions
+
+		// visualizza le presciptions
 		String sqlPrescriptions = "SELECT id, doses, quantity, indications, drug FROM prescriptions WHERE patientId = ?";
-		ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
+
 		try {
 			prescriptions = DatabaseUtil.queryList(sqlPrescriptions, ps -> {
 				try {
@@ -291,14 +255,12 @@ public class DoctorDashboardController extends DoctorController implements Initi
 				String drug = rs.getString("drug");
 				return new Prescription(id, doses, quantity, indications, patientId, doctorId, drug);
 			});
-	
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		tableTherapyView.setItems(prescriptions);
+		therapyTableAsController.setItems(prescriptions);
 	}
-
-	
 
 	public void updateNotes(ActionEvent event) {
 		boolean confermation = AppUtils.showConfirmationWithBoolean("data update ", "data updated",
@@ -334,13 +296,13 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		LocalDate monthAgo = today.minusDays(30);
 
 		// 2. Filtra le misurazioni per includere solo quelle dell'ultimo mese
-		List<Measurement> weeklyMeasurements = measurements.stream().filter(m -> {
+		List<Measurement> monthlyMeasurements = measurements.stream().filter(m -> {
 			LocalDate measurementDate = m.getDateTime().toLocalDate();
 			return !measurementDate.isBefore(monthAgo) && !measurementDate.isAfter(today);
 		}).collect(Collectors.toList());
 
 		// Se la lista filtrata è vuota, non fare nulla
-		if (weeklyMeasurements.isEmpty()) {
+		if (monthlyMeasurements.isEmpty()) {
 			return;
 		}
 
@@ -350,9 +312,9 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM", Locale.ITALY);
 
 		// Ordina solo le misurazioni settimanali
-		weeklyMeasurements.sort((m1, m2) -> m1.getDateTime().compareTo(m2.getDateTime()));
+		monthlyMeasurements.sort((m1, m2) -> m1.getDateTime().compareTo(m2.getDateTime()));
 
-		for (Measurement m : weeklyMeasurements) {
+		for (Measurement m : monthlyMeasurements) {
 			String dataFormattata = m.getDateTime().format(formatter);
 			// data formatta punto x e m.getValue punto y nel piano xy
 			XYChart.Data<String, Number> dataPoint = new XYChart.Data<>(dataFormattata, m.getValue());
@@ -382,7 +344,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		int idPrescription = -1;
 
 		// inserisco nel database la nuova misurazione
-		try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
+		try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql,java.sql.Statement.RETURN_GENERATED_KEYS)) {
 
 			ps.setString(1, doses);
 			ps.setInt(2, quantity);
@@ -399,10 +361,9 @@ public class DoctorDashboardController extends DoctorController implements Initi
 			}
 
 			Prescription p = new Prescription(idPrescription, doses, quantity, indications, patientId, doctorId, drug);
-			tableTherapyView.getItems().add(p); // aggiungo la nuova Prescrizione alla tabella
+			prescriptions.add(p);
 
 			// pulisco tutti i campi dell'inserimento
-			
 			medicineField.setText("");
 			numberOfIntakes.getValueFactory().setValue(1);
 			amount.setText("");
@@ -415,50 +376,48 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		}
 	}
 
-	
 	public void modifyTherapy(ActionEvent e) {
-		Prescription pSelected = tableTherapyView.getSelectionModel().getSelectedItem();
-		
-		if(pSelected != null) {
+		Prescription pSelected = therapyTableAsController.getSelectedItem();
+
+		if (pSelected != null) {
 			medicineField.setText(pSelected.getDrug());
 			numberOfIntakes.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
 			amount.setText(pSelected.getDoses());
 			otherIndication.setText(pSelected.getIndications());
-			
-			// passa alla schermata di inserimento di un nuovo measurement
+
+			// passa alla schermata di inserimento di un nuova terapia
 			tabPane1.getSelectionModel().select(2);
 			saveButton.setOnAction(event -> {
-				deleteTherapy(event);
+				deleteTherapy(event); //bisogna modificare e renderlo update
 				insertTherapy(event);
 				event.consume();
 				tabPane1.getSelectionModel().select(3);
 			});
-		}else {
-			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");
+		} else {
+			AppUtils.showError("Error", "you must select an Item",
+					"Please, select an item if you would like to modify it");
 			return;
 		}
 		e.consume();
 	}
 
-
 	public void deleteTherapy(ActionEvent event) {
-		Prescription pSelected = tableTherapyView.getSelectionModel().getSelectedItem();
-		if(pSelected != null) {
-			String sql = "DELETE FROM prescriptions WHERE id = ?";
-			
-			int rows = DatabaseUtil.executeUpdate(sql, ps ->{
-				ps.setInt(1, pSelected.getIdPrescription());
-			});
-			if(rows > 0) {
-				tableTherapyView.getItems().remove(pSelected);
-			}
-			else
-				AppUtils.showError("Error", "impossible to remove this prescriptioin", "Please select another prescriptioin");
-			tableTherapyView.getItems().remove(pSelected);
-		}
-		else {
+		Prescription pSelected = therapyTableAsController.getSelectedItem();
+		if (pSelected == null) {
 			AppUtils.showError("Attenzione", "prescription not selected", "Please, select a prescription to delete");
+			event.consume();
+			return;
 		}
+
+		String sql = "DELETE FROM prescriptions WHERE id = ?";
+		int rows = DatabaseUtil.executeUpdate(sql, ps -> ps.setInt(1, pSelected.getIdPrescription()));
+
+		if (rows > 0) {
+			prescriptions.remove(pSelected); // lista condivisa -> la tabella si aggiorna
+		} else {
+			AppUtils.showError("Error", "impossible to remove this prescription", "Please select another prescription");
+		}
+
 		event.consume();
 	}
 
@@ -478,5 +437,5 @@ public class DoctorDashboardController extends DoctorController implements Initi
 			e.printStackTrace();
 		}
 	}
-	
+
 }

@@ -88,39 +88,32 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TextField fx:id="medicineField" layoutX="219.0" layoutY="37.0" prefHeight="26.0" prefWidth="132.0" />
-                        <Text layoutX="232.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Specifica il farmaco" wrappingWidth="106.91015624999989" />
-                        <Text layoutX="195.0" layoutY="85.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Numero di assunzioni giornaliere" wrappingWidth="184.8000244140626" />
-                        <Text layoutX="179.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Quantita di farmaco per ogni assunzione" wrappingWidth="215.99999999999994" />
-                        <TextField fx:id="amount" layoutX="248.0" layoutY="157.0" prefHeight="26.0" prefWidth="74.0" />
-                        <Text layoutX="230.0" layoutY="200.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Eventuali indicazioni" wrappingWidth="114.40002441406244" />
-                        <TextArea fx:id="otherIndication" layoutX="141.0" layoutY="214.0" prefHeight="64.0" prefWidth="312.0" />
-                        <Button fx:id="saveButton" layoutX="248.0" layoutY="304.0" mnemonicParsing="false" onAction="#insertTherapy" prefHeight="26.0" prefWidth="73.0" text="Salva" />
-                        <Spinner fx:id="numberOfIntakes" layoutX="213.0" layoutY="95.0" />
+                        <TextField fx:id="medicineField" layoutX="233.0" layoutY="58.0" prefHeight="26.0" prefWidth="119.0" />
+                        <Text layoutX="246.0" layoutY="43.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Specifica il farmaco" wrappingWidth="106.91015624999989" />
+                        <Text layoutX="207.0" layoutY="106.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Numero di assunzioni giornaliere" wrappingWidth="184.8000244140626" />
+                        <Text layoutX="192.0" layoutY="164.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Quantita di farmaco per ogni assunzione" wrappingWidth="215.99999999999994" />
+                        <TextField fx:id="amount" layoutX="263.0" layoutY="174.0" prefHeight="26.0" prefWidth="74.0" />
+                        <Text layoutX="251.0" layoutY="219.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Eventuali indicazioni" wrappingWidth="114.40002441406244" />
+                        <TextArea fx:id="otherIndication" layoutX="160.0" layoutY="227.0" prefHeight="64.0" prefWidth="297.0" />
+                        <Button fx:id="saveButton" layoutX="271.0" layoutY="322.0" mnemonicParsing="false" onAction="#insertTherapy" prefHeight="26.0" prefWidth="73.0" text="Salva" />
+                        <Spinner fx:id="numberOfIntakes" layoutX="243.0" layoutY="117.0" prefHeight="26.0" prefWidth="113.0" />
                      </children></AnchorPane>
               </content>
             </Tab>
             <Tab text="Visualizza terapia paziente">
                <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="390.0" prefWidth="596.0">
                      <children>
-                        <TableView fx:id="tableTherapyView" layoutX="14.0" layoutY="14.0" prefHeight="228.0" prefWidth="594.0">
-                           <columns>
-                              <TableColumn fx:id="drugColumn" prefWidth="62.4000244140625" text="Farmaco" />
-                              <TableColumn fx:id="quantityColumn" prefWidth="213.5999755859375" text="Numero di assunzioni giornaliere" />
-                              <TableColumn fx:id="dosesColumn" prefWidth="168.00006103515625" text="quantià per ogni assunzione" />
-                              <TableColumn fx:id="indicationColumn" prefWidth="148.00006103515625" text="Eventuali indicazioni" />
-                           </columns>
-                        </TableView>
-                        <Button fx:id="modifyTherapyBut" layoutX="177.0" layoutY="284.0" mnemonicParsing="false" onAction="#modifyTherapy" text="Modifica terapia" />
-                        <Button fx:id="delTherapyBut" layoutX="359.0" layoutY="284.0" mnemonicParsing="false" onAction="#deleteTherapy" text="Elimina terapia" />
+                     	<fx:include fx:id="therapyTableAs" source="therapyTableView.fxml" />
+                     	 <Button fx:id="modifyTherapyBut" layoutX="120.0" layoutY="377.0" mnemonicParsing="false" onAction="#modifyTherapy" text="Modifica terapia" />
+        				<Button fx:id="delTherapyBut" layoutX="315.0" layoutY="377.0" mnemonicParsing="false" onAction="#deleteTherapy" text="Elimina terapia" />
                      </children>
                   </AnchorPane>
                </content>
             </Tab>
         </tabs>
       </TabPane>
-      <Label fx:id="namePatientLabel" layoutX="283.0" layoutY="121.0" prefHeight="18.0" prefWidth="216.0" textFill="#3047dc" />
+      <Label fx:id="namePatientLabel" layoutX="256.0" layoutY="120.0" prefHeight="18.0" prefWidth="194.0" textFill="#3047dc" />
       <Label fx:id="doctorNameLabel" layoutX="149.0" layoutY="45.0" prefHeight="26.0" prefWidth="193.0">
          <font>
             <Font size="14.0" />

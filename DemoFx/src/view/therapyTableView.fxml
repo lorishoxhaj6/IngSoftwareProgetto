@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+
+<TableView fx:id="table" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="358.0" prefWidth="529.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.TherapyTableController">
+  <columns>
+    <TableColumn fx:id="drugColumn" prefWidth="150.40002137422562" text="Farmaco" />
+    <TableColumn fx:id="quantityColumn" prefWidth="119.20002746582031" text="Numero Assunzioni" />
+      <TableColumn fx:id="dosesColumn" prefWidth="72.0" text="Dose" />
+      <TableColumn fx:id="indicationColumn" prefWidth="184.00006103515625" text="Indicazioni" />
+  </columns>
+</TableView>
