@@ -1,5 +1,7 @@
 package model;
 
+import java.time.LocalDateTime;
+
 public class Prescription {
 	
     private int idPrescription; 
@@ -48,4 +50,8 @@ public class Prescription {
     public String getDrug() {
         return drug;
     }
+    public void setDoses(String doses) {this.doses = doses;}
+	public void setQuantity(int quantity) {this.quantity = quantity;}
+	public void setIndications(String indications) {this.indications = indications;}
+	public void setDrug (String drug) { this.drug = drug; }
 }

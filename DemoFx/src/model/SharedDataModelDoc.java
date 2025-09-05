@@ -58,4 +58,8 @@ public class SharedDataModelDoc {
     public ObservableList<Patient> getItemList() {
         return itemList;
     }
+    
+    public Doctor getDoctor() {
+    	return this.doctor;
+    }
 }

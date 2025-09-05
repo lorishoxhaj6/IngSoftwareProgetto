@@ -19,6 +19,7 @@ public class DoctorController extends UserController<Doctor>{
 	private Button visualizeButton;
 	
 	protected SharedDataModelDoc instance;
+	//protected Doctor doctor;
 	
 	
 	
@@ -34,7 +35,7 @@ public class DoctorController extends UserController<Doctor>{
 		Patient selectedPatient = (Patient) patientsListView.getSelectionModel().getSelectedItem();
 		if(selectedPatient != null) {
 			DoctorDashboardController docControl = ViewNavigator.loadViewWithController("doctorViewDashboard.fxml");
-			docControl.setEnviroment(this.instance,selectedPatient, user);
+			docControl.setEnviroment(this.instance,selectedPatient,(Doctor)user);
 		}
 		else
 			AppUtils.showError("Errore caricamento", "no patient selected", "Please. select a patient to visualize");

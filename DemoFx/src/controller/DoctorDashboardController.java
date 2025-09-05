@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -168,9 +169,13 @@ public class DoctorDashboardController extends DoctorController implements Initi
 	}
 
 	public void setEnviroment(SharedDataModelDoc instance, Patient selectedPatient, Doctor doctor) throws SQLException {
+		if(doctor == null) // fixato bug che a volte ha doctror == null
+			doctor = instance.getDoctor();
 		this.instance = instance;
 		this.doctor = doctor;
 		this.patient = selectedPatient;
+		// aggiorno label di benvenuto
+		doctorNameLabel.setText("Benvenuto " + this.doctor.toString());
 		// aggiono label col nome del paziente che sto visualizzando
 		namePatientLabel.setText("nome Paziente: " + selectedPatient.toString());
 		// qui serve per avere la lista dei pazienti
@@ -251,7 +256,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 				int quantity = rs.getInt("quantity");
 				String indications = rs.getString("indications");
 				int patientId = patient.getPatientId();
-				int doctorId = doctor.getMedicoId();
+				int doctorId = this.doctor.getMedicoId();
 				String drug = rs.getString("drug");
 				return new Prescription(id, doses, quantity, indications, patientId, doctorId, drug);
 			});
@@ -291,7 +296,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 			return;
 		}
 
-		// 1. Definisci il periodo settimanale
+		// 1. Definisci il periodo mensile
 		LocalDate today = LocalDate.now();
 		LocalDate monthAgo = today.minusDays(30);
 
@@ -376,29 +381,21 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		}
 	}
 
-	public void modifyTherapy(ActionEvent e) {
+	public void modifyTherapy(ActionEvent e) throws IOException {
 		Prescription pSelected = therapyTableAsController.getSelectedItem();
-
-		if (pSelected != null) {
-			medicineField.setText(pSelected.getDrug());
-			numberOfIntakes.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
-			amount.setText(pSelected.getDoses());
-			otherIndication.setText(pSelected.getIndications());
-
-			// passa alla schermata di inserimento di un nuova terapia
-			tabPane1.getSelectionModel().select(2);
-			saveButton.setOnAction(event -> {
-				deleteTherapy(event); //bisogna modificare e renderlo update
-				insertTherapy(event);
-				event.consume();
-				tabPane1.getSelectionModel().select(3);
-			});
-		} else {
-			AppUtils.showError("Error", "you must select an Item",
-					"Please, select an item if you would like to modify it");
+		UpdatePrescriptionController controller;
+		
+		if(pSelected != null) {
+			controller = ViewNavigator.loadViewOver("updatePrescriptionView.fxml","Update");
+			controller.setPrescription(pSelected);
+			//passo una task -> oggetto runnable, per aggiornare la tabella nella classe UpdateMeasurementController
+			controller.setOnUpdate(() -> {therapyTableAsController.refresh();});
+		}
+		else {
+			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");
 			return;
 		}
-		e.consume();
+		
 	}
 
 	public void deleteTherapy(ActionEvent event) {
@@ -418,7 +415,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 			AppUtils.showError("Error", "impossible to remove this prescription", "Please select another prescription");
 		}
 
-		event.consume();
+		//event.consume();
 	}
 
 	private void loadInformations() {
@@ -436,6 +433,10 @@ public class DoctorDashboardController extends DoctorController implements Initi
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void visualize(ActionEvent event) throws SQLException {
+		super.visualize(event);
 	}
 
 }
