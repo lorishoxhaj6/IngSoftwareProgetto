@@ -41,7 +41,6 @@ import model.Patient;
 import model.Prescription;
 import model.Symptoms;
 
-
 public class PatientController extends UserController<Patient> implements Initializable {
 	// usa superclasse ma con Patient e non con un tipo generico
 	// ------------ FXML ------------
@@ -86,10 +85,10 @@ public class PatientController extends UserController<Patient> implements Initia
 	// terapie che dovrà essere condivisa
 	@FXML
 	private TherapyTableController therapyTableAsController;
-	@FXML 
+	@FXML
 	private ComboBox<String> dropList;
 	@FXML
-	private ComboBox<Prescription> drugDropList;
+	private ComboBox<String> drugDropList;
 	@FXML
 	private TextField amount;
 	@FXML
@@ -104,36 +103,75 @@ public class PatientController extends UserController<Patient> implements Initia
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-		dropList.getItems().addAll("assuzione insulina","assunzione faramaci antidiabetici orali");
-		//inizializzio la dropList con le unità di misura std
+		dropList.getItems().addAll("assuzione insulina", "assunzione faramaci antidiabetici orali");
+		// inizializzio la dropList con le unità di misura std
 		AppUtils.intializeMeasurementUnit(unitDropList);
-		
+
 		AppUtils.colorMeasurments(valueColumn);
 	}
 
 	public void setUser(Patient user) {
 		super.setUser(user);
 		ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
-		
+
 		loadAndShowDoctorInfo(user);
 		loadAndShowMeasurements();
 		loadAndShowSymptoms();
 		prescriptions = loadAndShowPrescriptions(prescriptions);
-		drugDropList.getItems().addAll(prescriptions);
-		//se iterando tra le varie prescrizioni trovo unità di misura non presenti nella unitDropList iniziallizata
-		//le aggiungo. Per aggiungere un unità di misura la prescrizione deve riferirsi al paziente loggato
-		for(Prescription p:prescriptions) {
-			if(!unitDropList.getItems().contains(p.getMeasurementUnit()) && p.getPatientId() == user.getPatientId())
+		// se iterando tra le varie prescrizioni trovo unità di misura non presenti
+		// nella unitDropList iniziallizata
+		// le aggiungo. Per aggiungere un unità di misura la prescrizione deve riferirsi
+		// al paziente loggato
+		for (Prescription p : prescriptions) {
+			drugDropList.getItems().add(p.getDrug());
+			if (!unitDropList.getItems().contains(p.getMeasurementUnit()))
 				unitDropList.getItems().add(p.getMeasurementUnit());
 		}
-		
-		
+
 	}
-	
-	public void enterPrescription() {
-		// prendo selezione tra insulina o farmaci antidiabetici orali
-		String selTypeAssumption = dropList.getValue();
-		
+
+	public void enterInTake() {
+		// controllo se non ci sono errori di input
+				if (dataPickerPrescription.getValue() == null || unitDropList.getValue() == null || 
+						drugDropList.getValue() == null || amount.getText() == null || dropList.getValue() == null) {
+					AppUtils.showError("Error", "data are missing", "Impossible to insert measurement");
+					return;
+				}
+
+
+				// variabili che mi servono per inserire le assunzioni
+				String sql = "INSERT INTO patientIntake (type,doses,measurementUnit,dateTime,patientId,doctorId,drug) VALUES (?,?,?,?,?,?,?)";
+				String typeOfIntake = dropList.getValue();
+				String drug = drugDropList.getValue();
+				String mU = unitDropList.getValue();
+				Double doses = Double.parseDouble(amount.getText());
+				LocalDate date = dataPickerPrescription.getValue();
+				LocalDateTime dateTime = LocalDateTime.of(date, LocalTime.now());
+				// inserisco nel database la nuova misurazione
+				try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
+					
+					ps.setString(1, typeOfIntake);
+					ps.setDouble(2, doses);
+					ps.setString(3, mU);
+					ps.setString(4, dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+					ps.setInt(5, user.getPatientId());
+					ps.setInt(6, user.getMedicoId());
+					ps.setString(7,drug);
+					
+
+					ps.executeUpdate();
+
+					// pulisco tutti i campi dell'inserimento
+					dataPickerPrescription.setValue(null);
+					unitDropList.getSelectionModel().clearSelection();
+					drugDropList.getSelectionModel().clearSelection();
+					dropList.getSelectionModel().clearSelection();
+					amount.setText("");
+					AppUtils.showConfirmation("Perfect!", "right data", "measurement successfully performed!");
+
+				}catch(SQLException e) {
+					e.printStackTrace();
+				}
 	}
 
 	public void logout() {
@@ -487,7 +525,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		// PRESCRIPTIONS
 		String sqlPrescriptions = "SELECT id, doses, measurementUnit, quantity, indications, drug, doctorId "
 				+ "FROM prescriptions WHERE patientId = ?";
-		
+
 		try {
 			prescriptions = DatabaseUtil.queryList(sqlPrescriptions, ps -> {
 				try {
@@ -504,7 +542,7 @@ public class PatientController extends UserController<Patient> implements Initia
 				int patientId = user.getPatientId();
 				int doctorId = rs.getInt("doctorId"); // meglio dal DB
 				String drug = rs.getString("drug");
-				return new Prescription(id, doses,mU, quantity, indications, patientId, doctorId, drug);
+				return new Prescription(id, doses, mU, quantity, indications, patientId, doctorId, drug);
 			});
 		} catch (SQLException e) {
 			e.printStackTrace();

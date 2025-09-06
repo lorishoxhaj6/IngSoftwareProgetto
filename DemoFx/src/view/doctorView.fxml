@@ -27,7 +27,7 @@
             <Image url="@../Image/AvatarDoctor.png" />
          </image>
       </ImageView>
-      <Label layoutX="48.0" layoutY="145.0" prefHeight="18.0" prefWidth="107.0" text="i miei pazienti" />
+      <Label layoutX="12.0" layoutY="151.0" prefHeight="18.0" prefWidth="107.0" text="i miei pazienti" />
       <ScrollPane layoutX="10.0" layoutY="176.0" prefHeight="298.0" prefWidth="216.0">
          <content>
             <ListView fx:id="patientsListView" prefHeight="300.0" prefWidth="218.0" />
