@@ -39,372 +39,314 @@ import model.Doctor;
 import model.Measurement;
 import model.Patient;
 import model.Prescription;
-import model.SharedDataModelDoc;
 import model.Symptoms;
 
 public class DoctorDashboardController extends DoctorController implements Initializable {
 
+    @FXML private LineChart<String, Number> bloodSugarGraph;
+    @FXML private ListView<Symptoms> historyView;
+    @FXML private TextArea infoPatients;
+    @FXML private ListView<?> mailBox;
+    @FXML private TextField medicineField;
+    @FXML private Button modifyTherapyBut;
+    @FXML private Spinner<Integer> numberOfIntakes;
+    @FXML private TextArea otherIndication;
+    @FXML private TextField pathologiesField;
+    @FXML private ListView<Patient> patientsListView;
+    @FXML private Button saveButton;
+    @FXML private ListView<Symptoms> symptomsMedicinesView;
+    @FXML private TherapyTableController therapyTableAsController;
+    @FXML private Button visualizeButton;
+    @FXML private Label namePatientLabel;
+    @FXML private TableView<Measurement> measurementsTableView;
+    @FXML private TableColumn<Measurement, String> dateColumn;
+    @FXML private TableColumn<Measurement, String> momentColumn;
+    @FXML private TableColumn<Measurement, Double> valueColumn;
+    @FXML private Label doctorNameLabel;
+    @FXML private TabPane tabPane1;
+    @FXML private ComboBox<String> measurementUnitDropList;
+    @FXML private TextField amount;
+    @FXML private PatientTabViewController patientTabViewController;
 
+    private ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
+    private Doctor doctor;
+    private Patient patient;
 
-	@FXML
-	private LineChart<String, Number> bloodSugarGraph;
+    @Override
+    public void initialize(URL arg0, ResourceBundle arg1) {
+        // setup colonne tabella misurazioni
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
+        momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
+        valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
 
-	@FXML
-	private ListView<Symptoms> historyView;
+        // setup spinner
+        numberOfIntakes.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
+        AppUtils.intializeMeasurementUnit(measurementUnitDropList);
 
-	@FXML
-	private TextArea infoPatients;
+        // colorazione condizionale
+        AppUtils.colorMeasurments(valueColumn);
+    }
 
-	@FXML
-	private ListView<?> mailBox;
+    @FXML
+    void logout(ActionEvent event) {
+        super.logout();
+    }
 
-	@FXML
-	private TextField medicineField;
+    /**
+     * Configura la dashboard con paziente e dottore.
+     */
+    public void setEnviroment(Patient selectedPatient, Doctor currentDoc) throws SQLException {
+        this.doctor = currentDoc;
+        this.patient = selectedPatient;
 
-	@FXML
-	private Button modifyTherapyBut;
+        // header
+        doctorNameLabel.setText("Benvenuto " + (doctor != null ? doctor.toString() : "—"));
+        namePatientLabel.setText("nome Paziente: " + (patient != null ? patient.toString() : "—"));
 
-	@FXML
-	private Spinner<Integer> numberOfIntakes;
+        // setup del tab pazienti incluso
+        if (patientTabViewController != null && doctor != null) {
+            patientTabViewController.setDoctor(doctor);
+            //POPOLA la lista "Tutti i pazienti"
+            patientTabViewController.setAllPatients(loadAllPatients());
+            //POPOLA la lista paziente filtrati per medicoCorrente
+            patientTabViewController.setFilteredPatient(
+                FXCollections.observableArrayList(doctor.getPatients())
+            );
+            // callback per aggiornare la dashboard in-place
+            patientTabViewController.setOnVisualize(p -> {
+                try {
+                    setEnviroment(p, doctor);
+                } catch (SQLException e) {
+                    AppUtils.showError("DB error", "Aggiornamento dashboard fallito", e.getMessage());
+                }
+            });
+        }
 
-	@FXML
-	private TextArea otherIndication;
+        if (patient != null) {
+            // aggiorna grafico
+            List<Measurement> misurazioni = patient.getMeasurementBloodSugar(patient);
+            updateGraphBloodSugar(misurazioni);
+        }
 
-	@FXML
-	private TextField pathologiesField;
+        // note, sintomi, misurazioni, prescrizioni
+        loadInformations();
+        loadSymptoms();
+        loadMeasurements();
+        loadPrescriptions();
+    }
 
-	@FXML
-	private ListView<Patient> patientsListView;
-
-	@FXML
-	private Button saveButton;
-
-	@FXML
-	private ListView<Symptoms> symptomsMedicinesView;
-	@FXML
-	private TherapyTableController therapyTableAsController; 
-
-	private ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
-
-	@FXML
-	private Button visualizeButton;
-	@FXML
-	private Label namePatientLabel;
-	@FXML
-	private TableView<Measurement> measurementsTableView;
-	@FXML
-	private TableColumn<Measurement, String> dateColumn;
-	@FXML
-	private TableColumn<Measurement, String> momentColumn;
-	@FXML
-	private TableColumn<Measurement, Double> valueColumn;
-	@FXML
-	private Label doctorNameLabel;
-	@FXML
-	private TabPane tabPane1;
-	@FXML
-	private ComboBox<String> measurementUnitDropList;
-	@FXML
-	private TextField amount; 
-
-	private Doctor doctor;
-	private Patient patient;
-	
-
-	@Override
-	public void initialize(URL arg0, ResourceBundle arg1) {
-		// collega le colonne della tabella misurazioni ai campi della classe
-		// Measurement
-		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
-		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
-		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-
-		// faccio il setup dello spinner con un range(min,max,init value)
-		numberOfIntakes.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
-		AppUtils.intializeMeasurementUnit(measurementUnitDropList);
-
-		
-		AppUtils.colorMeasurments(valueColumn);
-
-	}
-
-	@FXML
-	void logout(ActionEvent event) {
-		super.logout();
-	}
-
-	public void setEnviroment(SharedDataModelDoc instance, Patient selectedPatient, Doctor doctor) throws SQLException {
-		if(doctor == null) // fixato bug che a volte ha doctror == null
-			doctor = instance.getDoctor();
-		this.instance = instance;
-		this.doctor = doctor;
-		this.patient = selectedPatient;
-		// aggiorno label di benvenuto
-		doctorNameLabel.setText("Benvenuto " + this.doctor.toString());
-		// aggiorno label col nome del paziente che sto visualizzando
-		namePatientLabel.setText("nome Paziente: " + selectedPatient.toString());
-		// qui serve per avere la lista dei pazienti
-		patientsListView.setItems(instance.getItemList());
-
-		if (selectedPatient != null) {
-			// Recupera le misurazioni del paziente e aggiorna il grafico
-			List<Measurement> misurazioni = selectedPatient.getMeasurementBloodSugar(selectedPatient);
-			// serve per ternere il grafico aggiornato
-			updateGraphBloodSugar(misurazioni);
-		}
-
-		// aggiorno textArea con le note fatte dal dottore
-		loadInformations();
-		// popola la listView delle segnalazioni dei sintomi e delle cure concomitanti
-		String sqlSymptoms = "SELECT id,symptoms, startDateTime, notes FROM symptoms WHERE patient_id = ? AND endDateTime IS NULL";
-		ObservableList<Symptoms> symptoms = FXCollections.observableArrayList();
-		try {
-			symptoms = DatabaseUtil.queryList(sqlSymptoms, ps -> {
-				try {
+    private void loadSymptoms() {
+        String sql = "SELECT id,symptoms, startDateTime, notes FROM symptoms WHERE patient_id = ? AND endDateTime IS NULL";
+        try {
+            ObservableList<Symptoms> symptoms = DatabaseUtil.queryList(sql, ps -> {
+                try {
 					ps.setInt(1, patient.getPatientId());
 				} catch (SQLException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}, rs -> {
-				int symptomId = rs.getInt("id");
-				String raw = rs.getString("startDateTime");
-				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-				String sympt = rs.getString("symptoms");
-				String notes = rs.getString("notes");
+            }, rs -> {
+                int symptomId = rs.getInt("id");
+                LocalDateTime date = LocalDateTime.parse(rs.getString("startDateTime"),
+                        DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                return new Symptoms(symptomId, patient.getMedicoId(), patient.getPatientId(),
+                        rs.getString("symptoms"), date, rs.getString("notes"));
+            });
+            symptomsMedicinesView.setItems(symptoms);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-				return new Symptoms(symptomId, patient.getMedicoId(), patient.getPatientId(), sympt, date, notes);
-			});
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		symptomsMedicinesView.setItems(symptoms);
-
-		// visualizzo la tableView
-		String sqlMeasurments = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
-		ObservableList<Measurement> measurments = FXCollections.observableArrayList();
-
-		try {
-			measurments = DatabaseUtil.queryList(sqlMeasurments, ps -> {
-				try {
+    private void loadMeasurements() {
+        String sql = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
+        try {
+            ObservableList<Measurement> measurments = DatabaseUtil.queryList(sql, ps -> {
+                try {
 					ps.setInt(1, patient.getPatientId());
 				} catch (SQLException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}, rs -> {
-				int id = rs.getInt("id");
-				String raw = rs.getString("dateTime");
-				LocalDateTime date = LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-				String moment = rs.getString("moment");
-				double value = rs.getDouble("value");
-				return new Measurement(id, patient.getPatientId(), moment, date, value);
-			});
+            }, rs -> {
+                int id = rs.getInt("id");
+                LocalDateTime date = LocalDateTime.parse(rs.getString("dateTime"),
+                        DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                return new Measurement(id, patient.getPatientId(),
+                        rs.getString("moment"), date, rs.getDouble("value"));
+            });
+            measurementsTableView.setItems(measurments);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		measurementsTableView.setItems(measurments);
-
-		// visualizza le presciptions
-		String sqlPrescriptions = "SELECT id, doses, measurementUnit,quantity, indications, drug FROM prescriptions WHERE patientId = ?";
-
-		try {
-			prescriptions = DatabaseUtil.queryList(sqlPrescriptions, ps -> {
-				try {
+    private void loadPrescriptions() {
+        String sql = "SELECT id, doses, measurementUnit,quantity, indications, drug FROM prescriptions WHERE patientId = ?";
+        try {
+            prescriptions = DatabaseUtil.queryList(sql, ps -> {
+                try {
 					ps.setInt(1, patient.getPatientId());
 				} catch (SQLException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}, rs -> {
-				int id = rs.getInt("id");
-				Double doses = rs.getDouble("doses");
-				String measurementUnit = rs.getString("measurementUnit");
-				int quantity = rs.getInt("quantity");
-				String indications = rs.getString("indications");
-				int patientId = patient.getPatientId();
-				int doctorId = this.doctor.getMedicoId();
-				String drug = rs.getString("drug");
-				return new Prescription(id, doses,measurementUnit, quantity, indications, patientId, doctorId, drug);
-			});
+            }, rs -> new Prescription(
+                    rs.getInt("id"),
+                    rs.getDouble("doses"),
+                    rs.getString("measurementUnit"),
+                    rs.getInt("quantity"),
+                    rs.getString("indications"),
+                    patient.getPatientId(),
+                    doctor.getMedicoId(),
+                    rs.getString("drug")
+            ));
+            therapyTableAsController.setItems(prescriptions);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		therapyTableAsController.setItems(prescriptions);
-	}
+    private void loadInformations() {
+        String sql = "SELECT informations FROM patients WHERE id = ?";
+        try (Connection con = DatabaseUtil.connect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, patient.getPatientId());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                infoPatients.setText(rs.getString("informations"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public void updateNotes(ActionEvent event) {
-		boolean confermation = AppUtils.showConfirmationWithBoolean("data update ", "data updated",
-				"sure to update data?");
-		String newText = infoPatients.getText();
-		String sql = "UPDATE patients SET informations = ? WHERE id = ?";
-		if (confermation) {
-			int rows = DatabaseUtil.executeUpdate(sql, ps -> {
-				ps.setString(1, newText);
-				ps.setInt(2, patient.getPatientId());
-			});
-			if (rows > 0)
-				AppUtils.showInfo("data updated! ", "data updated", "new data has been saved");
-			else
-				AppUtils.showError("Errore caricamento dati", "nessun dato è stato aggionato",
-						"modifica la casella di testo per aggiornare le note sul paziente");
-		} else {
-			loadInformations();
-		}
-		event.consume();
-	}
+    public void updateNotes(ActionEvent event) {
+        boolean confirmation = AppUtils.showConfirmationWithBoolean("data update ", "data updated",
+                "sure to update data?");
+        String newText = infoPatients.getText();
+        String sql = "UPDATE patients SET informations = ? WHERE id = ?";
+        if (confirmation) {
+            int rows = DatabaseUtil.executeUpdate(sql, ps -> {
+                ps.setString(1, newText);
+                ps.setInt(2, patient.getPatientId());
+            });
+            if (rows > 0)
+                AppUtils.showInfo("data updated! ", "data updated", "new data has been saved");
+            else
+                AppUtils.showError("Errore caricamento dati", "nessun dato è stato aggiornato",
+                        "modifica la casella di testo per aggiornare le note sul paziente");
+        } else {
+            loadInformations();
+        }
+        event.consume();
+    }
 
-	public void updateGraphBloodSugar(List<Measurement> measurements) {
-		// ripulisce il grafico dai dati
-		bloodSugarGraph.getData().clear();
+    public void updateGraphBloodSugar(List<Measurement> measurements) {
+        bloodSugarGraph.getData().clear();
+        if (measurements.isEmpty()) return;
 
-		if (measurements.isEmpty()) {
-			return;
-		}
+        LocalDate today = LocalDate.now();
+        LocalDate monthAgo = today.minusDays(30);
 
-		// 1. Definisci il periodo mensile
-		LocalDate today = LocalDate.now();
-		LocalDate monthAgo = today.minusDays(30);
+        List<Measurement> monthlyMeasurements = measurements.stream()
+                .filter(m -> {
+                    LocalDate measurementDate = m.getDateTime().toLocalDate();
+                    return !measurementDate.isBefore(monthAgo) && !measurementDate.isAfter(today);
+                })
+                .sorted((m1, m2) -> m1.getDateTime().compareTo(m2.getDateTime()))
+                .collect(Collectors.toList());
 
-		// 2. Filtra le misurazioni per includere solo quelle dell'ultimo mese
-		List<Measurement> monthlyMeasurements = measurements.stream().filter(m -> {
-			LocalDate measurementDate = m.getDateTime().toLocalDate();
-			return !measurementDate.isBefore(monthAgo) && !measurementDate.isAfter(today);
-		}).collect(Collectors.toList());
+        if (monthlyMeasurements.isEmpty()) return;
 
-		// Se la lista filtrata è vuota, non fare nulla
-		if (monthlyMeasurements.isEmpty()) {
-			return;
-		}
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Andamento Glicemia Mensile");
 
-		XYChart.Series<String, Number> series = new XYChart.Series<>();
-		series.setName("Andamento Glicemia Mensile");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM", Locale.ITALY);
+        for (Measurement m : monthlyMeasurements) {
+            series.getData().add(new XYChart.Data<>(m.getDateTime().format(formatter), m.getValue()));
+        }
+        bloodSugarGraph.getData().add(series);
+    }
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM", Locale.ITALY);
+    public void insertTherapy(ActionEvent event) {
+        if (medicineField.getText() == null || numberOfIntakes.getValue() == null ||
+                amount.getText() == null || otherIndication.getText() == null ||
+                measurementUnitDropList.getValue() == null) {
+            AppUtils.showError("Error", "data are missing", "Impossible to insert prescription");
+            return;
+        }
 
-		// Ordina solo le misurazioni settimanali
-		monthlyMeasurements.sort((m1, m2) -> m1.getDateTime().compareTo(m2.getDateTime()));
+        String sql = "INSERT INTO prescriptions (doses, quantity,measurementUnit, indications, patientId,doctorId,drug) VALUES (?,?,?,?,?,?,?)";
+        int patientId = patient.getPatientId();
+        int doctorId = doctor.getMedicoId();
+        String doses = amount.getText();
+        String mU = measurementUnitDropList.getValue();
+        int quantity = numberOfIntakes.getValue();
+        String indications = otherIndication.getText();
+        String drug = medicineField.getText();
+        int idPrescription = -1;
 
-		for (Measurement m : monthlyMeasurements) {
-			String dataFormattata = m.getDateTime().format(formatter);
-			// data formatta punto x e m.getValue punto y nel piano xy
-			XYChart.Data<String, Number> dataPoint = new XYChart.Data<>(dataFormattata, m.getValue());
-			series.getData().add(dataPoint);
-		}
+        try (Connection con = DatabaseUtil.connect();
+             PreparedStatement ps = con.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
 
-		bloodSugarGraph.getData().add(series);
-	}
+            ps.setString(1, doses);
+            ps.setInt(2, quantity);
+            ps.setString(3, mU);
+            ps.setString(4, indications);
+            ps.setInt(5, patientId);
+            ps.setInt(6, doctorId);
+            ps.setString(7, drug);
+            ps.executeUpdate();
 
-	public void insertTherapy(ActionEvent event) {
-		// controllo se non ci sono errori di input
-		if (medicineField.getText() == null || numberOfIntakes.getValue() == null || amount.getText() == null
-				|| otherIndication.getText() == null || measurementUnitDropList.getValue() == null) {
-			AppUtils.showError("Error", "data are missing", "Impossible to insert prescription");
-			return;
-		}
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next())
+                    idPrescription = rs.getInt(1);
+            }
 
-		// variabili che mi servono per inserire la terapia/prescrizione
-		String sql = "INSERT INTO prescriptions (doses, quantity,measurementUnit, indications, patientId,doctorId,drug) VALUES (?,?,?,?,?,?,?)";
+            Prescription p = new Prescription(idPrescription, Double.parseDouble(doses), mU, quantity, indications,
+                    patientId, doctorId, drug);
+            prescriptions.add(p);
 
-		int patientId = patient.getPatientId();
-		int doctorId = doctor.getMedicoId();
-		String doses = amount.getText();
-		String mU = measurementUnitDropList.getValue();
-		int quantity = numberOfIntakes.getValue();
-		String indications = otherIndication.getText();
-		String drug = medicineField.getText();
-		int idPrescription = -1;
+            medicineField.setText("");
+            numberOfIntakes.getValueFactory().setValue(1);
+            amount.setText("");
+            otherIndication.setText("");
+            AppUtils.showConfirmation("Perfect!", "right data", "prescription successfully performed!");
 
-		// inserisco nel database la nuova misurazione
-		try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql,java.sql.Statement.RETURN_GENERATED_KEYS)) {
+        } catch (SQLException e2) {
+            e2.printStackTrace();
+        }
+    }
 
-			ps.setString(1, doses);
-			ps.setInt(2, quantity);
-			ps.setString(3, mU);
-			ps.setString(4, indications);
-			ps.setInt(5, patientId);
-			ps.setInt(6, doctorId);
-			ps.setString(7, drug);
+    public void modifyTherapy(ActionEvent e) throws IOException {
+        Prescription pSelected = therapyTableAsController.getSelectedItem();
+        if (pSelected != null) {
+            UpdatePrescriptionController controller =
+                ViewNavigator.loadViewOver("updatePrescriptionView.fxml", "Update");
+            controller.setPrescription(pSelected);
+            controller.setOnUpdate(() -> therapyTableAsController.refresh());
+        } else {
+            AppUtils.showError("Error", "you must select an Item",
+                    "Please, select an item if you would like to modify it");
+        }
+    }
 
-			ps.executeUpdate();
+    public void deleteTherapy(ActionEvent event) {
+        Prescription pSelected = therapyTableAsController.getSelectedItem();
+        if (pSelected == null) {
+            AppUtils.showError("Attenzione", "prescription not selected", "Please, select a prescription to delete");
+            event.consume();
+            return;
+        }
 
-			try (ResultSet rs = ps.getGeneratedKeys()) { // ottengo la primaryKey id della nuova prescrizione
-				if (rs.next())
-					idPrescription = rs.getInt(1);
-			}
+        String sql = "DELETE FROM prescriptions WHERE id = ?";
+        int rows = DatabaseUtil.executeUpdate(sql, ps -> ps.setInt(1, pSelected.getIdPrescription()));
 
-			Prescription p = new Prescription(idPrescription, Double.parseDouble(doses),mU, quantity, indications, patientId, doctorId, drug);
-			prescriptions.add(p);
-
-			// pulisco tutti i campi dell'inserimento
-			medicineField.setText("");
-			numberOfIntakes.getValueFactory().setValue(1);
-			amount.setText("");
-			otherIndication.setText("");
-			AppUtils.showConfirmation("Perfect!", "right data", "prescription successfully performed!");
-
-		} catch (SQLException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-	}
-
-	public void modifyTherapy(ActionEvent e) throws IOException {
-		Prescription pSelected = therapyTableAsController.getSelectedItem();
-		UpdatePrescriptionController controller;
-		
-		if(pSelected != null) {
-			controller = ViewNavigator.loadViewOver("updatePrescriptionView.fxml","Update");
-			controller.setPrescription(pSelected);
-			//passo una task -> oggetto runnable, per aggiornare la tabella nella classe UpdateMeasurementController
-			controller.setOnUpdate(() -> {therapyTableAsController.refresh();});
-		}
-		else {
-			AppUtils.showError("Error", "you must select an Item", "Please, select an item if you would like to modify it");
-			return;
-		}
-		
-	}
-
-	public void deleteTherapy(ActionEvent event) {
-		Prescription pSelected = therapyTableAsController.getSelectedItem();
-		if (pSelected == null) {
-			AppUtils.showError("Attenzione", "prescription not selected", "Please, select a prescription to delete");
-			event.consume();
-			return;
-		}
-
-		String sql = "DELETE FROM prescriptions WHERE id = ?";
-		int rows = DatabaseUtil.executeUpdate(sql, ps -> ps.setInt(1, pSelected.getIdPrescription()));
-
-		if (rows > 0) {
-			prescriptions.remove(pSelected); // lista condivisa -> la tabella si aggiorna
-		} else {
-			AppUtils.showError("Error", "impossible to remove this prescription", "Please select another prescription");
-		}
-
-		//event.consume();
-	}
-
-	private void loadInformations() {
-		String sql = "SELECT informations FROM patients WHERE id = ?";
-		// aggiorno textArea con le note fatte dal dottore
-		try (Connection con = DatabaseUtil.connect(); PreparedStatement ps = con.prepareStatement(sql)) {
-			ps.setInt(1, patient.getPatientId());
-
-			ResultSet rs = ps.executeQuery();
-			if (rs.next())
-				infoPatients.setText(rs.getString("informations"));
-
-		}
-
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void visualize(ActionEvent event) throws SQLException {
-		super.visualize(event);
-	}
-
+        if (rows > 0) {
+            prescriptions.remove(pSelected);
+        } else {
+            AppUtils.showError("Error", "impossible to remove this prescription", "Please select another prescription");
+        }
+    }
 }

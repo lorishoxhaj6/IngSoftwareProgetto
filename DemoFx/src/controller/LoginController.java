@@ -156,11 +156,11 @@ public class LoginController implements Initializable {
 
 	            // 3) Creo oggetto dottore con la lista pazienti
 	            Doctor doctorObj = new Doctor(username, password, doctorId, pazienti,email);
-	            SharedDataModelDoc docModel = SharedDataModelDoc.getInstance(doctorObj);
+	          
 	            
 	            DoctorController controller = ViewNavigator.loadViewWithController("doctorView.fxml");
 	            
-	            controller.setUser(doctorObj,docModel);
+	            controller.setUser(doctorObj);
 	        }
 	    }
 	}
