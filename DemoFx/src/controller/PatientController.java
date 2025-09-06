@@ -40,7 +40,7 @@ import model.Measurement;
 import model.Patient;
 import model.Prescription;
 import model.Symptoms;
-import model.Unit;
+
 
 public class PatientController extends UserController<Patient> implements Initializable {
 	// usa superclasse ma con Patient e non con un tipo generico
@@ -93,7 +93,9 @@ public class PatientController extends UserController<Patient> implements Initia
 	@FXML
 	private TextField amount;
 	@FXML
-	private ComboBox<Unit> unitDropList;
+	private ComboBox<String> unitDropList;
+	@FXML
+	private DatePicker dataPickerPrescription;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -103,7 +105,8 @@ public class PatientController extends UserController<Patient> implements Initia
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
 		dropList.getItems().addAll("assuzione insulina","assunzione faramaci antidiabetici orali");
-		
+		//inizializzio la dropList con le unità di misura std
+		AppUtils.intializeMeasurementUnit(unitDropList);
 		
 		AppUtils.colorMeasurments(valueColumn);
 	}
@@ -117,18 +120,20 @@ public class PatientController extends UserController<Patient> implements Initia
 		loadAndShowSymptoms();
 		prescriptions = loadAndShowPrescriptions(prescriptions);
 		drugDropList.getItems().addAll(prescriptions);
+		//se iterando tra le varie prescrizioni trovo unità di misura non presenti nella unitDropList iniziallizata
+		//le aggiungo. Per aggiungere un unità di misura la prescrizione deve riferirsi al paziente loggato
+		for(Prescription p:prescriptions) {
+			if(!unitDropList.getItems().contains(p.getMeasurementUnit()) && p.getPatientId() == user.getPatientId())
+				unitDropList.getItems().add(p.getMeasurementUnit());
+		}
 		
 		
 	}
 	
-	public void showUnit(ActionEvent e) {
-		Prescription p = drugDropList.getSelectionModel().getSelectedItem();
+	public void enterPrescription() {
+		// prendo selezione tra insulina o farmaci antidiabetici orali
+		String selTypeAssumption = dropList.getValue();
 		
-		if(p == null) {
-			AppUtils.showInfo("Ordine di selezione", "Selezionare prima il farmaco per ottenere le unità di misura relative", "");
-		}
-		
-		//if(drugDropList.getItems())
 	}
 
 	public void logout() {

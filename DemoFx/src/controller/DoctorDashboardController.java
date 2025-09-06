@@ -121,13 +121,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 
 		// faccio il setup dello spinner con un range(min,max,init value)
 		numberOfIntakes.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
-		measurementUnitDropList.getItems().addAll(
-			    "mg",          // milligrammi
-			    "ml",          // millilitri
-			    "UI",          // unità internazionali (es. insulina)
-			    "compresse",   // numero di compresse
-			    "gocce"        // utile per certi farmaci liquidi
-			);
+		AppUtils.intializeMeasurementUnit(measurementUnitDropList);
 
 		
 		AppUtils.colorMeasurments(valueColumn);

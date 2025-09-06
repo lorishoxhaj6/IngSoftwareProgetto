@@ -146,7 +146,7 @@
                                     <Insets bottom="25.0" />
                                  </VBox.margin>
                               </ComboBox>
-                              <DatePicker prefHeight="26.0" prefWidth="170.0" promptText="seleziona una data">
+                              <DatePicker fx:id="dataPickerPrescription" prefHeight="26.0" prefWidth="170.0" promptText="seleziona una data">
                                  <VBox.margin>
                                     <Insets bottom="25.0" />
                                  </VBox.margin></DatePicker>
@@ -161,14 +161,14 @@
                                           <Insets bottom="20.0" />
                                        </HBox.margin>
                                     </TextField>
-                                    <ComboBox fx:id="unitDropList" onAction="#showUnit" prefHeight="30.0" prefWidth="70.0" promptText="Unit">
+                                    <ComboBox fx:id="unitDropList" prefHeight="30.0" prefWidth="70.0" promptText="Unit">
                                        <HBox.margin>
                                           <Insets bottom="20.0" left="10.0" />
                                        </HBox.margin>
                                     </ComboBox>
                                  </children>
                               </HBox>
-                              <Button mnemonicParsing="false" text="Invia" />
+                              <Button mnemonicParsing="false" onAction="#enterInTake" text="Invia" />
                            </children>
                            <padding>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

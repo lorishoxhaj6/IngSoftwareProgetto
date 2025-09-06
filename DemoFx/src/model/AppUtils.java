@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.paint.Color;
@@ -91,6 +92,17 @@ public class AppUtils {
 
 			}
 		});
+	}
+
+	public static void intializeMeasurementUnit(ComboBox<String> s) {
+		s.getItems().addAll(
+			    "mg",          // milligrammi
+			    "ml",          // millilitri
+			    "UI",          // unità internazionali (es. insulina)
+			    "compresse",   // numero di compresse
+			    "gocce"        // utile per certi farmaci liquidi
+			);
+		
 	}
 
 }
