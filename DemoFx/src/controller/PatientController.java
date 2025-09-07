@@ -24,7 +24,6 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.Spinner;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -80,7 +79,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	private Button saveButton;
 	@FXML
 	private AnchorPane patientPane;
-	// Magia di fx:include: puoi iniettare il controller del child così:
+	// fx:include: puoi iniettare il controller del child così:
 	// il child è la view therapyTableView, ovvero la view della tabella delle
 	// terapie che dovrà essere condivisa
 	@FXML

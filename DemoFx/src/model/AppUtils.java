@@ -1,7 +1,13 @@
 package model;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import javafx.scene.control.Alert;
@@ -102,6 +108,33 @@ public class AppUtils {
 			    "compresse",   // numero di compresse
 			    "gocce"        // utile per certi farmaci liquidi
 			);
+		
+	}
+
+	public static List<Patient> findAllPatient(int doctorId) throws SQLException {
+		Connection con = DatabaseUtil.connect();
+		List<Patient> pazienti = new ArrayList<>();
+        String sqlPazienti = "SELECT * FROM patients WHERE doctor_id = ?";
+        
+        try (PreparedStatement ps2 = con.prepareStatement(sqlPazienti)) {
+            ps2.setInt(1, doctorId);
+
+            try (ResultSet rs2 = ps2.executeQuery()) {
+                while (rs2.next()) {
+                    pazienti.add(new Patient(
+                        rs2.getString("username"),
+                        rs2.getString("password"),
+                        rs2.getInt("id"),
+                        rs2.getInt("doctor_id"),
+                        rs2.getString("name"),
+    	                rs2.getString("surname")
+                    ));
+                }
+            }
+        }
+
+        // 3) Creo oggetto dottore con la lista pazienti
+        return pazienti;
 		
 	}
 
