@@ -7,78 +7,54 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
-   <top>
-      <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="47.0" prefWidth="400.0" text="GlychoHealth" textAlignment="CENTER" BorderPane.alignment="CENTER">
-         <font>
-            <Font name="Inter_FXH Bold" size="32.0" />
-         </font>
-         <BorderPane.margin>
-            <Insets top="20.0" />
-         </BorderPane.margin>
-      </Label>
-   </top>
-   <center>
-      <VBox alignment="CENTER" prefHeight="516.0" prefWidth="1220.0" BorderPane.alignment="CENTER">
+
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
+   <children>
+      <VBox alignment="CENTER" spacing="30.0">
          <children>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="47.0" prefWidth="230.0" text="GlychoHealth" textAlignment="CENTER">
+               <font>
+                  <Font name="Inter_FXH Bold" size="32.0" />
+               </font>
+            </Label>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Log in as a patient or doctor ">
                <font>
                   <Font name="Inter_FXH Regular" size="18.0" />
                </font>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
             </Text>
-            <HBox alignment="CENTER" minWidth="800.0" prefHeight="100.0" prefWidth="200.0">
+            <HBox alignment="CENTER" minWidth="349.0" prefHeight="39.0" prefWidth="547.0" spacing="30.0">
                <children>
                   <RadioButton fx:id="rbPatient" mnemonicParsing="false" text="patient">
                      <toggleGroup>
                         <ToggleGroup fx:id="RoleGroup" />
                      </toggleGroup>
-                     <padding>
-                        <Insets right="25.0" />
-                     </padding>
                      <HBox.margin>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        <Insets />
                      </HBox.margin>
                   </RadioButton>
                   <RadioButton fx:id="rbDoctor" mnemonicParsing="false" text="Doctor" toggleGroup="$RoleGroup">
                      <HBox.margin>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                        <Insets />
                      </HBox.margin>
-                     <padding>
-                        <Insets left="25.0" />
-                     </padding></RadioButton>
+                  </RadioButton>
                </children>
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>
-               <VBox.margin>
-                  <Insets bottom="30.0" />
-               </VBox.margin>
             </HBox>
-            <TextField fx:id="userTextField" maxHeight="40.0" maxWidth="400.0" minHeight="40.0" minWidth="400.0" prefHeight="40.0" prefWidth="400.0" promptText="Username">
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin></TextField>
-            <PasswordField fx:id="passwordField" maxHeight="40.0" maxWidth="400.0" minHeight="40.0" minWidth="400.0" prefHeight="40.0" prefWidth="400.0" promptText="Password">
-               <VBox.margin>
-                  <Insets top="15.0" />
-               </VBox.margin></PasswordField>
-            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#handleLogin" text="login">
-               <VBox.margin>
-                  <Insets top="15.0" />
-               </VBox.margin></Button>
+            <TextField fx:id="userTextField" maxHeight="40.0" maxWidth="400.0" minHeight="40.0" minWidth="400.0" prefHeight="40.0" prefWidth="400.0" promptText="Username" />
+            <PasswordField fx:id="passwordField" maxHeight="40.0" maxWidth="400.0" minHeight="40.0" minWidth="400.0" prefHeight="40.0" prefWidth="400.0" promptText="Password" />
+            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#handleLogin" text="login" />
          </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
       </VBox>
-   </center>
-   <padding>
-      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-   </padding>
-</BorderPane>
+   </children>
+</AnchorPane>

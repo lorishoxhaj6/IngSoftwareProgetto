@@ -32,7 +32,7 @@ public class JdbcSymptomDao implements SymptomDao {
     }
 
     
-    public int saveSymptom(Symptoms s) throws SQLException {
+    public int insert(Symptoms s) throws SQLException {
         final String sql = "INSERT INTO symptoms (patient_id, doctor_id, symptoms, startDateTime, notes) VALUES (?,?,?,?,?)";
         try (Connection c = DatabaseUtil.connect();
              PreparedStatement ps = c.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
@@ -49,7 +49,7 @@ public class JdbcSymptomDao implements SymptomDao {
     }
 
     
-    public int resolveSymptom(int id, LocalDateTime end) throws SQLException {
+    public int resolve(int id, LocalDateTime end) throws SQLException {
         final String sql = "UPDATE symptoms SET endDateTime = ? WHERE id = ?";
         return DatabaseUtil.executeUpdate(sql, ps -> {
             ps.setString(1, end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));

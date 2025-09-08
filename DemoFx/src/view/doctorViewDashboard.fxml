@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
@@ -18,6 +19,8 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
@@ -62,11 +65,7 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <ScrollPane layoutX="14.0" layoutY="41.0">
-                           <content>
-                              <TextArea fx:id="infoPatients" prefHeight="150.0" prefWidth="246.0" />
-                           </content>
-                        </ScrollPane>
+                        <TextArea fx:id="infoPatients" layoutX="14.0" layoutY="41.0" prefHeight="150.0" prefWidth="246.0" />
                         <Text layoutX="14.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Note sul paziente" />
                         <ScrollPane layoutX="388.0" layoutY="65.0" />
                         <Text layoutX="276.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="segnalazioni del paziente" />
@@ -80,16 +79,27 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TextField fx:id="medicineField" layoutX="233.0" layoutY="58.0" prefHeight="26.0" prefWidth="119.0" />
-                        <Text layoutX="246.0" layoutY="43.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Specifica il farmaco" wrappingWidth="106.91015624999989" />
-                        <Text layoutX="207.0" layoutY="106.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Numero di assunzioni giornaliere" wrappingWidth="184.8000244140626" />
-                        <Text layoutX="192.0" layoutY="164.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Quantita di farmaco per ogni assunzione" wrappingWidth="215.99999999999994" />
-                        <Text layoutX="251.0" layoutY="219.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Eventuali indicazioni" wrappingWidth="114.40002441406244" />
-                        <TextArea fx:id="otherIndication" layoutX="160.0" layoutY="227.0" prefHeight="64.0" prefWidth="297.0" />
-                        <Button fx:id="saveButton" layoutX="271.0" layoutY="322.0" mnemonicParsing="false" onAction="#insertTherapy" prefHeight="26.0" prefWidth="73.0" text="Salva" />
-                        <Spinner fx:id="numberOfIntakes" layoutX="243.0" layoutY="117.0" prefHeight="26.0" prefWidth="113.0" />
-                        <ComboBox fx:id="measurementUnitDropList" editable="true" layoutX="327.0" layoutY="175.0" prefHeight="26.0" prefWidth="121.0" promptText="unità di misura" />
-                        <TextField fx:id="amount" layoutX="200.0" layoutY="175.0" prefHeight="26.0" prefWidth="114.0" />
+                        <VBox alignment="CENTER" layoutX="-3.0" layoutY="-3.0" prefHeight="436.0" prefWidth="630.0" spacing="22.0">
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Specifica il farmaco" wrappingWidth="106.91015624999989" />
+                              <TextField fx:id="medicineField" maxWidth="150.0" prefHeight="26.0" prefWidth="528.0" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Numero di assunzioni giornaliere" wrappingWidth="184.8000244140626" />
+                              <Spinner fx:id="numberOfIntakes" prefHeight="26.0" prefWidth="113.0" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Quantita di farmaco per ogni assunzione" wrappingWidth="215.99999999999994" />
+                              <HBox alignment="CENTER" spacing="20.0">
+                                 <children>
+                                    <TextField fx:id="amount" prefHeight="26.0" prefWidth="114.0" />
+                                    <ComboBox fx:id="measurementUnitDropList" editable="true" prefHeight="26.0" prefWidth="121.0" promptText="unità di misura" />
+                                 </children>
+                              </HBox>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Eventuali indicazioni" wrappingWidth="114.40002441406244" />
+                              <TextArea fx:id="otherIndication" prefHeight="64.0" prefWidth="297.0" />
+                              <Button fx:id="saveButton" mnemonicParsing="false" onAction="#insertTherapy" prefHeight="26.0" prefWidth="73.0" text="Salva" />
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </VBox>
                      </children></AnchorPane>
               </content>
             </Tab>
@@ -97,9 +107,20 @@
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="390.0" prefWidth="596.0">
                      <children>
-                     	<fx:include fx:id="therapyTableAs" source="therapyTableView.fxml" />
-                     	 <Button fx:id="modifyTherapyBut" layoutX="120.0" layoutY="377.0" mnemonicParsing="false" onAction="#modifyTherapy" text="Modifica terapia" />
-        				<Button fx:id="delTherapyBut" layoutX="315.0" layoutY="377.0" mnemonicParsing="false" onAction="#deleteTherapy" text="Elimina terapia" />
+                        <VBox alignment="CENTER" prefHeight="430.0" prefWidth="630.0" spacing="20.0">
+                           <children>
+                           	<fx:include fx:id="therapyTableAs" source="therapyTableView.fxml" VBox.vgrow="ALWAYS" />
+                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                                 <children>
+                                 	 <Button fx:id="modifyTherapyBut" mnemonicParsing="false" onAction="#modifyTherapy" text="Modifica terapia" textAlignment="CENTER" />
+                    				<Button fx:id="delTherapyBut" mnemonicParsing="false" onAction="#deleteTherapy" text="Elimina terapia" textAlignment="CENTER" />
+                                 </children>
+                              </HBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </VBox>
                      </children>
                   </AnchorPane>
                </content>

@@ -35,5 +35,6 @@ public class Symptoms {
 	public LocalDateTime getDateTime() { return dateTime;}
 	public String getNotes() { return this.notes;}
 	public String toString() {return String.format("%s | %s | %s",dateTime.format(OUT_FMT),symptoms,notes == null ? "Nessuna nota" : notes);}
-	
+	public void setId(int id) {this.symptomId = id;};
+
 }

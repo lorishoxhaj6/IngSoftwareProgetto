@@ -30,7 +30,7 @@ public class JdbcMeasurementDao implements MeasurementDao {
     }
 
     @Override
-    public int saveMeasurement(Measurement m) throws SQLException {
+    public int insert(Measurement m) throws SQLException {
         final String sql = "INSERT INTO measurements (patientId, moment, dateTime, value) VALUES (?,?,?,?)";
         try (Connection c = DatabaseUtil.connect();
              PreparedStatement ps = c.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
@@ -46,7 +46,7 @@ public class JdbcMeasurementDao implements MeasurementDao {
     }
 
     @Override
-    public int deleteMeasurement(int id) throws SQLException {
+    public int deleteById(int id) throws SQLException {
         final String sql = "DELETE FROM measurements WHERE id = ?";
         return DatabaseUtil.executeUpdate(sql, ps -> ps.setInt(1, id));
     }

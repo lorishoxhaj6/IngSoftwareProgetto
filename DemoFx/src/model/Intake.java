@@ -10,13 +10,15 @@ public class Intake {
     private LocalDateTime dateTime;
     private int patientId;
     private int doctorId;
+    private int intakeId;
     private String drug;
 
 
     // costruttore completo
-    public Intake(String type, double doses, String mU, LocalDateTime dateTime,
+    public Intake(int intakeId,String type, double doses, String mU, LocalDateTime dateTime,
                   int patientId, int doctorId, String drug) {
-        this.type = type;
+        this.intakeId = intakeId;
+    	this.type = type;
         this.doses = doses;
         this.mU = mU;
         this.dateTime = dateTime;
@@ -33,7 +35,14 @@ public class Intake {
     public void setType(String type) {
         this.type = type;
     }
-
+    
+    public int getId() {
+    	return this.intakeId;
+    }
+    
+    public void setId(int id) {
+    	this.intakeId = id;
+    }
     public double getDoses() {
         return doses;
     }

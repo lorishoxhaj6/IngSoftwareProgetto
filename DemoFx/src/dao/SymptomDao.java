@@ -13,7 +13,7 @@ public interface SymptomDao {
 	 * @param s (Sintomo)
 	 * @return int (id del sintomo)
 	 */
-	int saveSymptom(Symptoms s) throws SQLException;
+	int insert(Symptoms s) throws SQLException;
 	/**
 	 * Risolve il sintomo, in quanto passato al paziente, e registra
 	 * la data e il tempo di fine sintomo
@@ -22,7 +22,7 @@ public interface SymptomDao {
 	 * @return int le righe aggiornate
 	 * @throws SQLException
 	 */
-	int resolveSymptom(int patientId,LocalDateTime dateTime) throws SQLException;
+	int resolve(int patientId,LocalDateTime dateTime) throws SQLException;
 	/**
 	 * Trova tutti i sintomy nel db legati al paziente ancora aperti ovvero non risolti
 	 * @param patientId
