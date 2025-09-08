@@ -15,4 +15,6 @@ import model.Patient;
 public interface PatientDao {
 	Doctor findDoctorById(int doctorId) throws SQLException;
 	List<Patient> findAll() throws SQLException;
+	String getInfo(int patientId) throws SQLException;
+	int updateInfo(int patientId,String text) throws SQLException;
 }

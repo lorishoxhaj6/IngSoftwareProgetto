@@ -58,4 +58,29 @@ public class JdbcPatientDao implements PatientDao{
 			    )
 			);
     }
+
+	public String getInfo(int patientId) throws SQLException {
+		String sql = "SELECT informations FROM patients WHERE id = ?";
+        try (Connection con = DatabaseUtil.connect();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, patientId);
+            ResultSet rs = ps.executeQuery();
+            return rs.getString("informations");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+		return null;
+	}
+
+	@Override
+	public int updateInfo(int patientId,String text) throws SQLException {
+		String sql = "UPDATE patients SET informations = ? WHERE id = ?";
+		  
+		return DatabaseUtil.executeUpdate(sql, ps -> {
+            ps.setString(1, text);
+            ps.setInt(2, patientId);
+        });  
+	}
+	
+	
 }

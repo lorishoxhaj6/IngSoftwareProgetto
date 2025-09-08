@@ -112,13 +112,10 @@ public class PatientController extends UserController<Patient> implements Initia
 
 	public void setUser(Patient user) {
 		super.setUser(user);
-		ObservableList<Prescription> prescriptions = FXCollections.observableArrayList();
-
 		loadAndShowDoctorInfo();
 		loadAndShowMeasurements();
 		loadAndShowSymptoms();
 		loadAndShowPrescriptions();
-
 	}
 	
 	public void setClinic(ClinicFacade clinic) {

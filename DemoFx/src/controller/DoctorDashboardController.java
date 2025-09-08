@@ -2,12 +2,8 @@ package controller;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -34,7 +30,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.AppUtils;
-import model.DatabaseUtil;
 import model.Doctor;
 import model.Measurement;
 import model.Patient;
@@ -136,21 +131,8 @@ public class DoctorDashboardController extends DoctorController implements Initi
     }
 
     private void loadSymptoms() {
-        String sql = "SELECT id,symptoms, startDateTime, notes FROM symptoms WHERE patient_id = ? AND endDateTime IS NULL";
-        try {
-            ObservableList<Symptoms> symptoms = DatabaseUtil.queryList(sql, ps -> {
-                try {
-					ps.setInt(1, patient.getPatientId());
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-            }, rs -> {
-                int symptomId = rs.getInt("id");
-                LocalDateTime date = LocalDateTime.parse(rs.getString("startDateTime"),
-                        DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                return new Symptoms(symptomId, patient.getMedicoId(), patient.getPatientId(),
-                        rs.getString("symptoms"), date, rs.getString("notes"));
-            });
+         try {
+            ObservableList<Symptoms> symptoms = FXCollections.observableArrayList(clinic.loadOpenSymptoms(patient.getPatientId()));
             symptomsMedicinesView.setItems(symptoms);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -158,21 +140,8 @@ public class DoctorDashboardController extends DoctorController implements Initi
     }
 
     private void loadMeasurements() {
-        String sql = "SELECT id,dateTime, moment, value FROM measurements WHERE patientId = ?";
         try {
-            ObservableList<Measurement> measurments = DatabaseUtil.queryList(sql, ps -> {
-                try {
-					ps.setInt(1, patient.getPatientId());
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-            }, rs -> {
-                int id = rs.getInt("id");
-                LocalDateTime date = LocalDateTime.parse(rs.getString("dateTime"),
-                        DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                return new Measurement(id, patient.getPatientId(),
-                        rs.getString("moment"), date, rs.getDouble("value"));
-            });
+            ObservableList<Measurement> measurments = FXCollections.observableArrayList(clinic.loadMeasurements(patient.getPatientId()));
             measurementsTableView.setItems(measurments);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -180,24 +149,8 @@ public class DoctorDashboardController extends DoctorController implements Initi
     }
 
     private void loadPrescriptions() {
-        String sql = "SELECT id, doses, measurementUnit,quantity, indications, drug FROM prescriptions WHERE patientId = ?";
-        try {
-            prescriptions = DatabaseUtil.queryList(sql, ps -> {
-                try {
-					ps.setInt(1, patient.getPatientId());
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-            }, rs -> new Prescription(
-                    rs.getInt("id"),
-                    rs.getDouble("doses"),
-                    rs.getString("measurementUnit"),
-                    rs.getInt("quantity"),
-                    rs.getString("indications"),
-                    patient.getPatientId(),
-                    doctor.getMedicoId(),
-                    rs.getString("drug")
-            ));
+       try {
+            prescriptions = FXCollections.observableArrayList(clinic.loadPrescriptions(patient.getPatientId()));
             therapyTableAsController.setItems(prescriptions);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -205,14 +158,9 @@ public class DoctorDashboardController extends DoctorController implements Initi
     }
 
     private void loadInformations() {
-        String sql = "SELECT informations FROM patients WHERE id = ?";
-        try (Connection con = DatabaseUtil.connect();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, patient.getPatientId());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                infoPatients.setText(rs.getString("informations"));
-            }
+        try {
+        	String info = clinic.getInformation(patient.getPatientId());
+            infoPatients.setText(info);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -222,12 +170,13 @@ public class DoctorDashboardController extends DoctorController implements Initi
         boolean confirmation = AppUtils.showConfirmationWithBoolean("data update ", "data updated",
                 "sure to update data?");
         String newText = infoPatients.getText();
-        String sql = "UPDATE patients SET informations = ? WHERE id = ?";
-        if (confirmation) {
-            int rows = DatabaseUtil.executeUpdate(sql, ps -> {
-                ps.setString(1, newText);
-                ps.setInt(2, patient.getPatientId());
-            });
+         if (confirmation) {
+            int rows = 0;
+			try {
+				rows = clinic.updateInformation(patient.getPatientId(), newText);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
             if (rows > 0)
                 AppUtils.showInfo("data updated! ", "data updated", "new data has been saved");
             else
@@ -267,52 +216,54 @@ public class DoctorDashboardController extends DoctorController implements Initi
     }
 
     public void insertTherapy(ActionEvent event) {
-        if (medicineField.getText() == null || numberOfIntakes.getValue() == null ||
-                amount.getText() == null || otherIndication.getText() == null ||
-                measurementUnitDropList.getValue() == null) {
+        // validazioni minime UI
+        if (medicineField.getText() == null || medicineField.getText().isBlank() ||
+            amount.getText() == null || amount.getText().isBlank() ||
+            measurementUnitDropList.getValue() == null ||
+            numberOfIntakes.getValue() == null) {
             AppUtils.showError("Error", "data are missing", "Impossible to insert prescription");
             return;
         }
 
-        String sql = "INSERT INTO prescriptions (doses, quantity,measurementUnit, indications, patientId,doctorId,drug) VALUES (?,?,?,?,?,?,?)";
-        int patientId = patient.getPatientId();
-        int doctorId = doctor.getMedicoId();
-        String doses = amount.getText();
-        String mU = measurementUnitDropList.getValue();
-        int quantity = numberOfIntakes.getValue();
-        String indications = otherIndication.getText();
-        String drug = medicineField.getText();
-        int idPrescription = -1;
+        final double doses;
+        try {
+            doses = Double.parseDouble(amount.getText());
+        } catch (NumberFormatException nfe) {
+            AppUtils.showError("Error", "invalid number", "Check amount");
+            return;
+        }
 
-        try (Connection con = DatabaseUtil.connect();
-             PreparedStatement ps = con.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
-
-            ps.setString(1, doses);
-            ps.setInt(2, quantity);
-            ps.setString(3, mU);
-            ps.setString(4, indications);
-            ps.setInt(5, patientId);
-            ps.setInt(6, doctorId);
-            ps.setString(7, drug);
-            ps.executeUpdate();
-
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next())
-                    idPrescription = rs.getInt(1);
-            }
-
-            Prescription p = new Prescription(idPrescription, Double.parseDouble(doses), mU, quantity, indications,
-                    patientId, doctorId, drug);
+        final int qty = numberOfIntakes.getValue();
+        final String unit = measurementUnitDropList.getValue();
+        final String indications = (otherIndication.getText() == null) ? "" : otherIndication.getText();
+        final String drug = medicineField.getText();
+        
+        Prescription p = new Prescription(
+        		0,
+        		doses,
+        		unit,
+        		qty,
+        		indications,
+        		patient.getPatientId(),
+                doctor.getMedicoId(), 
+        		drug
+         );
+        try {
+            int id = clinic.insertPrescription(p);
+            p.setId(id);
+            
+            // aggiorna la lista UI
             prescriptions.add(p);
 
-            medicineField.setText("");
+            // pulizia campi
+            medicineField.clear();
             numberOfIntakes.getValueFactory().setValue(1);
-            amount.setText("");
-            otherIndication.setText("");
+            amount.clear();
+            otherIndication.clear();
             AppUtils.showConfirmation("Perfect!", "right data", "prescription successfully performed!");
 
-        } catch (SQLException e2) {
-            e2.printStackTrace();
+        } catch (SQLException e) {
+            AppUtils.showError("DB error", "Insert prescription failed", e.getMessage());
         }
     }
 
@@ -332,18 +283,22 @@ public class DoctorDashboardController extends DoctorController implements Initi
     public void deleteTherapy(ActionEvent event) {
         Prescription pSelected = therapyTableAsController.getSelectedItem();
         if (pSelected == null) {
-            AppUtils.showError("Attenzione", "prescription not selected", "Please, select a prescription to delete");
+            AppUtils.showError("Attenzione", "prescription not selected",
+                    "Please, select a prescription to delete");
             event.consume();
             return;
         }
 
-        String sql = "DELETE FROM prescriptions WHERE id = ?";
-        int rows = DatabaseUtil.executeUpdate(sql, ps -> ps.setInt(1, pSelected.getIdPrescription()));
-
-        if (rows > 0) {
-            prescriptions.remove(pSelected);
-        } else {
-            AppUtils.showError("Error", "impossible to remove this prescription", "Please select another prescription");
+        try {
+            int rows = clinic.deletePrescription(pSelected.getIdPrescription());
+            if (rows > 0) {
+                prescriptions.remove(pSelected);
+            } else {
+                AppUtils.showError("Error", "impossible to remove this prescription",
+                        "Please select another prescription");
+            }
+        } catch (SQLException e) {
+            AppUtils.showError("DB error", "Delete prescription failed", e.getMessage());
         }
     }
 }

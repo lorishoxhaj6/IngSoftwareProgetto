@@ -1,5 +1,8 @@
 package dao.jdbc;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -32,4 +35,29 @@ public class JdbcPrescriptionDao implements PrescriptionDao{
 	            );
 	        });
 	    }
+
+	
+	 public int deletePrescription(int idPrescription) throws SQLException {
+		String sql = "DELETE FROM prescriptions WHERE id = ?";        
+		return DatabaseUtil.executeUpdate(sql, ps -> ps.setInt(1, idPrescription));
+	 }
+
+
+	 public int insert(Prescription p) throws SQLException {
+		 final String sql = "INSERT INTO prescriptions (doses, measurementUnit, quantity, indications,patientId,doctorId,drug) VALUES (?,?,?,?,?,?,?)";
+	        try (Connection c = DatabaseUtil.connect();
+	             PreparedStatement ps = c.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+	            ps.setDouble(1, p.getDoses());
+	            ps.setString(2, p.getMeasurementUnit());
+	            ps.setInt(3, p.getQuantity());
+	            ps.setString(4, p.getIndications());
+	            ps.setInt(5, p.getPatientId());
+	            ps.setInt(6, p.getDoctorId());
+	            ps.setString(7, p.getDrug());
+	            ps.executeUpdate();
+	            try (ResultSet keys = ps.getGeneratedKeys()) {
+	                return keys.next() ? keys.getInt(1) : -1;
+	            }
+	        }
+	 }
 }

@@ -31,6 +31,7 @@ public class Prescription {
     public int getPatientId() {return patientId;}
     public int getDoctorId() {return doctorId;}
     public String getDrug() {return drug;}
+    public void setId(int id) { this.idPrescription = id;};
     public void setDoses(Double doses) {this.doses = doses;}
     public void setMeasurementUnit(String m) {this.measurementUnit = m;}
 	public void setQuantity(int quantity) {this.quantity = quantity;}

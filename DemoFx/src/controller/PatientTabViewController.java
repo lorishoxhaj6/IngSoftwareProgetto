@@ -2,6 +2,7 @@ package controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,7 +24,7 @@ public class PatientTabViewController implements Initializable {
     private Doctor currentDoctor;
 
     //  callback impostata dal parent (DoctorController o DoctorDashboardController)
-    private java.util.function.Consumer<Patient> onVisualize = p -> {};
+    private Consumer<Patient> onVisualize = p -> {};
 
     @Override
     public void initialize(URL u, ResourceBundle r) {
@@ -47,10 +48,10 @@ public class PatientTabViewController implements Initializable {
     }
 
     // --- API pubblica ---
-    public void setAllPatients(ObservableList<Patient> all)   { allPatientsListView.setItems(all); }
-    public void setFilteredPatient(ObservableList<Patient> ps) { patientsListView.setItems(ps); }
-    public void setDoctor(Doctor d)                            { this.currentDoctor = d; }
-    public void setOnVisualize(java.util.function.Consumer<Patient> cb) {
+    public void setAllPatients(ObservableList<Patient> all){ allPatientsListView.setItems(all); }
+    public void setFilteredPatient(ObservableList<Patient> ps){ patientsListView.setItems(ps); }
+    public void setDoctor(Doctor d){ this.currentDoctor = d; }
+    public void setOnVisualize(Consumer<Patient> cb) {
         this.onVisualize = (cb != null) ? cb : p -> {};
     }
 

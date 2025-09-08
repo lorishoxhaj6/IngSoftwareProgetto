@@ -9,10 +9,6 @@ import dao.MeasurementDao;
 import dao.PatientDao;
 import dao.PrescriptionDao;
 import dao.SymptomDao;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import model.AppUtils;
-import model.DatabaseUtil;
 import model.Doctor;
 import model.Intake;
 import model.Measurement;
@@ -46,7 +42,11 @@ public class ClinicFacade {
  public Doctor loadDoctorInfo(int doctorId) throws SQLException {
      return patientDao.findDoctorById(doctorId);
  }
-
+/**
+ * Resitituisce la lista di tutti i pazineti nel db
+ * @return List<Patient>
+ * @throws SQLException
+ */
  public List<Patient> loadAllPatients() throws SQLException {
      return patientDao.findAll();
  }
@@ -143,5 +143,43 @@ public class ClinicFacade {
   */
  public int addIntake(Intake t) throws SQLException {
      return intakeDao.insert(t);
+ }
+ /**
+  * Restituisce le informazioni legate alla storia clinica del paziente
+  * @param patientId 
+  * @return String (stringa contenente info)
+  * @throws SQLException
+  */
+ public String getInformation(int patientId) throws SQLException {
+	 return patientDao.getInfo(patientId);
+ }
+ /**
+  * aggiorna le informazioni legate all'id del paziente, possono farlo 
+  * tutti i medici, e la modifica di un medico aggiorna le viste di tutti i medici
+  * @param patientId
+  * @param newText
+  * @return numero di righe aggiornate (0 se l'id non esiste)
+  * @throws SQLException
+  */
+ public int updateInformation(int patientId,String newText) throws SQLException {
+	 return patientDao.updateInfo(patientId,newText);
+ }
+/**
+ * Elimina la terapia tramite id
+ * @param idPrescription
+ * @return numero di righe eliminate (0 se l'id non esiste)
+ * @throws SQLException
+ */
+ public int deletePrescription(int idPrescription) throws SQLException {
+	return prescriptionDao.deletePrescription(idPrescription);
+ }
+/**
+ * Inserimento della terapia 
+ * @param p (terapia presa in input)
+ * @return id generato per la terapia inserita
+ * @throws SQLException
+ */
+ public int insertPrescription(Prescription p) throws SQLException {
+	 return prescriptionDao.insert(p);
  }
 }
