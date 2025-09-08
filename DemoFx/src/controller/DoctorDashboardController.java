@@ -107,7 +107,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
         if (patientTabViewController != null && doctor != null) {
             patientTabViewController.setDoctor(doctor);
             //POPOLA la lista "Tutti i pazienti"
-            patientTabViewController.setAllPatients(loadAllPatients());
+            patientTabViewController.setAllPatients(FXCollections.observableArrayList(clinic.loadAllPatients()));
             //POPOLA la lista paziente filtrati per medicoCorrente
             patientTabViewController.setFilteredPatient(
                 FXCollections.observableArrayList(doctor.getPatients())
@@ -142,7 +142,6 @@ public class DoctorDashboardController extends DoctorController implements Initi
                 try {
 					ps.setInt(1, patient.getPatientId());
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
             }, rs -> {
@@ -165,7 +164,6 @@ public class DoctorDashboardController extends DoctorController implements Initi
                 try {
 					ps.setInt(1, patient.getPatientId());
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
             }, rs -> {
@@ -188,7 +186,6 @@ public class DoctorDashboardController extends DoctorController implements Initi
                 try {
 					ps.setInt(1, patient.getPatientId());
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
             }, rs -> new Prescription(

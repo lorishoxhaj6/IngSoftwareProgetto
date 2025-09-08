@@ -43,4 +43,19 @@ public class JdbcPatientDao implements PatientDao{
 		
 	}
 
+	@Override
+	 public List<Patient> findAll() throws SQLException  {
+        String sql = "SELECT id, username,password, doctor_id, name, surname FROM patients";
+     
+			return DatabaseUtil.queryList(sql, null, rs ->
+			    new Patient(
+			        rs.getString("username"),
+			        rs.getString("password"),
+			        rs.getInt("id"),
+			        rs.getInt("doctor_id"),
+			        rs.getString("name"),
+			        rs.getString("surname")
+			    )
+			);
+    }
 }

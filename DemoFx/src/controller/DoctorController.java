@@ -2,13 +2,12 @@ package controller;
 
 import java.sql.SQLException;
 
+import facade.ClinicFacade;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import model.AppUtils;
-import model.DatabaseUtil;
 import model.Doctor;
 import model.Patient;
 
@@ -21,6 +20,7 @@ public class DoctorController extends UserController<Doctor>{
 	@FXML
 	PatientTabViewController patientTabViewController;
 	
+	protected ClinicFacade clinic;
 	
 	public void setUser(Doctor user) {
         super.setUser(user);
@@ -29,7 +29,11 @@ public class DoctorController extends UserController<Doctor>{
         patientTabViewController.setDoctor(user);
 
         // carica tutte le liste 
-        patientTabViewController.setAllPatients(loadAllPatients());
+        try {
+			patientTabViewController.setAllPatients(FXCollections.observableArrayList(clinic.loadAllPatients()));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
         patientTabViewController.setFilteredPatient(
             FXCollections.observableArrayList(user.getPatients())
         );
@@ -40,7 +44,7 @@ public class DoctorController extends UserController<Doctor>{
             try {
                 DoctorDashboardController docControl =
                     ViewNavigator.loadViewWithController("doctorViewDashboard.fxml");
-               
+                docControl.setClinic(clinic);
                 docControl.setEnviroment(selectedPatient, user);
             } catch (SQLException e) {
                 AppUtils.showError("DB error", "Caricamento dashboard fallito", e.getMessage());
@@ -53,25 +57,9 @@ public class DoctorController extends UserController<Doctor>{
 		super.logout();
 	}
 	
-	 protected ObservableList<Patient> loadAllPatients() {
-	        try {
-	            return DatabaseUtil.queryList(
-	                "SELECT id, username, password, doctor_id, name, surname FROM patients",
-	                null,
-	                rs -> new Patient(
-	                    rs.getString("username"),
-	                    rs.getString("password"),
-	                    rs.getInt("id"),
-	                    rs.getInt("doctor_id"),
-	                    rs.getString("name"),
-	                    rs.getString("surname")
-	                )
-	            );
-	        } catch (SQLException e) {
-	            AppUtils.showError("DB error", "Caricamento pazienti fallito", e.getMessage());
-	            return FXCollections.observableArrayList();
-	        }
-	    }
+	 public void setClinic(ClinicFacade clinic) {
+		this.clinic = clinic;
+	 }
 	}
 	
 	

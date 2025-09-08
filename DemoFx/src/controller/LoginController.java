@@ -145,7 +145,7 @@ public class LoginController implements Initializable {
 	            Doctor doctorObj = new Doctor(username, password, doctorId, pazienti,email);
 	            
 	            DoctorController controller = ViewNavigator.loadViewWithController("doctorView.fxml");
-	            
+	            controller.setClinic(clinic);
 	            controller.setUser(doctorObj);
 	        }
 	    }

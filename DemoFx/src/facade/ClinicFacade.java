@@ -9,9 +9,14 @@ import dao.MeasurementDao;
 import dao.PatientDao;
 import dao.PrescriptionDao;
 import dao.SymptomDao;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import model.AppUtils;
+import model.DatabaseUtil;
 import model.Doctor;
 import model.Intake;
 import model.Measurement;
+import model.Patient;
 import model.Prescription;
 import model.Symptoms;
 
@@ -42,6 +47,9 @@ public class ClinicFacade {
      return patientDao.findDoctorById(doctorId);
  }
 
+ public List<Patient> loadAllPatients() throws SQLException {
+     return patientDao.findAll();
+ }
  /**
   * Restituisce le misurazioni del paziente con id indicato.
   *
