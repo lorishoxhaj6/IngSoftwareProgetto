@@ -38,6 +38,7 @@ import model.Intake;
 import model.Measurement;
 import model.Patient;
 import model.Prescription;
+import model.ResetTask;
 import model.Symptoms;
 
 public class PatientController extends UserController<Patient> implements Initializable {
@@ -423,6 +424,8 @@ public class PatientController extends UserController<Patient> implements Initia
 		 try {
 			 	ObservableList<Prescription> list = FXCollections.observableArrayList(clinic.loadPrescriptions(user.getPatientId()));
 		        therapyTableAsController.setItems(list);
+		        ResetTask.scheduleDailyReset();// prova 
+
 
 		        // aggiorna le combo
 		        drugDropList.getItems().clear();
