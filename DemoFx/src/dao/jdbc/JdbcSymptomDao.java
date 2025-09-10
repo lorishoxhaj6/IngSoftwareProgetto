@@ -27,7 +27,7 @@ public class JdbcSymptomDao implements SymptomDao {
 		}, rs -> {
             int id = rs.getInt("id");
             LocalDateTime start = LocalDateTime.parse(rs.getString("startDateTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            return new Symptoms(id, rs.getInt(patientId), patientId, rs.getString("symptoms"), start, rs.getString("notes"));
+            return new Symptoms(id, patientId, rs.getInt("doctor_id"), rs.getString("symptoms"), start, rs.getString("notes"));
         });
     }
 

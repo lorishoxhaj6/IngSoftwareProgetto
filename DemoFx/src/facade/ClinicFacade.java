@@ -22,7 +22,7 @@ import model.Symptoms;
  */
 public class ClinicFacade {
 	
- private final PatientDao patientDao;  // perchè sono final ??????
+ private final PatientDao patientDao; 
  private final MeasurementDao measurementDao;
  private final SymptomDao symptomsDao;
  private final PrescriptionDao prescriptionDao;

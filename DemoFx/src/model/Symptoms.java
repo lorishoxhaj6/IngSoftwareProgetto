@@ -17,7 +17,7 @@ public class Symptoms {
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.ITALY);
 
 	
-	public Symptoms(int symptomId,int medicoId, int patientId, String symptoms, LocalDateTime dateTime, String notes) {
+	public Symptoms(int symptomId, int patientId, int medicoId,String symptoms, LocalDateTime dateTime, String notes) {
 		this.symptomId = symptomId;
 		this.medicoId = medicoId;
 		this.patientId = patientId;

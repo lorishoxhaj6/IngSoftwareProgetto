@@ -297,7 +297,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		
 		String joined = String.join(",", symptomsListView.getItems());
 		Symptoms s = new Symptoms(
-		        0,                              // id provvisorio
+		        0,  						// id provvisorio
 		        user.getPatientId(),
 		        user.getMedicoId(),
 		        joined,
