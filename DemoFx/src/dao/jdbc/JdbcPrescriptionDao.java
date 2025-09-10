@@ -13,7 +13,7 @@ import model.Prescription;
 public class JdbcPrescriptionDao implements PrescriptionDao{
 
 	 public List<Prescription> findByPatient(int patientId) throws SQLException {
-	        final String sql = "SELECT id, doses, measurementUnit, quantity, indications, drug, doctorId " +
+	        final String sql = "SELECT id, doses, measurementUnit, quantity, indications, drug, doctorId, taken " +
 	                           "FROM prescriptions WHERE patientId = ?";
 	        return DatabaseUtil.queryList(sql, ps -> {
 				try {
@@ -31,7 +31,8 @@ public class JdbcPrescriptionDao implements PrescriptionDao{
 	                rs.getString("indications"),
 	                patientId,
 	                rs.getInt("doctorId"),
-	                rs.getString("drug")
+	                rs.getString("drug"),
+	                rs.getString("taken")
 	            );
 	        });
 	    }

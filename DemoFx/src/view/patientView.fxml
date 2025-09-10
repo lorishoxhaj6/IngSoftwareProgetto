@@ -134,7 +134,7 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                      	<fx:include fx:id="therapyTableAs" source="therapyTableView.fxml" />
-                        <VBox alignment="CENTER" layoutX="569.0" prefHeight="360.0" prefWidth="214.0" spacing="25.0">
+                        <VBox alignment="CENTER" layoutX="592.0" prefHeight="360.0" prefWidth="190.0" spacing="25.0">
                            <children>
                               <Text lineSpacing="2.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Inserisci l'assunzione come da prescrizione del medico" textAlignment="CENTER" wrappingWidth="181.2408447265625">
                                  <VBox.margin>
@@ -168,7 +168,8 @@
                                     </ComboBox>
                                  </children>
                               </HBox>
-                              <Button mnemonicParsing="false" onAction="#enterInTake" text="Invia" />
+                              <Button mnemonicParsing="false" onAction="#preso" text="preso/no" />
+                              <Button mnemonicParsing="false" onAction="#enterInTake" prefHeight="16.0" prefWidth="41.0" text="Invia" />
                            </children>
                            <padding>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

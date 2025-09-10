@@ -10,9 +10,10 @@ public class Prescription {
     private int patientId;
     private int doctorId;
     private String drug;
+    private String taken;
 	
     public Prescription(int idPres, Double doses, String unit,int quantity, String indications, 
-                         int patientId, int doctorId,  String drug) {
+                         int patientId, int doctorId,  String drug, String taken) {
         this.idPrescription = idPres;
         this.doses = doses;
         this.measurementUnit = unit;
@@ -21,6 +22,7 @@ public class Prescription {
         this.patientId = patientId;
         this.doctorId = doctorId;
         this.drug = drug;
+        this.taken = taken;
     }
 
     public int getIdPrescription() {return idPrescription;}
@@ -37,5 +39,6 @@ public class Prescription {
 	public void setQuantity(int quantity) {this.quantity = quantity;}
 	public void setIndications(String indications) {this.indications = indications;}
 	public void setDrug (String drug) { this.drug = drug; }
+	public String getTaken() { return this.taken; }
 	public String toString(){return drug;}
 }

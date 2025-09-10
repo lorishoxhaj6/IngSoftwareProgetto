@@ -349,6 +349,10 @@ public class PatientController extends UserController<Patient> implements Initia
 		    }
 
 	}
+	
+	public void preso(ActionEvent event) {
+		
+	}
 
 	private void loadAndShowDoctorInfo() {
 		// 1) prendo l'id medico dall'oggetto Patient

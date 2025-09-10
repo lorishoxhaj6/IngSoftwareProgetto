@@ -24,6 +24,8 @@ public class TherapyTableController implements Initializable {
 	
 	@FXML
 	private TableColumn<Prescription,String> unitColumn;
+	@FXML
+	private TableColumn<Prescription,String> takenColumn;
 
 	@FXML
 	private TableColumn<Prescription, String> drugColumn;
@@ -49,6 +51,7 @@ public class TherapyTableController implements Initializable {
 		dosesColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper(data.getValue().getDoses()));
 		unitColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getMeasurementUnit()));
 		indicationColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getIndications()));
+		takenColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getTaken()));
 		quantityColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getQuantity()));
 		drugColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getDrug()));
 		

@@ -246,7 +246,8 @@ public class DoctorDashboardController extends DoctorController implements Initi
         		indications,
         		patient.getPatientId(),
                 doctor.getMedicoId(), 
-        		drug
+        		drug,
+        		"No"
          );
         try {
             int id = clinic.insertPrescription(p);
