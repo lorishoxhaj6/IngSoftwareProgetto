@@ -83,4 +83,5 @@ public class TherapyTableController implements Initializable {
     public void refresh() {
         table.refresh();
     }
+    
 }

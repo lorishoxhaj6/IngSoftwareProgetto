@@ -42,6 +42,15 @@ public class JdbcPrescriptionDao implements PrescriptionDao{
 		String sql = "DELETE FROM prescriptions WHERE id = ?";        
 		return DatabaseUtil.executeUpdate(sql, ps -> ps.setInt(1, idPrescription));
 	 }
+	 
+	 public int updatePreso (String taken, int id) {
+		 String sql = "UPDATE prescriptions SET taken = ? WHERE id = ?";
+		 int rows = DatabaseUtil.executeUpdate(sql, ps ->{
+				ps.setString(1, taken);
+				ps.setInt(2, id);
+			});
+		 return rows;
+	 }
 
 
 	 public int insert(Prescription p) throws SQLException {

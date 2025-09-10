@@ -173,6 +173,10 @@ public class ClinicFacade {
  public int deletePrescription(int idPrescription) throws SQLException {
 	return prescriptionDao.deletePrescription(idPrescription);
  }
+ 
+ public int updatePrescriptionPreso(String preso, int idPrescription) throws SQLException {
+		return prescriptionDao.updatePreso(preso, idPrescription);
+	 }
 /**
  * Inserimento della terapia 
  * @param p (terapia presa in input)

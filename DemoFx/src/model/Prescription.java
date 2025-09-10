@@ -40,5 +40,6 @@ public class Prescription {
 	public void setIndications(String indications) {this.indications = indications;}
 	public void setDrug (String drug) { this.drug = drug; }
 	public String getTaken() { return this.taken; }
+	public void setTaken(String taken) { this.taken = taken; }
 	public String toString(){return drug;}
 }

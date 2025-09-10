@@ -15,6 +15,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -30,6 +31,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import model.AppUtils;
 import model.Doctor;
 import model.Intake;
@@ -92,10 +94,11 @@ public class PatientController extends UserController<Patient> implements Initia
 	private ComboBox<String> unitDropList;
 	@FXML
 	private DatePicker dataPickerPrescription;
+	@FXML
+	private TableView<Prescription> table;
 	//-----------------------------------------------------------------------
 	
 	private ClinicFacade clinic;
-	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// collega le colonne della tabella misurazioni ai campi della classe
@@ -349,9 +352,28 @@ public class PatientController extends UserController<Patient> implements Initia
 		    }
 
 	}
-	
-	public void preso(ActionEvent event) {
-		
+	// modica la colonna che dice se ha preso o no il medicinale
+	public void preso(ActionEvent event) throws SQLException {
+		Prescription pSelected = therapyTableAsController.getSelectedItem();
+		String newPreso = "Yes";
+		int rows;
+		if (pSelected != null) {
+			if(pSelected.getTaken().equals(newPreso))
+				newPreso = "No";
+			rows = clinic.updatePrescriptionPreso(newPreso, pSelected.getIdPrescription());
+			if(rows > 0) {
+				//aggiorno l'oggetto in memoria attraverso i metodi set per ogni campo
+	            pSelected.setTaken(newPreso);
+				 //se onUpdate è stato settato allora posso
+	            /*if(onUpdate != null)
+	            	onUpdate.run();*/
+			}
+		} else {
+			AppUtils.showError("Error", "you must select an Item",
+					"Please, select an item if you would like to modify it");
+			return;
+		}
+		therapyTableAsController.refresh();
 	}
 
 	private void loadAndShowDoctorInfo() {
