@@ -39,7 +39,7 @@ public class JdbcSymptomDao implements SymptomDao {
             ps.setInt(1, s.getPatientId());
             ps.setInt(2, s.getMedicoId());
             ps.setString(3, s.getSymptoms());
-            ps.setString(4, s.getDateTimeFormatted());
+            ps.setString(4, s.getDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)); 
             ps.setString(5, s.getNotes() == null ? "" : s.getNotes());
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
