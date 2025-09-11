@@ -124,6 +124,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	
 	public void setClinic(ClinicFacade clinic) {
 	    this.clinic = clinic;
+	    //ResetTask.checkAndResetIfNeeded(); // prova
 	}
 
 	public void enterInTake() {
@@ -363,11 +364,8 @@ public class PatientController extends UserController<Patient> implements Initia
 				newPreso = "No";
 			rows = clinic.updatePrescriptionPreso(newPreso, pSelected.getIdPrescription());
 			if(rows > 0) {
-				//aggiorno l'oggetto in memoria attraverso i metodi set per ogni campo
+				//aggiorno l'oggetto in memoria attraverso i metodi set
 	            pSelected.setTaken(newPreso);
-				 //se onUpdate è stato settato allora posso
-	            /*if(onUpdate != null)
-	            	onUpdate.run();*/
 			}
 		} else {
 			AppUtils.showError("Error", "you must select an Item",
@@ -424,8 +422,6 @@ public class PatientController extends UserController<Patient> implements Initia
 		 try {
 			 	ObservableList<Prescription> list = FXCollections.observableArrayList(clinic.loadPrescriptions(user.getPatientId()));
 		        therapyTableAsController.setItems(list);
-		        ResetTask.scheduleDailyReset();// prova 
-
 
 		        // aggiorna le combo
 		        drugDropList.getItems().clear();
