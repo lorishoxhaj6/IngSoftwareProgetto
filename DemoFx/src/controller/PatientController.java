@@ -123,14 +123,15 @@ public class PatientController extends UserController<Patient> implements Initia
 		loadAndShowDoctorInfo();
 		loadAndShowMeasurements();
 		loadAndShowSymptoms();
-		ExecutorService executor = Executors.newSingleThreadExecutor();
+		ExecutorService executor = Executors.newSingleThreadExecutor(); // crea un esecutore di thread
 		executor.submit(() -> {
-		    ResetTask.checkAndResetIfNeeded();
-		    Platform.runLater(() -> loadAndShowPrescriptions());
+		    ResetTask.checkAndResetIfNeeded(); // esegue su un altro thread
+		    Platform.runLater(() -> loadAndShowPrescriptions()); // torna sul thread principale ed esegue DOPO il metodo
 		});
 		/* ho aggiunto queste righe altrimenti venivano fatte operazioni sul db
-		 * in contemporanea cosi le "sequenzializzo"
+		 * in contemporanea cosi le "sequenzializzo" per non creare errori 'db busy'
 		 */
+		executor.shutdown();
 		alertFacade.checkPendingPrescriptions(user.getPatientId());
 	}
 	
