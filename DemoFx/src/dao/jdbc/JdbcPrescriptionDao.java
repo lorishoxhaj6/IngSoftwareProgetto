@@ -36,6 +36,25 @@ public class JdbcPrescriptionDao implements PrescriptionDao{
 	            );
 	        });
 	    }
+	 
+	 public List<Prescription> findAll() throws SQLException {
+	        final String sql = "SELECT id, doses, measurementUnit, quantity, indications, drug, doctorId, patientId, taken " +
+	                           "FROM prescriptions";
+	        return DatabaseUtil.queryList(sql, ps -> {
+			}, rs -> {
+	            return new Prescription(
+	                rs.getInt("id"),
+	                rs.getDouble("doses"),
+	                rs.getString("measurementUnit"),
+	                rs.getInt("quantity"),
+	                rs.getString("indications"),
+	                rs.getInt("patientId"),
+	                rs.getInt("doctorId"),
+	                rs.getString("drug"),
+	                rs.getString("taken")
+	            );
+	        });
+	    }
 
 	
 	 public int deletePrescription(int idPrescription) throws SQLException {

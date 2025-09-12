@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ResourceBundle;
 
+import facade.AlertService;
 import facade.ClinicFacade;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -100,6 +101,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	//-----------------------------------------------------------------------
 	
 	private ClinicFacade clinic;
+	private AlertService alertFacade;
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// collega le colonne della tabella misurazioni ai campi della classe
@@ -119,12 +121,19 @@ public class PatientController extends UserController<Patient> implements Initia
 		loadAndShowDoctorInfo();
 		loadAndShowMeasurements();
 		loadAndShowSymptoms();
-		loadAndShowPrescriptions();
+		Platform.runLater(() -> {      // certe operazioni sul db NON sono sequenziali
+			ResetTask.checkAndResetIfNeeded(); // con questa riga le rendo sequanziali
+			loadAndShowPrescriptions();
+		}); // faccio partire dopo
+		// la query di apdate perche altrimeti non posso fare update in contemporanea che gli altri
+		//metodi stanno leggendo dal database.
+		// dopo update carico le prescriprion uggiornate
+		alertFacade.checkPendingPrescriptions(user.getPatientId());
 	}
 	
 	public void setClinic(ClinicFacade clinic) {
 	    this.clinic = clinic;
-	    //ResetTask.checkAndResetIfNeeded(); // prova
+	    this.alertFacade = new AlertService(clinic);
 	}
 
 	public void enterInTake() {

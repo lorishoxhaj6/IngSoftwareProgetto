@@ -5,6 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
+
+import dao.jdbc.JdbcPrescriptionDao;
 
 public class ResetTask {
 
@@ -14,33 +17,35 @@ public class ResetTask {
 
         String selectSql = "SELECT date FROM lastPrescriptionReset LIMIT 1";
         String updateSql = "UPDATE lastPrescriptionReset SET date = ?"; // aggiorna data reset
-
-        // apriamo UNA sola connessione per tutto
+        String resetSql = "UPDATE prescriptions SET taken = ?";
+        int rows = 0;
+        
         try (Connection con = DatabaseUtil.connect();
-             PreparedStatement psSelect = con.prepareStatement(selectSql);
-             ResultSet rs = psSelect.executeQuery()) {
-
-            if (rs.next()) {
-                lastReset = rs.getString("date");
-            }
-
-            if (!today.equals(lastReset)) {
-                // reset delle prescriptions
-                String resetSql = "UPDATE prescriptions SET taken = ?";
-                try (PreparedStatement psReset = con.prepareStatement(resetSql)) {
-                    psReset.setString(1, "No");
-                    psReset.executeUpdate();
+             PreparedStatement psSelect = con.prepareStatement(selectSql);) {
+        	try(ResultSet rs = psSelect.executeQuery()){
+        		if (rs.next()) {
+                    lastReset = rs.getString("date");
                 }
-
-                // aggiorniamo la data dell'ultimo reset
-                try (PreparedStatement psUpdate = con.prepareStatement(updateSql)) {
-                    psUpdate.setString(1, today);
-                    psUpdate.executeUpdate();
-                }
-            }
-
+        	}
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        //System.out.println(lastReset);
+        if (!today.equals(lastReset)) {
+        	rows = DatabaseUtil.executeUpdate(resetSql, ps ->{
+        		ps.setString(1, "No");
+        	});
+        	if(rows > 0) {
+        	}
+        }
+        if (!today.equals(lastReset)) { // aggiorno la data dell'ultimo reset
+        	rows = DatabaseUtil.executeUpdate(updateSql, ps ->{
+        		ps.setString(1, today);
+        	});
+        	if(rows > 0) {
+        		
+        	}
+        }
+
     }
 }

@@ -64,8 +64,9 @@ public class JdbcPatientDao implements PatientDao{
         try (Connection con = DatabaseUtil.connect();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, patientId);
-            ResultSet rs = ps.executeQuery();
-            return rs.getString("informations");
+            try(ResultSet rs = ps.executeQuery();){
+            	return rs.getString("informations");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
