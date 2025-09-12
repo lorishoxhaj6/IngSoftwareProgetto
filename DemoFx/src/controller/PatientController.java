@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import facade.AlertService;
 import facade.ClinicFacade;
@@ -121,13 +123,14 @@ public class PatientController extends UserController<Patient> implements Initia
 		loadAndShowDoctorInfo();
 		loadAndShowMeasurements();
 		loadAndShowSymptoms();
-		Platform.runLater(() -> {      // certe operazioni sul db NON sono sequenziali
-			ResetTask.checkAndResetIfNeeded(); // con questa riga le rendo sequanziali
-			loadAndShowPrescriptions();
-		}); // faccio partire dopo
-		// la query di apdate perche altrimeti non posso fare update in contemporanea che gli altri
-		//metodi stanno leggendo dal database.
-		// dopo update carico le prescriprion uggiornate
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executor.submit(() -> {
+		    ResetTask.checkAndResetIfNeeded();
+		    Platform.runLater(() -> loadAndShowPrescriptions());
+		});
+		/* ho aggiunto queste righe altrimenti venivano fatte operazioni sul db
+		 * in contemporanea cosi le "sequenzializzo"
+		 */
 		alertFacade.checkPendingPrescriptions(user.getPatientId());
 	}
 	
