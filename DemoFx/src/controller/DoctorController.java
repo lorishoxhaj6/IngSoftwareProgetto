@@ -2,6 +2,7 @@ package controller;
 
 import java.sql.SQLException;
 
+import facade.AlertService;
 import facade.ClinicFacade;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -21,6 +22,7 @@ public class DoctorController extends UserController<Doctor>{
 	PatientTabViewController patientTabViewController;
 	
 	protected ClinicFacade clinic;
+	protected AlertService alertFacade;
 	
 	public void setUser(Doctor user) {
         super.setUser(user);
@@ -59,6 +61,7 @@ public class DoctorController extends UserController<Doctor>{
 	
 	 public void setClinic(ClinicFacade clinic) {
 		this.clinic = clinic;
+		this.alertFacade = new AlertService(clinic);
 	 }
 	}
 	
