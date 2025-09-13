@@ -12,5 +12,11 @@ public interface IntakeDao {
 	 * @throws SQLException
 	 */
 	int insert(Intake t) throws SQLException;
+	/**
+	 * elimina l'assunzione nel db
+	 * @param p (assunzione da parte del paziente)
+	 * @return int (return Sql statement)
+	 * @throws SQLException
+	 */
 	
 }

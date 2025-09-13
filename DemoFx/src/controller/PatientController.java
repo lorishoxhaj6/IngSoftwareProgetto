@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,7 +20,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -85,16 +85,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	// terapie che dovrà essere condivisa
 	@FXML
 	private TherapyTableController therapyTableAsController;
-	@FXML
-	private ComboBox<String> dropList;
-	@FXML
-	private ComboBox<String> drugDropList;
-	@FXML
-	private TextField amount;
-	@FXML
-	private ComboBox<String> unitDropList;
-	@FXML
-	private DatePicker dataPickerPrescription;
+	
 	@FXML
 	private TableView<Prescription> table;
 	//-----------------------------------------------------------------------
@@ -108,9 +99,6 @@ public class PatientController extends UserController<Patient> implements Initia
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-		dropList.getItems().addAll("assuzione insulina", "assunzione faramaci antidiabetici orali");
-		// inizializzio la dropList con le unità di misura std
-		AppUtils.intializeMeasurementUnit(unitDropList);
 
 		AppUtils.colorMeasurments(valueColumn);
 	}
@@ -142,33 +130,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	    this.alertFacade = new AlertService(clinic);
 	}
 
-	public void enterInTake() {
-		if (dataPickerPrescription.getValue() == null || unitDropList.getValue() == null ||
-		        drugDropList.getValue() == null || amount.getText() == null || dropList.getValue() == null) {
-		        AppUtils.showError("Error","data are missing","Impossible to insert intake");
-		        return;
-		    }
-		    double doses;
-		    try { doses = Double.parseDouble(amount.getText()); }
-		    catch (NumberFormatException ex) { AppUtils.showError("Error","invalid number","Check amount"); return; }
-
-		    LocalDateTime when = LocalDateTime.of(dataPickerPrescription.getValue(), LocalTime.now());
-		    Intake t = new Intake(0,dropList.getValue(),doses,unitDropList.getValue(),when,user.getPatientId(),
-		    		user.getMedicoId(),drugDropList.getValue());
-		    try {
-		        int idIntake = clinic.addIntake(t);
-		        t.setId(idIntake);
-		        dataPickerPrescription.setValue(null);
-		        unitDropList.getSelectionModel().clearSelection();
-		        drugDropList.getSelectionModel().clearSelection();
-		        dropList.getSelectionModel().clearSelection();
-		        amount.setText("");
-		        AppUtils.showConfirmation("Perfect!", "right data", "intake successfully recorded!");
-		    } catch (SQLException e) {
-		        e.printStackTrace();
-		        AppUtils.showError("DB Error","Insert failed", e.getMessage());
-		    }
-	}
+	
 
 	public void logout() {
 		super.logout();
@@ -377,15 +339,34 @@ public class PatientController extends UserController<Patient> implements Initia
 		    }
 
 	}
+	
 	// modica la colonna che dice se ha preso o no il medicinale
 	public void preso(ActionEvent event) throws SQLException {
 		Prescription pSelected = therapyTableAsController.getSelectedItem();
+		
 		String newPreso = "Yes";
 		int rows;
 		if (pSelected != null) {
+			/*LocalDateTime when = LocalDateTime.of(LocalDate.now(ZoneId.of("Europe/Rome")), LocalTime.now());
+		    Intake t = new Intake(0,pSelected.getDoses(),pSelected.getMeasurementUnit(),when,user.getPatientId(),
+		    		user.getMedicoId(),pSelected.getDrug());*/
+		    
 			if(pSelected.getTaken().equals(newPreso))
 				newPreso = "No";
+			
 			rows = clinic.updatePrescriptionPreso(newPreso, pSelected.getIdPrescription());
+			/*//se newPreso è uguale a Yes inserisco le assunzioni per quantià giornaliera
+			//se newPreso è uguale a No elimino tutte le assunzioni di oggi
+			if("Yes".equals(newPreso)) {
+				for(int i=0; i<pSelected.getQuantity(); i++) {
+					int id = clinic.addIntake(t);
+					t.setId(id);
+				}
+				AppUtils.showConfirmation("Perfetto", "assunzione registrata con successo", "");
+			}else {
+				clinic.deleteAllIntake(t);
+				AppUtils.showConfirmation("Perfetto", "assunzione eliminata con successo", "");
+			}*/
 			if(rows > 0) {
 				//aggiorno l'oggetto in memoria attraverso i metodi set
 	            pSelected.setTaken(newPreso);
@@ -395,6 +376,7 @@ public class PatientController extends UserController<Patient> implements Initia
 					"Please, select an item if you would like to modify it");
 			return;
 		}
+	   
 		therapyTableAsController.refresh();
 	}
 
@@ -445,13 +427,6 @@ public class PatientController extends UserController<Patient> implements Initia
 		 try {
 			 	ObservableList<Prescription> list = FXCollections.observableArrayList(clinic.loadPrescriptions(user.getPatientId()));
 		        therapyTableAsController.setItems(list);
-
-		        // aggiorna le combo
-		        drugDropList.getItems().clear();
-		        for (Prescription p : list) {
-		            if (!drugDropList.getItems().contains(p.getDrug())) drugDropList.getItems().add(p.getDrug());
-		            if (!unitDropList.getItems().contains(p.getMeasurementUnit())) unitDropList.getItems().add(p.getMeasurementUnit());
-		        }
 		        return list;
 		    } catch (SQLException e) { e.printStackTrace(); return FXCollections.observableArrayList(); }
 	}

@@ -131,7 +131,7 @@ public class ClinicFacade {
  /**
   * Registra un'assunzione di farmaco da parte del paziente.
   *
-  * @param type tipo di assunzione (es. "orale")
+  * 
   * @param doses quantità assunta (numero)
   * @param unit unità della dose (es. "mg", "ml")
   * @param when data e ora dell'assunzione

@@ -12,21 +12,19 @@ import java.util.List;
 import dao.IntakeDao;
 import model.DatabaseUtil;
 import model.Intake;
-import model.Prescription;
 
 public class JdbcIntakeDao implements IntakeDao {
 
 	public int insert(Intake t) throws SQLException {
-		final String sql = "INSERT INTO patientIntake (type,doses,measurementUnit,dateTime,patientId,doctorId,drug) "
-				+ "VALUES (?,?,?,?,?,?,?)";
+		final String sql = "INSERT INTO patientIntake (doses,measurementUnit,dateTime,patientId,doctorId,drug) "
+				+ "VALUES (?,?,?,?,?,?)";
 		try (Connection c = DatabaseUtil.connect(); PreparedStatement ps = c.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
-			ps.setString(1, t.getType());
-			ps.setDouble(2, t.getDoses());
-			ps.setString(3, t.getmU());
-			ps.setString(4, t.getDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-			ps.setInt(5, t.getPatientId());
-			ps.setInt(6, t.getDoctorId());
-			ps.setString(7, t.getDrug());
+			ps.setDouble(1, t.getDoses());
+			ps.setString(2, t.getmU());
+			ps.setString(3, t.getDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+			ps.setInt(4, t.getPatientId());
+			ps.setInt(5, t.getDoctorId());
+			ps.setString(6, t.getDrug());
 			ps.executeUpdate();
 			
 			 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -42,13 +40,11 @@ public class JdbcIntakeDao implements IntakeDao {
 			try {
 				ps.setInt(1, patientId);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}, rs -> {
             return new Intake(
                 rs.getInt("id"),
-                rs.getString("type"),
                 rs.getDouble("doses"),
                 rs.getString("measurementUnit"),
                 LocalDateTime.parse(rs.getString("dateTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
@@ -58,7 +54,9 @@ public class JdbcIntakeDao implements IntakeDao {
             );
         });
     }
+	
+	
 
-	// fai query per controllare assunzione corretta
+	
 
 }

@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 public class Intake {
     // campi
-    private String type;
     private double doses;
     private String mU; // measurementUnit
     private LocalDateTime dateTime;
@@ -15,10 +14,9 @@ public class Intake {
 
 
     // costruttore completo
-    public Intake(int intakeId,String type, double doses, String mU, LocalDateTime dateTime,
+    public Intake(int intakeId, double doses, String mU, LocalDateTime dateTime,
                   int patientId, int doctorId, String drug) {
         this.intakeId = intakeId;
-    	this.type = type;
         this.doses = doses;
         this.mU = mU;
         this.dateTime = dateTime;
@@ -28,14 +26,6 @@ public class Intake {
     }
 
     // getter e setter
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-    
     public int getId() {
     	return this.intakeId;
     }
