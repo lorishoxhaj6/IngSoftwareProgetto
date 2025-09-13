@@ -18,7 +18,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -34,14 +33,12 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import model.AppUtils;
 import model.Doctor;
 import model.Intake;
 import model.Measurement;
 import model.Patient;
 import model.Prescription;
-import model.ResetTask;
 import model.Symptoms;
 
 public class PatientController extends UserController<Patient> implements Initializable {
@@ -125,7 +122,12 @@ public class PatientController extends UserController<Patient> implements Initia
 		loadAndShowSymptoms();
 		ExecutorService executor = Executors.newSingleThreadExecutor(); // crea un esecutore di thread
 		executor.submit(() -> {
-		    ResetTask.checkAndResetIfNeeded(); // esegue su un altro thread
+		   // ResetTask.checkAndResetIfNeeded(); // esegue su un altro thread
+			try {
+				clinic.checkAndResetIfNeeded();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		    Platform.runLater(() -> loadAndShowPrescriptions()); // torna sul thread principale ed esegue DOPO il metodo
 		});
 		/* ho aggiunto queste righe altrimenti venivano fatte operazioni sul db
@@ -176,10 +178,18 @@ public class PatientController extends UserController<Patient> implements Initia
 
 		 if (myDatePicker.getValue() == null || valueTextField.getText() == null || pasto.getSelectedToggle() == null) {
 		        AppUtils.showError("Errore", "dati mancanti", "Impossibile inserire la misurazione");
+		        myDatePicker.setValue(null); valueTextField.setText(""); pasto.selectToggle(null);
 		        return;
 		    }
 		    double value;
-		    try { value = Double.parseDouble(valueTextField.getText()); }
+		    try { 
+		    	value = Double.parseDouble(valueTextField.getText()); 
+		    	if(value < 0) {
+		    		AppUtils.showError("Errore", "misurazione inconsistente", "misurazione negativa");
+		    		myDatePicker.setValue(null); valueTextField.setText(""); pasto.selectToggle(null);
+		    		return;
+		    	}
+		    }
 		    catch (NumberFormatException ex) { AppUtils.showError("Error","wrong number","Insert a valid number"); return; }
 
 		    String moment = primaPastoRb.isSelected() ? "prima pasto" : "dopo pasto";

@@ -186,4 +186,8 @@ public class ClinicFacade {
  public int insertPrescription(Prescription p) throws SQLException {
 	 return prescriptionDao.insert(p);
  }
+ 
+ public void checkAndResetIfNeeded() throws SQLException{
+	 prescriptionDao.updatePrescriptionReset();
+}
 }
