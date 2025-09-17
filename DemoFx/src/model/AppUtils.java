@@ -18,8 +18,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.paint.Color;
 
 public class AppUtils {
-
-//prova	
+//prova
 	public static void showError(String title, String header, String content) {
 		Alert a = new Alert(Alert.AlertType.ERROR);
 		a.setTitle(title);
