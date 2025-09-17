@@ -106,7 +106,15 @@ public class PatientController extends UserController<Patient> implements Initia
 		
 		AppUtils.colorMeasurments(valueColumn);
 	}
-
+	
+	/**
+	 * imposta il paziente in memoria.
+	 * carica le informazioni del dottore associato al paziente.
+	 * carica le misurazioni del paziente dal database.
+	 * carica e mostra i sintomi nella view.
+	 * carica e mostra le prescrizioni nella view.
+	 * verifica se nell'arco di tutta la giornata ho assunto i farmaci.
+	 */
 	public void setUser(Patient user) {
 		super.setUser(user);
 		loadAndShowDoctorInfo();
@@ -116,7 +124,7 @@ public class PatientController extends UserController<Patient> implements Initia
 		ExecutorService executor = Executors.newSingleThreadExecutor(); // crea un esecutore di thread
 		executor.submit(() -> {
 			try {
-				clinic.checkAndResetIfNeeded((Patient)user);
+				clinic.checkAndResetIfNeeded((Patient) user);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
