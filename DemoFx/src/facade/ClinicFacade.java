@@ -1,14 +1,17 @@
 package facade;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import dao.IntakeDao;
+import dao.LastPrescriptionDao;
 import dao.MeasurementDao;
 import dao.PatientDao;
 import dao.PrescriptionDao;
 import dao.SymptomDao;
+import model.DatabaseUtil;
 import model.Doctor;
 import model.Intake;
 import model.Measurement;
@@ -27,9 +30,11 @@ public class ClinicFacade {
  private final SymptomDao symptomsDao;
  private final PrescriptionDao prescriptionDao;
  private final IntakeDao intakeDao;
+ private final LastPrescriptionDao lastPrescriptionDao;
 
- public ClinicFacade(PatientDao p, MeasurementDao m, SymptomDao s, PrescriptionDao pr, IntakeDao i) {
+ public ClinicFacade(PatientDao p, MeasurementDao m, SymptomDao s, PrescriptionDao pr, IntakeDao i,LastPrescriptionDao l) {
      this.patientDao = p; this.measurementDao = m; this.symptomsDao = s; this.prescriptionDao = pr; this.intakeDao = i;
+     this.lastPrescriptionDao = l;
  }
 
  /**
@@ -187,7 +192,37 @@ public class ClinicFacade {
 	 return prescriptionDao.insert(p);
  }
  
- public void checkAndResetIfNeeded() throws SQLException{
-	 prescriptionDao.updatePrescriptionReset();
+ /**
+  * verifica e resetta se necessario le prescrizioni nel caso in cui siano 
+  * state prese
+  * @throws SQLException
+  */
+ public void checkAndResetIfNeeded(Patient p) throws SQLException{
+	 String today = LocalDate.now().toString();
+	 String lastReset = "";
+	
+	 lastReset = lastPrescriptionDao.getLastPrescriptionReset();
+	 
+	 
+	//se la data è diversa da quella di oggi resetto l'ultima data salvata nel Db
+	//devo fare verifica in cui vedo che taken sono tutti a yes
+	 if(!today.equals(lastReset)) {
+		 if(!prescriptionDao.prescriptionTaken(p.getPatientId())) {
+			 /** se il paziente passata la mezzanotte non ha fatto tutte le 
+			  * assunzione come prescritto viene aggiunto alla tabella della 
+			  * db che si riferisce alle assunzioni da parte dei pazienti mancate in data x
+			  */
+			 System.out.print(p.getUsername() + " "+p.getPatientId());
+			 Intake t = new Intake(0,LocalDateTime.now(),p.getPatientId());
+			 int newIntakeId = intakeDao.insert(t);
+			 t.setId(newIntakeId);
+		 }
+		 prescriptionDao.updatePrescriptionReset();
+	 	// aggiorno la data dell'ultimo reset
+		lastPrescriptionDao.updateLastPrescriptionReset(today);
+	 }
 }
+
+
+ 
 }

@@ -22,14 +22,29 @@ public class DoctorController extends UserController<Doctor>{
 	PatientTabViewController patientTabViewController;
 	
 	protected ClinicFacade clinic;
-	protected AlertService alertFacade;
+	protected AlertService alertService;
 	
 	public void setUser(Doctor user) {
         super.setUser(user);
 
         // passa il doctor al tab
         patientTabViewController.setDoctor(user);
+        
+        StringBuilder error = null;
+		try {
+			error = alertService.checkLastFreeDaysIntake(user);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 
+        if (error.length() > 0) {
+            AppUtils.showError(
+                "Pazienti che non seguono le prescrizioni",
+                "Alcuni pazienti non hanno rispettato la terapia prescritta:",
+                error.toString()
+            );
+        }
+        
         // carica tutte le liste 
         try {
 			patientTabViewController.setAllPatients(FXCollections.observableArrayList(clinic.loadAllPatients()));
@@ -47,6 +62,7 @@ public class DoctorController extends UserController<Doctor>{
                 DoctorDashboardController docControl =
                     ViewNavigator.loadViewWithController("doctorViewDashboard.fxml");
                 docControl.setClinic(clinic);
+                docControl.setAlertService(alertService);
                 docControl.setEnviroment(selectedPatient, user);
             } catch (SQLException e) {
                 AppUtils.showError("DB error", "Caricamento dashboard fallito", e.getMessage());
@@ -61,7 +77,10 @@ public class DoctorController extends UserController<Doctor>{
 	
 	 public void setClinic(ClinicFacade clinic) {
 		this.clinic = clinic;
-		this.alertFacade = new AlertService(clinic);
+	 }
+
+	 public void setAlertService(AlertService s) {
+		 this.alertService = s;
 	 }
 	}
 	

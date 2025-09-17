@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import dao.jdbc.JdbcIntakeDao;
+import dao.jdbc.JdbcLastPrescriptionDao;
 import dao.jdbc.JdbcMeasurementDao;
 import dao.jdbc.JdbcPatientDao;
 import dao.jdbc.JdbcPrescriptionDao;
 import dao.jdbc.JdbcSymptomDao;
+import facade.AlertService;
 import facade.ClinicFacade;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -52,7 +54,8 @@ public class LoginController implements Initializable {
 	    String username = userTextField.getText();
 	    String password = passwordField.getText();
 	    ClinicFacade clinic = new ClinicFacade(new JdbcPatientDao(), new JdbcMeasurementDao(), 
-	    		new JdbcSymptomDao(), new JdbcPrescriptionDao(), new JdbcIntakeDao());
+	    		new JdbcSymptomDao(), new JdbcPrescriptionDao(), new JdbcIntakeDao(),new JdbcLastPrescriptionDao());
+	    AlertService alertservice = new AlertService(clinic,new JdbcIntakeDao());
 	    
 	    if (username == null || username.isBlank() || password == null || password.isBlank()) {
 	        AppUtils.showError("Errore di autenticazione", "Dati mancanti", "Inserisci username e password.");
@@ -68,10 +71,9 @@ public class LoginController implements Initializable {
 	    try (Connection con = DatabaseUtil.connect()) {
 
 	        if (isPatient) {
-	            loginAsPatient(con, username, password,clinic);
-	            
+	            loginAsPatient(con, username, password,clinic,alertservice);      
 	        } else {
-	            loginAsDoctor(con, username, password,clinic);  
+	            loginAsDoctor(con, username, password,clinic,alertservice);  
 	        }
 	        
 	        cleanFillAutentication();
@@ -91,7 +93,7 @@ public class LoginController implements Initializable {
         RoleGroup.selectToggle(null);
 	}
 
-	private void loginAsPatient(Connection con, String username, String password,ClinicFacade clinic) throws Exception {
+	private void loginAsPatient(Connection con, String username, String password,ClinicFacade clinic, AlertService alertservice) throws Exception {
 	    String sql = "SELECT * FROM patients WHERE username = ? AND password = ?";
 	    
 	    try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -118,13 +120,14 @@ public class LoginController implements Initializable {
 	            
 	            PatientController controller = ViewNavigator.loadViewWithController("patientView.fxml");
 	            controller.setClinic(clinic);
+	            controller.setAlertService(alertservice);
 	            controller.setUser(patientObj);
 	   
 	        }
 	    }
 	}
 	
-	private void loginAsDoctor(Connection con, String username, String password, ClinicFacade clinic) throws Exception {
+	private void loginAsDoctor(Connection con, String username, String password, ClinicFacade clinic, AlertService alertservice) throws Exception {
 	    String sql = "SELECT * FROM doctors WHERE username = ? AND password = ?";
 
 	    try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -146,6 +149,7 @@ public class LoginController implements Initializable {
 	            
 	            DoctorController controller = ViewNavigator.loadViewWithController("doctorView.fxml");
 	            controller.setClinic(clinic);
+	            controller.setAlertService(alertservice);
 	            controller.setUser(doctorObj);
 	        }
 	    }

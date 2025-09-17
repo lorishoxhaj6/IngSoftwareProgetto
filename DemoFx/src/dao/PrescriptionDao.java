@@ -10,5 +10,6 @@ public interface PrescriptionDao {
     int deletePrescription(int idPrescription) throws SQLException;
 	int insert(Prescription p) throws SQLException;
 	int updatePreso (String taken, int id) throws SQLException;
-	void updatePrescriptionReset() throws SQLException;
+	int updatePrescriptionReset() throws SQLException;
+	boolean prescriptionTaken(int patientId) throws SQLException;
 }

@@ -10,21 +10,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import dao.IntakeDao;
+import javafx.collections.ObservableList;
 import model.DatabaseUtil;
 import model.Intake;
 
 public class JdbcIntakeDao implements IntakeDao {
 
 	public int insert(Intake t) throws SQLException {
-		final String sql = "INSERT INTO patientIntake (doses,measurementUnit,dateTime,patientId,doctorId,drug) "
-				+ "VALUES (?,?,?,?,?,?)";
+		final String sql = "INSERT INTO patientIntake (dateTime,patientId) "
+				+ "VALUES (?,?)";
 		try (Connection c = DatabaseUtil.connect(); PreparedStatement ps = c.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
-			ps.setDouble(1, t.getDoses());
-			ps.setString(2, t.getmU());
-			ps.setString(3, t.getDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-			ps.setInt(4, t.getPatientId());
-			ps.setInt(5, t.getDoctorId());
-			ps.setString(6, t.getDrug());
+			ps.setString(1, t.getDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+			ps.setInt(2, t.getPatientId());
 			ps.executeUpdate();
 			
 			 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -33,8 +30,23 @@ public class JdbcIntakeDao implements IntakeDao {
 			 }
 		}
 	}
+	
+	public int delete(int intakeId) throws SQLException {
+		final String sql = "DELETE FROM patientIntake where id = ?";
+				
+		try (Connection c = DatabaseUtil.connect(); PreparedStatement ps = c.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
+			ps.setInt(1,intakeId);
+			ps.executeUpdate();
+			
+			 try (ResultSet rs = ps.getGeneratedKeys()) {
+			        if (rs.next()) return rs.getInt("id");
+			        throw new SQLException("No generated key returned");
+			 }
+		}
+	}
+	
 	public List<Intake> findByPatient(int patientId) throws SQLException {
-        final String sql = "SELECT id, type, drug, doses, measurementUnit, dateTime, patientId, doctorId " +
+        final String sql = "SELECT id, dateTime, patientId" +
                            "FROM patientIntake WHERE patientId = ?";
         return DatabaseUtil.queryList(sql, ps -> {
 			try {
@@ -44,18 +56,41 @@ public class JdbcIntakeDao implements IntakeDao {
 			}
 		}, rs -> {
             return new Intake(
-                rs.getInt("id"),
-                rs.getDouble("doses"),
-                rs.getString("measurementUnit"),
+            	rs.getInt("id"),
                 LocalDateTime.parse(rs.getString("dateTime"), DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                patientId,
-                rs.getInt("doctorId"),
-                rs.getString("drug")
+                patientId
             );
         });
     }
 	
-	
+	public boolean fetchLastThreeDaysIntakes(int patientId) throws SQLException {
+	    String from = LocalDateTime.now().minusDays(3).withNano(0).toString(); // es. 2025-09-14T09:17:03
+	    String to   = LocalDateTime.now().withNano(0).toString();              // es. 2025-09-17T09:17:03
+
+	    final String sql = """
+	        SELECT id, dateTime
+	        FROM patientIntake
+	        WHERE patientId = ?
+	          AND dateTime BETWEEN ? AND ?
+	        """;
+
+	    ObservableList<Intake> list = DatabaseUtil.queryList(sql, ps -> {
+	        try {
+				ps.setInt(1, patientId);
+				ps.setString(2, from);
+		        ps.setString(3, to);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+	    }, rs -> new Intake(
+	            rs.getInt("id"),
+	            LocalDateTime.parse(rs.getString("dateTime")), 
+	            patientId
+	    ));
+
+	    return list.size() == 3;
+	}
+
 
 	
 

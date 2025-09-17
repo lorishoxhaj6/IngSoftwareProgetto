@@ -6,15 +6,20 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dao.jdbc.JdbcIntakeDao;
 import model.AppUtils;
+import model.Doctor;
 import model.Measurement;
+import model.Patient;
 import model.Prescription;
 
 public class AlertService {
 	private ClinicFacade clinic;
+	private JdbcIntakeDao IntakeDao;
 	
-	public AlertService(ClinicFacade clinic) {
+	public AlertService(ClinicFacade clinic, JdbcIntakeDao d) {
 		this.clinic = clinic;
+		this.IntakeDao = d;
 	}
 	
 	public void checkPendingPrescriptions(int patientId) {
@@ -30,9 +35,9 @@ public class AlertService {
         }
     }
 	
-	public void checkHighMeasurements(int patientId) {
+	public void checkHighMeasurements(Patient p) {
         try {
-            List<Measurement> list = clinic.loadMeasurements(patientId);
+            List<Measurement> list = clinic.loadMeasurements(p.getPatientId());
             int grave = 0;
             LocalDateTime oneWeekAgo = LocalDateTime.now().minus(7, ChronoUnit.DAYS);
             
@@ -41,12 +46,15 @@ public class AlertService {
                 .filter(m -> m.getDateTime().isAfter(oneWeekAgo)) // getDateTime() ritorna LocalDateTime
                 .collect(Collectors.toList());
             
+            
             for(Measurement m : lastWeekMeasurements) {
             	if(m.getValue() > 180 && grave < 2)
             		grave = 2;
             	if(m.getValue() > 130 && grave < 1)
             		grave = 1;
             }
+            
+            
             if (grave == 1) {
                 AppUtils.showError("Attenzione", "misurazione glicemiche alte ultimi 7gg",
                                    "il paziente ha alcune misurazioni glicemiche oltre 130 negli ultimi 7gg");
@@ -60,7 +68,28 @@ public class AlertService {
         }
     }
 	
+
 	
-	
-	
+	public StringBuilder checkLastFreeDaysIntake(Doctor user) throws SQLException {
+		StringBuilder error = new StringBuilder();
+        for (Patient p : user.getPatients()) {
+            try {
+                if (!IntakeDao.fetchLastThreeDaysIntakes(p.getPatientId())) {
+                    error.append("• Il paziente ")
+                         .append(p.getUsername())
+                         .append(" non ha assunto i farmaci negli ultimi 3 giorni.\n");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return error;
+        
+    }
 }
+	
+	
+	
+	
+

@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,9 +32,10 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import model.AppUtils;
 import model.Doctor;
-import model.Intake;
 import model.Measurement;
 import model.Patient;
 import model.Prescription;
@@ -85,13 +85,15 @@ public class PatientController extends UserController<Patient> implements Initia
 	// terapie che dovrà essere condivisa
 	@FXML
 	private TherapyTableController therapyTableAsController;
-	
 	@FXML
 	private TableView<Prescription> table;
-	//-----------------------------------------------------------------------
-	
+	//@FXML
+	//private WebView webView;
+	// -----------------------------------------------------------------------
+
 	private ClinicFacade clinic;
-	private AlertService alertFacade;
+	private AlertService alertService;
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// collega le colonne della tabella misurazioni ai campi della classe
@@ -99,7 +101,9 @@ public class PatientController extends UserController<Patient> implements Initia
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-
+		//WebEngine engine = webView.getEngine();
+		//engine.load("https://workspace.google.com/intl/it/gmail/");
+		
 		AppUtils.colorMeasurments(valueColumn);
 	}
 
@@ -108,29 +112,32 @@ public class PatientController extends UserController<Patient> implements Initia
 		loadAndShowDoctorInfo();
 		loadAndShowMeasurements();
 		loadAndShowSymptoms();
+		
 		ExecutorService executor = Executors.newSingleThreadExecutor(); // crea un esecutore di thread
 		executor.submit(() -> {
-		   // ResetTask.checkAndResetIfNeeded(); // esegue su un altro thread
 			try {
-				clinic.checkAndResetIfNeeded();
+				clinic.checkAndResetIfNeeded((Patient)user);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-		    Platform.runLater(() -> loadAndShowPrescriptions()); // torna sul thread principale ed esegue DOPO il metodo
+			Platform.runLater(() -> loadAndShowPrescriptions()); // torna sul thread principale ed esegue DOPO il metodo
 		});
-		/* ho aggiunto queste righe altrimenti venivano fatte operazioni sul db
-		 * in contemporanea cosi le "sequenzializzo" per non creare errori 'db busy'
+		/*
+		 * ho aggiunto queste righe altrimenti venivano fatte operazioni sul db in
+		 * contemporanea cosi le "sequenzializzo" per non creare errori 'db busy'
 		 */
 		executor.shutdown();
-		alertFacade.checkPendingPrescriptions(user.getPatientId());
-	}
-	
-	public void setClinic(ClinicFacade clinic) {
-	    this.clinic = clinic;
-	    this.alertFacade = new AlertService(clinic);
+		alertService.checkPendingPrescriptions(user.getPatientId());
 	}
 
-	
+	public void setClinic(ClinicFacade clinic) {
+		this.clinic = clinic;
+
+	}
+
+	public void setAlertService(AlertService s) {
+		this.alertService = s;
+	}
 
 	public void logout() {
 		super.logout();
@@ -138,36 +145,45 @@ public class PatientController extends UserController<Patient> implements Initia
 
 	public void inserisciMisurazione(ActionEvent e) {
 
-		 if (myDatePicker.getValue() == null || valueTextField.getText() == null || pasto.getSelectedToggle() == null) {
-		        AppUtils.showError("Errore", "dati mancanti", "Impossibile inserire la misurazione");
-		        myDatePicker.setValue(null); valueTextField.setText(""); pasto.selectToggle(null);
-		        return;
-		    }
-		    double value;
-		    try { 
-		    	value = Double.parseDouble(valueTextField.getText()); 
-		    	if(value < 0) {
-		    		AppUtils.showError("Errore", "misurazione inconsistente", "misurazione negativa");
-		    		myDatePicker.setValue(null); valueTextField.setText(""); pasto.selectToggle(null);
-		    		return;
-		    	}
-		    }
-		    catch (NumberFormatException ex) { AppUtils.showError("Error","wrong number","Insert a valid number"); return; }
+		if (myDatePicker.getValue() == null || valueTextField.getText() == null || pasto.getSelectedToggle() == null) {
+			AppUtils.showError("Errore", "dati mancanti", "Impossibile inserire la misurazione");
+			myDatePicker.setValue(null);
+			valueTextField.setText("");
+			pasto.selectToggle(null);
+			return;
+		}
+		double value;
+		try {
+			value = Double.parseDouble(valueTextField.getText());
+			if (value < 0) {
+				AppUtils.showError("Errore", "misurazione inconsistente", "misurazione negativa");
+				myDatePicker.setValue(null);
+				valueTextField.setText("");
+				pasto.selectToggle(null);
+				return;
+			}
+		} catch (NumberFormatException ex) {
+			AppUtils.showError("Error", "wrong number", "Insert a valid number");
+			return;
+		}
 
-		    String moment = primaPastoRb.isSelected() ? "prima pasto" : "dopo pasto";
-		    LocalDateTime dateTime = LocalDateTime.of(myDatePicker.getValue(), LocalTime.now());
-		    Measurement m = new Measurement(0, user.getPatientId(), moment, dateTime, value);
+		String moment = primaPastoRb.isSelected() ? "prima pasto" : "dopo pasto";
+		LocalDateTime dateTime = LocalDateTime.of(myDatePicker.getValue(), LocalTime.now());
+		Measurement m = new Measurement(0, user.getPatientId(), moment, dateTime, value);
 
-		    try {
-		        int newId = clinic.addMeasurement(m);
-		        m.setId(newId);
-		        measurementsTableView.getItems().add(m);
-		        myDatePicker.setValue(null); valueTextField.setText(""); pasto.selectToggle(null);
-		        AppUtils.showConfirmation("Perfetto!", "dati corretti", "registrazione della misurazione eseguita con successo");
-		    } catch (SQLException ex) {
-		        ex.printStackTrace();
-		        AppUtils.showError("DB Errore","Inserimento fallito", ex.getMessage());
-		    }
+		try {
+			int newId = clinic.addMeasurement(m);
+			m.setId(newId);
+			measurementsTableView.getItems().add(m);
+			myDatePicker.setValue(null);
+			valueTextField.setText("");
+			pasto.selectToggle(null);
+			AppUtils.showConfirmation("Perfetto!", "dati corretti",
+					"registrazione della misurazione eseguita con successo");
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+			AppUtils.showError("DB Errore", "Inserimento fallito", ex.getMessage());
+		}
 	}
 
 	public void modifyElement(ActionEvent e) throws IOException {
@@ -191,22 +207,22 @@ public class PatientController extends UserController<Patient> implements Initia
 	}
 
 	public void deleteMeasurement(ActionEvent e) {
-		 Measurement sel = measurementsTableView.getSelectionModel().getSelectedItem();
-		    if (sel == null) {
-		        AppUtils.showError("Attenzione", "measurement not selected", "Please, select a measurement to delete");
-		        return;
-		    }
-		    try {
-		        int rows = clinic.deleteMeasurement(sel.getId());
-		        if (rows > 0) {
-		            measurementsTableView.getItems().remove(sel);
-		        } else {
-		            AppUtils.showError("Error","impossible to remove","Please select another measurement");
-		        }
-		    } catch (SQLException ex) {
-		        ex.printStackTrace();
-		        AppUtils.showError("DB Error","Delete failed", ex.getMessage());
-		    }
+		Measurement sel = measurementsTableView.getSelectionModel().getSelectedItem();
+		if (sel == null) {
+			AppUtils.showError("Attenzione", "measurement not selected", "Please, select a measurement to delete");
+			return;
+		}
+		try {
+			int rows = clinic.deleteMeasurement(sel.getId());
+			if (rows > 0) {
+				measurementsTableView.getItems().remove(sel);
+			} else {
+				AppUtils.showError("Error", "impossible to remove", "Please select another measurement");
+			}
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+			AppUtils.showError("DB Error", "Delete failed", ex.getMessage());
+		}
 	}
 
 	public void insertToggleSymptoms() {
@@ -238,6 +254,7 @@ public class PatientController extends UserController<Patient> implements Initia
 
 		if (symptomsTextField.getText().isEmpty()) {
 			AppUtils.showError("None symptom selected", "Symptom", "Please, write a symptom and then click +");
+			return;
 		}
 
 		symptomsListView.getItems().add(symptomsTextField.getText());
@@ -284,150 +301,133 @@ public class PatientController extends UserController<Patient> implements Initia
 
 		// 2) Costruisci il timestamp (ora attuale nel giorno scelto)
 		LocalDateTime when = LocalDateTime.of(selectedDate, LocalTime.now());
-		
+
 		String joined = String.join(",", symptomsListView.getItems());
-		Symptoms s = new Symptoms(
-		        0,  						// id provvisorio
-		        user.getPatientId(),
-		        user.getMedicoId(),
-		        joined,
-		        when,
-		        symptomsNotes == null ? "" : symptomsNotes.getText().trim()
-		    );
-		
+		Symptoms s = new Symptoms(0, // id provvisorio
+				user.getPatientId(), user.getMedicoId(), joined, when,
+				symptomsNotes == null ? "" : symptomsNotes.getText().trim());
+
 		try {
-			
+
 			int id = clinic.addSymptoms(s); // il DAO ritorna l'id generato
-			s.setId(id);					// setto l'id generato dall'aggiunta del sintomo
+			s.setId(id); // setto l'id generato dall'aggiunta del sintomo
 			symptomsVisualization.getItems().add(s);
-			
-			//pulizia UI
+
+			// pulizia UI
 			symptomsListView.getItems().clear();
 			symptomDatePicker.setValue(null);
-		    if (symptomsNotes != null) symptomsNotes.clear();
-			
-		    AppUtils.showConfirmation("Perfect!", "right data", "symptoms successfully recorded!");
-		}catch (SQLException e) {
+			if (symptomsNotes != null)
+				symptomsNotes.clear();
+
+			AppUtils.showConfirmation("Perfect!", "right data", "symptoms successfully recorded!");
+		} catch (SQLException e) {
 			e.printStackTrace();
-			AppUtils.showError("DB Error","Insert failed", e.getMessage());
+			AppUtils.showError("DB Error", "Insert failed", e.getMessage());
 		}
-		
+
 	}
 
 	public void resolveSymptoms() {
 
-		 if (symptomsVisualization.getItems().isEmpty()) {
-		        AppUtils.showError("No Symptoms to resolve","Unable to resolve","Add at least one symptom");
-		        return;
-		    }
-		    Symptoms sel = symptomsVisualization.getSelectionModel().getSelectedItem();
-		    if (sel == null) {
-		        AppUtils.showError("No Symptom Selected","Unable to resolve","Select a symptom first");
-		        return;
-		    }
-		    try {
-		        int rows = clinic.resolveSymptoms(sel.getSymptomId(), LocalDateTime.now());
-		        if (rows > 0) {
-		            symptomsVisualization.getItems().remove(sel);
-		            AppUtils.showConfirmation("Perfect!", "right resolution", "symptom successfully resolved!");
-		        } else {
-		            AppUtils.showError("Not Found","Symptom not updated","Could not find the selected symptom");
-		        }
-		    } catch (SQLException e) {
-		        e.printStackTrace();
-		        AppUtils.showError("DB Error","Update failed", e.getMessage());
-		    }
+		if (symptomsVisualization.getItems().isEmpty()) {
+			AppUtils.showError("No Symptoms to resolve", "Unable to resolve", "Add at least one symptom");
+			return;
+		}
+		Symptoms sel = symptomsVisualization.getSelectionModel().getSelectedItem();
+		if (sel == null) {
+			AppUtils.showError("No Symptom Selected", "Unable to resolve", "Select a symptom first");
+			return;
+		}
+		try {
+			int rows = clinic.resolveSymptoms(sel.getSymptomId(), LocalDateTime.now());
+			if (rows > 0) {
+				symptomsVisualization.getItems().remove(sel);
+				AppUtils.showConfirmation("Perfect!", "right resolution", "symptom successfully resolved!");
+			} else {
+				AppUtils.showError("Not Found", "Symptom not updated", "Could not find the selected symptom");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			AppUtils.showError("DB Error", "Update failed", e.getMessage());
+		}
 
 	}
-	
+
 	// modica la colonna che dice se ha preso o no il medicinale
 	public void preso(ActionEvent event) throws SQLException {
 		Prescription pSelected = therapyTableAsController.getSelectedItem();
-		
+
 		String newPreso = "Yes";
 		int rows;
 		if (pSelected != null) {
-			/*LocalDateTime when = LocalDateTime.of(LocalDate.now(ZoneId.of("Europe/Rome")), LocalTime.now());
-		    Intake t = new Intake(0,pSelected.getDoses(),pSelected.getMeasurementUnit(),when,user.getPatientId(),
-		    		user.getMedicoId(),pSelected.getDrug());*/
-		    
-			if(pSelected.getTaken().equals(newPreso))
+
+			if (pSelected.getTaken().equals(newPreso))
 				newPreso = "No";
-			
+
 			rows = clinic.updatePrescriptionPreso(newPreso, pSelected.getIdPrescription());
-			/*//se newPreso è uguale a Yes inserisco le assunzioni per quantià giornaliera
-			//se newPreso è uguale a No elimino tutte le assunzioni di oggi
-			if("Yes".equals(newPreso)) {
-				for(int i=0; i<pSelected.getQuantity(); i++) {
-					int id = clinic.addIntake(t);
-					t.setId(id);
-				}
+			if ("Yes".equals(newPreso)) {
 				AppUtils.showConfirmation("Perfetto", "assunzione registrata con successo", "");
-			}else {
-				clinic.deleteAllIntake(t);
-				AppUtils.showConfirmation("Perfetto", "assunzione eliminata con successo", "");
-			}*/
-			if(rows > 0) {
-				//aggiorno l'oggetto in memoria attraverso i metodi set
-	            pSelected.setTaken(newPreso);
+			} else {
+				AppUtils.showConfirmation("Perfetto", "assunzione eliminata", "");
 			}
+
+			if (rows > 0) {
+				clinic.updatePrescriptionPreso(newPreso, rows);
+				// aggiorno l'oggetto in memoria attraverso i metodi set
+				pSelected.setTaken(newPreso);
+			}
+
 		} else {
 			AppUtils.showError("Error", "you must select an Item",
 					"Please, select an item if you would like to modify it");
 			return;
 		}
-	   
 		therapyTableAsController.refresh();
 	}
 
 	private void loadAndShowDoctorInfo() {
-		// 1) prendo l'id medico dall'oggetto Patient
-		final int medicoId = user.getMedicoId();
+	    int medicoId = user.getMedicoId();
+	    if (medicoId <= 0) { doctorLabel.setText("n/d"); return; }
 
-		if (medicoId <= 0) {
-			doctorLabel.setText("n/d");
-			return;
-		}
-		
-		try {
-			Doctor d = clinic.loadDoctorInfo(medicoId);
-			
-			if(d != null) {
-				 Platform.runLater(() ->
-	                doctorLabel.setText(d.getUsername() + "  -  email: " + d.getEmail())
-	            );
-			}else {
-				 Platform.runLater(() -> doctorLabel.setText("n/d"));
-			}
-			
-		}catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
+	    try {
+	        Doctor d = clinic.loadDoctorInfo(medicoId);
+	        doctorLabel.setText(d != null ? (d.getUsername() + "  -  email: " + d.getEmail()) : "n/d");
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        doctorLabel.setText("n/d");
+	    }
 	}
 
 	private void loadAndShowMeasurements() {
-		
+
 		try {
-			ObservableList<Measurement> list = FXCollections.observableArrayList(clinic.loadMeasurements(user.getPatientId()));
+			ObservableList<Measurement> list = FXCollections
+					.observableArrayList(clinic.loadMeasurements(user.getPatientId()));
 			measurementsTableView.setItems(list);
-		}catch(SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private void loadAndShowSymptoms() {
 		try {
-	        ObservableList<Symptoms> list = FXCollections.observableArrayList(clinic.loadOpenSymptoms(user.getPatientId()));
-	        symptomsVisualization.setItems(list);
-	    } catch (SQLException e) { e.printStackTrace(); }
+			ObservableList<Symptoms> list = FXCollections
+					.observableArrayList(clinic.loadOpenSymptoms(user.getPatientId()));
+			symptomsVisualization.setItems(list);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private ObservableList<Prescription> loadAndShowPrescriptions() {
-		 try {
-			 	ObservableList<Prescription> list = FXCollections.observableArrayList(clinic.loadPrescriptions(user.getPatientId()));
-		        therapyTableAsController.setItems(list);
-		        return list;
-		    } catch (SQLException e) { e.printStackTrace(); return FXCollections.observableArrayList(); }
+		try {
+			ObservableList<Prescription> list = FXCollections
+					.observableArrayList(clinic.loadPrescriptions(user.getPatientId()));
+			therapyTableAsController.setItems(list);
+			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return FXCollections.observableArrayList();
+		}
 	}
 }

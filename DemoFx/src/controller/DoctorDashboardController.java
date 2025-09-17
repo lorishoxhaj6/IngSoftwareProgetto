@@ -115,7 +115,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
                     AppUtils.showError("DB error", "Aggiornamento dashboard fallito", e.getMessage());
                 }
             });
-            alertFacade.checkHighMeasurements(selectedPatient.getPatientId());
+            alertService.checkHighMeasurements(selectedPatient);
             //System.out.println("sto guardando " + selectedPatient.getUsername());
         }
 

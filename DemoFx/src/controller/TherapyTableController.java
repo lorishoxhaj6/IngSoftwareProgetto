@@ -48,7 +48,7 @@ public class TherapyTableController implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		
 		//equivalente all'injection che viene fatta per iniettare i valori di un oggetto all'interno di una colonna
-		dosesColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper(data.getValue().getDoses()));
+		dosesColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<Double>(data.getValue().getDoses()));
 		unitColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getMeasurementUnit()));
 		indicationColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getIndications()));
 		takenColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getTaken()));
