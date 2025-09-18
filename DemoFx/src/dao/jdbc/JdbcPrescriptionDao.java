@@ -71,7 +71,7 @@ public class JdbcPrescriptionDao implements PrescriptionDao {
 	}
 
 	public int insert(Prescription p) throws SQLException {
-		final String sql = "INSERT INTO prescriptions (doses, measurementUnit, quantity, indications,patientId,doctorId,drug,lastModifiedBy) VALUES (?,?,?,?,?,?,?,?)";
+		final String sql = "INSERT INTO prescriptions (doses, measurementUnit, quantity, indications,patientId,doctorId,drug,taken,lastModifiedBy) VALUES (?,?,?,?,?,?,?,?,?)";
 		try (Connection c = DatabaseUtil.connect();
 				PreparedStatement ps = c.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
 			ps.setDouble(1, p.getDoses());
@@ -81,7 +81,8 @@ public class JdbcPrescriptionDao implements PrescriptionDao {
 			ps.setInt(5, p.getPatientId());
 			ps.setInt(6, p.getDoctorId());
 			ps.setString(7, p.getDrug());
-			ps.setString(8,p.getLastModifiedBy());
+			ps.setString(8,p.getTaken());
+			ps.setString(9,p.getLastModifiedBy());
 			ps.executeUpdate();
 			try (ResultSet keys = ps.getGeneratedKeys()) {
 				return keys.next() ? keys.getInt(1) : -1;
