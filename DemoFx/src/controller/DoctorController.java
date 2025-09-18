@@ -37,7 +37,7 @@ public class DoctorController extends UserController<Doctor>{
 			e.printStackTrace();
 		}
 
-        if (error.length() > 0) {
+        if (error != null && error.length() > 0) {
             AppUtils.showError(
                 "Pazienti che non seguono le prescrizioni",
                 "Alcuni pazienti non hanno rispettato la terapia prescritta:",

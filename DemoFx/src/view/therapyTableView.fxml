@@ -5,11 +5,12 @@
 
 <TableView fx:id="table" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="358.0" prefWidth="592.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.TherapyTableController">
   <columns>
-    <TableColumn fx:id="drugColumn" prefWidth="100.0" text="Farmaco" />
-      <TableColumn fx:id="dosesColumn" prefWidth="60.0" text="Dose" />
-      <TableColumn fx:id="unitColumn" prefWidth="40.0" text="Unit" />
-      <TableColumn fx:id="takenColumn" prefWidth="50.0" text="preso" />
-    <TableColumn fx:id="quantityColumn" prefWidth="120.0" text="Numero Assunzioni" />
-      <TableColumn fx:id="indicationColumn" prefWidth="223.60003662109375" text="Indicazioni" />
+    <TableColumn fx:id="drugColumn" prefWidth="62.39996337890625" text="Farmaco" />
+      <TableColumn fx:id="dosesColumn" prefWidth="40.79998779296875" text="Dose" />
+      <TableColumn fx:id="unitColumn" prefWidth="39.99993896484375" text="Unit" />
+      <TableColumn fx:id="takenColumn" prefWidth="39.199951171875" text="preso" />
+    <TableColumn fx:id="quantityColumn" prefWidth="116.0" text="Numero Assunzioni" />
+      <TableColumn fx:id="modifyColumn" prefWidth="97.5999755859375" text="Ultima modifica" />
+      <TableColumn fx:id="indicationColumn" prefWidth="200.0" text="Indicazioni" />
   </columns>
 </TableView>

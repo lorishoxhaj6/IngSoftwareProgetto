@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import dao.jdbc.JdbcDoctorDao;
 import dao.jdbc.JdbcIntakeDao;
 import dao.jdbc.JdbcLastPrescriptionDao;
 import dao.jdbc.JdbcMeasurementDao;
@@ -54,7 +55,7 @@ public class LoginController implements Initializable {
 	    String username = userTextField.getText();
 	    String password = passwordField.getText();
 	    ClinicFacade clinic = new ClinicFacade(new JdbcPatientDao(), new JdbcMeasurementDao(), 
-	    		new JdbcSymptomDao(), new JdbcPrescriptionDao(), new JdbcIntakeDao(),new JdbcLastPrescriptionDao());
+	    		new JdbcSymptomDao(), new JdbcPrescriptionDao(), new JdbcIntakeDao(),new JdbcLastPrescriptionDao(),new JdbcDoctorDao());
 	    AlertService alertservice = new AlertService(clinic,new JdbcIntakeDao());
 	    
 	    if (username == null || username.isBlank() || password == null || password.isBlank()) {
@@ -115,7 +116,8 @@ public class LoginController implements Initializable {
 	                rs.getInt("id"),
 	                rs.getInt("doctor_id"),
 	                rs.getString("name"),
-	                rs.getString("surname")
+	                rs.getString("surname"),
+	                rs.getInt("lastModifiedBy")
 	            );
 	            
 	            PatientController controller = ViewNavigator.loadViewWithController("patientView.fxml");
@@ -144,7 +146,8 @@ public class LoginController implements Initializable {
 	            String email = rs.getString("email");
 	            
 	            // 2) Recupero lista pazienti associati
-	            List<Patient> pazienti = AppUtils.findAllPatient(doctorId);
+	         
+	            List<Patient> pazienti = clinic.findAllPatientsByDoctorId(doctorId);
 	            Doctor doctorObj = new Doctor(username, password, doctorId, pazienti,email);
 	            
 	            DoctorController controller = ViewNavigator.loadViewWithController("doctorView.fxml");

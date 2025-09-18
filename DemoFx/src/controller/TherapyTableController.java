@@ -35,6 +35,9 @@ public class TherapyTableController implements Initializable {
 
 	@FXML
 	private TableColumn<Prescription, Integer> quantityColumn;
+	
+	@FXML
+	private TableColumn<Prescription,String> modifyColumn;
 
 	// binding = collegamento automatico tra due property
 	// contenitore osservabile che può tenere al suo interno qualsiasi oggetto di
@@ -54,6 +57,7 @@ public class TherapyTableController implements Initializable {
 		takenColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getTaken()));
 		quantityColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getQuantity()));
 		drugColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getDrug()));
+		modifyColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getLastModifiedBy()));
 		
 		table.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, it) -> {
             if (it != null && onSelect.get() != null) onSelect.get().accept(it);

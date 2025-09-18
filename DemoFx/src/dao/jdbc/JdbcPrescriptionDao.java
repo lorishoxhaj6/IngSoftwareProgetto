@@ -14,7 +14,7 @@ import model.Prescription;
 public class JdbcPrescriptionDao implements PrescriptionDao {
 
 	public List<Prescription> findByPatient(int patientId) throws SQLException {
-		String sql = "SELECT id, doses, measurementUnit, quantity, indications, drug, doctorId, taken "
+		String sql = "SELECT * "
 				+ "FROM prescriptions WHERE patientId = ?";
 		return DatabaseUtil.queryList(sql, ps -> {
 			try {
@@ -26,7 +26,7 @@ public class JdbcPrescriptionDao implements PrescriptionDao {
 		}, rs -> {
 			return new Prescription(rs.getInt("id"), rs.getDouble("doses"), rs.getString("measurementUnit"),
 					rs.getInt("quantity"), rs.getString("indications"), patientId, rs.getInt("doctorId"),
-					rs.getString("drug"), rs.getString("taken"));
+					rs.getString("drug"), rs.getString("taken"), rs.getString("lastModifiedBy"));
 		});
 	}
 
@@ -46,13 +46,13 @@ public class JdbcPrescriptionDao implements PrescriptionDao {
 	}
 
 	public List<Prescription> findAll() throws SQLException {
-		final String sql = "SELECT id, doses, measurementUnit, quantity, indications, drug, doctorId, patientId, taken "
+		final String sql = "SELECT * "
 				+ "FROM prescriptions";
 		return DatabaseUtil.queryList(sql, ps -> {
 		}, rs -> {
 			return new Prescription(rs.getInt("id"), rs.getDouble("doses"), rs.getString("measurementUnit"),
 					rs.getInt("quantity"), rs.getString("indications"), rs.getInt("patientId"), rs.getInt("doctorId"),
-					rs.getString("drug"), rs.getString("taken"));
+					rs.getString("drug"), rs.getString("taken"),rs.getString("lastModifiedBy"));
 		});
 	}
 
@@ -71,7 +71,7 @@ public class JdbcPrescriptionDao implements PrescriptionDao {
 	}
 
 	public int insert(Prescription p) throws SQLException {
-		final String sql = "INSERT INTO prescriptions (doses, measurementUnit, quantity, indications,patientId,doctorId,drug) VALUES (?,?,?,?,?,?,?)";
+		final String sql = "INSERT INTO prescriptions (doses, measurementUnit, quantity, indications,patientId,doctorId,drug,lastModifiedBy) VALUES (?,?,?,?,?,?,?,?)";
 		try (Connection c = DatabaseUtil.connect();
 				PreparedStatement ps = c.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
 			ps.setDouble(1, p.getDoses());
@@ -81,6 +81,7 @@ public class JdbcPrescriptionDao implements PrescriptionDao {
 			ps.setInt(5, p.getPatientId());
 			ps.setInt(6, p.getDoctorId());
 			ps.setString(7, p.getDrug());
+			ps.setString(8,p.getLastModifiedBy());
 			ps.executeUpdate();
 			try (ResultSet keys = ps.getGeneratedKeys()) {
 				return keys.next() ? keys.getInt(1) : -1;

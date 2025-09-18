@@ -8,7 +8,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -40,7 +39,7 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="430.0" prefWidth="660.0">
                      <children>
                         <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Andamento della glicemia" />
-                        <Text layoutX="328.0" layoutY="26.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sintomi e farmaci assunti" />
+                        <Text layoutX="328.0" layoutY="26.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sintomi, patologie e terapie concomitanti" />
                         <ListView fx:id="symptomsMedicinesView" layoutX="328.0" layoutY="39.0" prefHeight="174.0" prefWidth="283.0" />
                         <TableView fx:id="measurementsTableView" layoutX="14.0" layoutY="227.0" prefHeight="198.0" prefWidth="290.0">
                           <columns>
@@ -65,12 +64,11 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TextArea fx:id="infoPatients" layoutX="14.0" layoutY="41.0" prefHeight="150.0" prefWidth="246.0" />
+                        <TextArea fx:id="infoPatients" layoutX="14.0" layoutY="41.0" prefHeight="266.0" prefWidth="354.0" />
                         <Text layoutX="14.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Note sul paziente" />
-                        <ScrollPane layoutX="388.0" layoutY="65.0" />
-                        <Text layoutX="276.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="segnalazioni del paziente" />
-                        <Button fx:id="updateNotesButton" layoutX="95.0" layoutY="202.0" mnemonicParsing="false" onAction="#updateNotes" prefHeight="18.0" prefWidth="88.0" text="update notes" />
-                        <ListView fx:id="historyView" layoutX="276.0" layoutY="40.0" prefHeight="150.0" prefWidth="323.0" />
+                        <Button fx:id="updateNotesButton" layoutX="147.0" layoutY="327.0" mnemonicParsing="false" onAction="#updateNotes" prefHeight="18.0" prefWidth="88.0" text="update notes" />
+                        <Label fx:id="labelUpdateNotesDoc" layoutX="381.0" layoutY="67.0" prefHeight="18.0" prefWidth="234.0" text="Label" />
+                        <Text layoutX="381.0" layoutY="54.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ultima modifica effetuata da:" />
                      </children>
                   </AnchorPane>
             </content>

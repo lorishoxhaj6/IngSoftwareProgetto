@@ -4,8 +4,6 @@ import java.sql.SQLException;
 import controller.ViewNavigator;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import model.DatabaseUtil;
-import model.Patient;
 
 
 public class Main extends Application {

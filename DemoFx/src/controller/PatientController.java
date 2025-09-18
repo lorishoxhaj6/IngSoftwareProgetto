@@ -398,7 +398,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	    if (medicoId <= 0) { doctorLabel.setText("n/d"); return; }
 
 	    try {
-	        Doctor d = clinic.loadDoctorInfo(medicoId);
+	        Doctor d = clinic.findDoctorById(medicoId);
 	        doctorLabel.setText(d != null ? (d.getUsername() + "  -  email: " + d.getEmail()) : "n/d");
 	    } catch (SQLException e) {
 	        e.printStackTrace();

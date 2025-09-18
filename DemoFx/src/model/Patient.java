@@ -13,15 +13,19 @@ public class Patient extends User{
 	private int patientId;
 	private String name;
 	private String surname;
+	private int lastModifiedBy;
 	
-	public Patient(String user, String pw,int pazienteId, int medicoId, String name, String surname) {
+	public Patient(String user, String pw,int pazienteId, int medicoId, String name, String surname,int lastmodifiedby) {
 		super(user,pw,medicoId);
 		this.patientId = pazienteId;
 		this.name = name;
 		this.surname = surname;
+		this.lastModifiedBy = lastmodifiedby;
 	}
 	
 	public int getPatientId() {return this.patientId;}
+	public int getLastModifiedBy() { return lastModifiedBy; }
+	public void setLastModifiedBy(int lastModifiedBy) { this.lastModifiedBy = lastModifiedBy; }
 	public String toString() {return String.format("%s %s", name, surname);}
 	public List<Measurement> getMeasurementBloodSugar(Patient p) throws SQLException{
 		

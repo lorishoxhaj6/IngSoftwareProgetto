@@ -11,9 +11,10 @@ public class Prescription {
     private int doctorId;
     private String drug;
     private String taken;
+    private String lastModifiedBy;
 	
     public Prescription(int idPres, Double doses, String unit,int quantity, String indications, 
-                         int patientId, int doctorId,  String drug, String taken) {
+                         int patientId, int doctorId,  String drug, String taken, String lastmodifiedby) {
         this.idPrescription = idPres;
         this.doses = doses;
         this.measurementUnit = unit;
@@ -23,8 +24,12 @@ public class Prescription {
         this.doctorId = doctorId;
         this.drug = drug;
         this.taken = taken;
+        this.lastModifiedBy = lastmodifiedby;
     }
-
+    
+    
+    public String getLastModifiedBy(){return lastModifiedBy;};
+    public void setLastModifiedBy(String lastmodified) {lastModifiedBy = lastmodified;};
     public int getIdPrescription() {return idPrescription;}
     public Double getDoses() {return doses;}
     public String getMeasurementUnit() {return measurementUnit;}

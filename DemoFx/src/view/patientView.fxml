@@ -92,7 +92,7 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="356.0" prefWidth="446.0">
                      <children>
-                        <Text layoutX="14.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Inserisci sintomi e farmaci:" wrappingWidth="297.1829471588135">
+                        <Text layoutX="11.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Inserisci sintomi, patologie e terapie concomitanti:" wrappingWidth="421.9829349517822">
                            <font>
                               <Font size="18.0" />
                            </font>

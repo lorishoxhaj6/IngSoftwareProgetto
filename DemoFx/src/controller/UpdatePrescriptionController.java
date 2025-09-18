@@ -11,9 +11,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import model.AppUtils;
 import model.DatabaseUtil;
+import model.Doctor;
 import model.Prescription;
 
-public class UpdatePrescriptionController {
+public class UpdatePrescriptionController extends DoctorController{
+	
+	
 	@FXML
 	private TextField medicineField;
 	@FXML
@@ -52,42 +55,70 @@ public class UpdatePrescriptionController {
 	}
 	
 	public void update(ActionEvent event) {
-		//aggiorno il db con i campi modificati
-		String sql = "UPDATE prescriptions SET doses = ?, measurementUnit = ?, quantity = ?, indications = ?, drug = ? WHERE id = ?";
-		String d = amount.getText();
-		Double doses = Double.parseDouble(d);
-		String mU = measurementUnit.getValue();
-		int quantiy = (int) numberOfIntakes.getValue();
-		String indications = otherIndication.getText();
-		String drug = medicineField.getText();
-	
-		Stage stage;
-		int rows = DatabaseUtil.executeUpdate(sql, ps ->{
-			ps.setDouble(1,doses);
-			ps.setString(2, mU);
-			ps.setInt(3, quantiy);
-			ps.setString(4,indications);
-			ps.setString(5,drug);
-			ps.setInt(6, p.getIdPrescription());
-		});
-		if(rows > 0) {
-			//aggiorno l'oggetto in memoria attraverso i metodi set per ogni campo
-            p.setDoses(doses);
-            p.setMeasurementUnit(mU);
-            p.setDrug(drug);
-            p.setIndications(indications);
-            p.setQuantity(quantiy);
-            
-            //se onUpdate è stato settato allora posso
-            if(onUpdate != null)
-            	onUpdate.run();
-            
-			AppUtils.showConfirmation("ottimo", "measurement updated", " ");
-			stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-			stage.close();
-		}
-		else
-			AppUtils.showError("errore","measurement NOT updated", " ");
+
+	    if (p == null) {
+	        AppUtils.showError("Errore", "Nessuna prescrizione selezionata",
+	            "Seleziona una prescrizione da modificare.");
+	        return;
+	    }
+
+	    // Validazioni UI
+	    if (medicineField.getText() == null || medicineField.getText().isBlank()
+	        || amount.getText() == null || amount.getText().isBlank()
+	        || measurementUnit.getValue() == null
+	        || numberOfIntakes.getValue() == null) {
+	        AppUtils.showError("Error", "data are missing", "Impossible to update prescription");
+	        return;
+	    }
+
+	    final double doses;
+	    try {
+	        doses = Double.parseDouble(amount.getText());
+	    } catch (NumberFormatException nfe) {
+	        AppUtils.showError("Error", "invalid number", "Check amount");
+	        return;
+	    }
+
+	    final String mU = measurementUnit.getValue();
+	    final int quantity = numberOfIntakes.getValue();
+	    final String indications = otherIndication.getText() == null ? "" : otherIndication.getText();
+	    final String drug = medicineField.getText();
+	    final String usernameDoc = user.getUsername();
+	    
+	    final String sql =
+	        "UPDATE prescriptions SET doses = ?, measurementUnit = ?, quantity = ?, " +
+	        "indications = ?, drug = ?, lastModifiedBy = ? WHERE id = ?";
+
+	    int rows = DatabaseUtil.executeUpdate(sql, ps -> {
+	        ps.setDouble(1, doses);
+	        ps.setString(2, mU);
+	        ps.setInt(3, quantity);
+	        ps.setString(4, indications);
+	        ps.setString(5, drug);
+	        ps.setString(6, usernameDoc);       // <- medico che modifica
+	        ps.setInt(7, p.getIdPrescription());    // <- id prescrizione
+	    });
+
+	    if (rows > 0) {
+	        // aggiorna oggetto in memoria
+	        p.setDoses(doses);
+	        p.setMeasurementUnit(mU);
+	        p.setDrug(drug);
+	        p.setIndications(indications);
+	        p.setQuantity(quantity);
+	        p.setLastModifiedBy(usernameDoc);
+
+	        if (onUpdate != null) onUpdate.run();
+
+	        AppUtils.showConfirmation("ottimo", "measurement updated", " ");
+	        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+	        stage.close();
+	    } else {
+	        AppUtils.showError("errore", "measurement NOT updated", " ");
+	    }
 	}
 
+	public void setUser(Doctor user) {
+		super.user = user;
+	}
 }

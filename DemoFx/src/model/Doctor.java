@@ -23,6 +23,7 @@ public class Doctor extends User{
 	
 	
 	public List<Patient> getPatients(){return this.pazienti;}
+	public void setPatients(List<Patient> l) {this.pazienti = l;};
 	public String getEmail() {return this.email;};
 	public String toString(){ return this.username; }
 	
