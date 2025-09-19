@@ -15,7 +15,9 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -108,6 +110,15 @@ public class DoctorDashboardController extends DoctorController implements Initi
 
 		// colorazione condizionale
 		AppUtils.colorMeasurments(valueColumn);
+		
+		NumberAxis y = (NumberAxis) bloodSugarGraph.getYAxis();
+		y.setAutoRanging(true);          // sblocca i bound
+		y.setForceZeroInRange(false);    // non forzare lo 0 (così scala su 140–220, ecc.)
+
+		CategoryAxis x = (CategoryAxis) bloodSugarGraph.getXAxis();
+		x.getCategories().clear();       // evita categorie “stantie” da viste precedenti
+
+		bloodSugarGraph.setAnimated(false); // evita l’animazione che a volte “appiattisce” all’avvio
 	}
 
 	@FXML
@@ -229,6 +240,7 @@ public class DoctorDashboardController extends DoctorController implements Initi
 
 	public void updateGraphBloodSugar(List<Measurement> measurements) {
 		bloodSugarGraph.getData().clear();
+		
 		if (measurements.isEmpty())
 			return;
 
