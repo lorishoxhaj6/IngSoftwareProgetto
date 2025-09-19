@@ -87,8 +87,8 @@ public class PatientController extends UserController<Patient> implements Initia
 	private TherapyTableController therapyTableAsController;
 	@FXML
 	private TableView<Prescription> table;
-	//@FXML
-	//private WebView webView;
+	
+
 	// -----------------------------------------------------------------------
 
 	private ClinicFacade clinic;
@@ -101,8 +101,6 @@ public class PatientController extends UserController<Patient> implements Initia
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateTimeFormatted"));
 		momentColumn.setCellValueFactory(new PropertyValueFactory<>("moment"));
 		valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
-		//WebEngine engine = webView.getEngine();
-		//engine.load("https://workspace.google.com/intl/it/gmail/");
 		
 		AppUtils.colorMeasurments(valueColumn);
 	}

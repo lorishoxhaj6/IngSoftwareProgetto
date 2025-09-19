@@ -256,5 +256,6 @@ public class ClinicFacade {
 			lastPrescriptionDao.updateLastPrescriptionReset(today);
 		}
 	}
+	
 
 }
