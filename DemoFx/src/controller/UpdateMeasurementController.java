@@ -66,7 +66,7 @@ public class UpdateMeasurementController {
 		String sql = "UPDATE measurements SET moment = ?, dateTime = ?, value = ? WHERE id = ?";
 		LocalDate date = myDatePicker.getValue();
 		LocalDateTime dateTime = LocalDateTime.of(date, LocalTime.now());
-		final String moment = primaPastoRb.isSelected() ? "prima_pasto" : "dopo_pasto";
+		final String moment = primaPastoRb.isSelected() ? "prima pasto" : "dopo pasto";
 		Stage stage;
 		int rows = DatabaseUtil.executeUpdate(sql, ps ->{
 			ps.setString(1,moment);
