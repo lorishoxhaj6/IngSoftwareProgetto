@@ -4,10 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 import dao.DoctorDao;
-import model.AppUtils;
 import model.DatabaseUtil;
 import model.Doctor;
 import model.Patient;

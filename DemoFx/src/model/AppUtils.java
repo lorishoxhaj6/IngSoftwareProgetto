@@ -1,13 +1,7 @@
 package model;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import javafx.scene.control.Alert;
@@ -18,7 +12,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.paint.Color;
 
 public class AppUtils {
-//prova
+
 	public static void showError(String title, String header, String content) {
 		Alert a = new Alert(Alert.AlertType.ERROR);
 		a.setTitle(title);
@@ -87,7 +81,7 @@ public class AppUtils {
 						setTextFill(Color.RED);
 					}
 				} else { // dopo pasto
-					if (value < 180) {
+					if (value <= 180) {
 						setTextFill(Color.GREEN);
 					} else if (value > 190 && value <= 210) {
 						setTextFill(Color.ORANGE);

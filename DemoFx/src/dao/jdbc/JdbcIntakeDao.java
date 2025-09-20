@@ -32,21 +32,16 @@ public class JdbcIntakeDao implements IntakeDao {
 	}
 	
 	public int delete(int intakeId) throws SQLException {
-		final String sql = "DELETE FROM patientIntake where id = ?";
-				
-		try (Connection c = DatabaseUtil.connect(); PreparedStatement ps = c.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
-			ps.setInt(1,intakeId);
-			ps.executeUpdate();
-			
-			 try (ResultSet rs = ps.getGeneratedKeys()) {
-			        if (rs.next()) return rs.getInt("id");
-			        throw new SQLException("No generated key returned");
-			 }
-		}
+	    final String sql = "DELETE FROM patientIntake WHERE id = ?";
+	    try (Connection c = DatabaseUtil.connect();
+	         PreparedStatement ps = c.prepareStatement(sql)) {
+	        ps.setInt(1, intakeId);
+	        return ps.executeUpdate(); // 0 o 1
+	    }
 	}
 	
 	public List<Intake> findByPatient(int patientId) throws SQLException {
-        final String sql = "SELECT id, dateTime, patientId" +
+        final String sql = "SELECT id, dateTime, patientId " +
                            "FROM patientIntake WHERE patientId = ?";
         return DatabaseUtil.queryList(sql, ps -> {
 			try {
@@ -88,7 +83,7 @@ public class JdbcIntakeDao implements IntakeDao {
 	            patientId
 	    ));
 
-	    return list.size() == 3;
+	    return list.size() >= 3;
 	}
 
 

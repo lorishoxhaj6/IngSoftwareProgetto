@@ -231,31 +231,77 @@ public class ClinicFacade {
 	 * 
 	 * @throws SQLException
 	 */
-	public void checkAndResetIfNeeded(Patient p) throws SQLException {
-		String today = LocalDate.now().toString();
-		String lastReset = "";
+	public void checkAndResetIfNeeded(Patient pTrigger) throws SQLException {
+	    final String today = java.time.LocalDate.now().toString();
 
-		lastReset = lastPrescriptionDao.getLastPrescriptionReset();
+	    try (var con = model.DatabaseUtil.connect()) {
+	        con.setAutoCommit(false);
+	        try {
+	            String last = "";
+	            try (var ps = con.prepareStatement("SELECT date FROM lastPrescriptionReset LIMIT 1");
+	                 var rs = ps.executeQuery()) {
+	                if (rs.next()) last = rs.getString(1);
+	            }
 
-		// se la data è diversa da quella di oggi resetto l'ultima data salvata nel Db
-		// devo fare verifica in cui vedo che taken sono tutti a yes
-		if (!today.equals(lastReset)) {
-			if (!prescriptionDao.prescriptionTaken(p.getPatientId())) {
-				/**
-				 * se il paziente passata la mezzanotte non ha fatto tutte le assunzione come
-				 * prescritto viene aggiunto alla tabella della db che si riferisce alle
-				 * assunzioni da parte dei pazienti mancate in data x
-				 */
-				System.out.print(p.getUsername() + " " + p.getPatientId());
-				Intake t = new Intake(0, LocalDateTime.now(), p.getPatientId());
-				int newIntakeId = intakeDao.insert(t);
-				t.setId(newIntakeId);
-			}
-			prescriptionDao.updatePrescriptionReset();
-			// aggiorno la data dell'ultimo reset
-			lastPrescriptionDao.updateLastPrescriptionReset(today);
-		}
+	            if (!today.equals(last)) {
+	                // === 1) carica TUTTI i pazienti ===
+	                var allPatients = patientDao.findAll(); // hai già il DAO e il metodo nella Facade
+
+	                // === 2) per ciascun paziente: check mancata + reset taken ===
+	                try (var psSel = con.prepareStatement("SELECT taken FROM prescriptions WHERE patientId = ?");
+	                     var psIns = con.prepareStatement("INSERT INTO patientIntake (dateTime, patientId) VALUES (?, ?)");
+	                     var psUpd = con.prepareStatement("UPDATE prescriptions SET taken='No' WHERE patientId=?")) {
+
+	                    final var endOfYesterday = java.time.LocalDate.now()
+	                            .minusDays(1).atTime(23, 59, 59).toString();
+
+	                    for (var pt : allPatients) {
+	                        int total = 0, notOk = 0;
+
+	                        psSel.setInt(1, pt.getPatientId());
+	                        try (var rs = psSel.executeQuery()) {
+	                            while (rs.next()) {
+	                                total++;
+	                                if (!"Yes".equals(rs.getString("taken"))) notOk++;
+	                            }
+	                        }
+
+	                        boolean allTaken = (total > 0 && notOk == 0);
+
+	                        if (!allTaken) {
+	                            psIns.setString(1, endOfYesterday);
+	                            psIns.setInt(2, pt.getPatientId());
+	                            psIns.executeUpdate();
+	                        }
+
+	                        psUpd.setInt(1, pt.getPatientId());
+	                        psUpd.executeUpdate();
+	                    }
+	                }
+
+	                // === 3) aggiorna UNA VOLTA la data globale ===
+	                int rows;
+	                try (var ps = con.prepareStatement("UPDATE lastPrescriptionReset SET date = ?")) {
+	                    ps.setString(1, today);
+	                    rows = ps.executeUpdate();
+	                }
+	                if (rows == 0) {
+	                    try (var ps = con.prepareStatement("INSERT INTO lastPrescriptionReset(date) VALUES (?)")) {
+	                        ps.setString(1, today);
+	                        ps.executeUpdate();
+	                    }
+	                }
+	            }
+
+	            con.commit();
+	        } catch (SQLException ex) {
+	            con.rollback();
+	            throw ex;
+	        } finally {
+	            con.setAutoCommit(true);
+	        }
+	    }
 	}
-	
+
 
 }

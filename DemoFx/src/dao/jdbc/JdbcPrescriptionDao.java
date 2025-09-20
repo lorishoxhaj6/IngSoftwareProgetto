@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.List;
 
 import dao.PrescriptionDao;
@@ -30,19 +29,17 @@ public class JdbcPrescriptionDao implements PrescriptionDao {
 		});
 	}
 
-	public boolean prescriptionTaken(int patientId) throws SQLException {
+	public boolean allTakenForPatient(int patientId) throws SQLException {
 		final String sql = "SELECT taken FROM prescriptions WHERE patientId = ?";
-
-		List<String> list = DatabaseUtil.queryList(sql, ps -> {
+	    var list = DatabaseUtil.queryList(sql, ps -> {
 			try {
 				ps.setInt(1, patientId);
 			} catch (SQLException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}, rs -> rs.getString("taken"));
-
-		// true se tutte le righe hanno "Yes"
-		return list.stream().allMatch("Yes"::equals);
+	    return !list.isEmpty() && list.stream().allMatch("Yes"::equals);
 	}
 
 	public List<Prescription> findAll() throws SQLException {
@@ -90,9 +87,14 @@ public class JdbcPrescriptionDao implements PrescriptionDao {
 		}
 	}
 
-	@Override
-	 public int updatePrescriptionReset() throws SQLException {
-        final String resetSql = "UPDATE prescriptions SET taken = ?";
-        return DatabaseUtil.executeUpdate(resetSql, ps -> ps.setString(1, "No"));
-    }
+
+	public int resetTakenForPatient(int patientId) throws SQLException {
+		 final String resetSql = "UPDATE prescriptions SET taken = ? WHERE patientId = ?";
+		    return DatabaseUtil.executeUpdate(resetSql, ps -> {
+		        ps.setString(1, "No");
+		        ps.setInt(2, patientId);
+		    });
+	}
+
+	
 }

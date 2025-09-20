@@ -74,7 +74,7 @@ public class AlertService {
 		StringBuilder error = new StringBuilder();
         for (Patient p : user.getPatients()) {
             try {
-                if (!IntakeDao.fetchLastThreeDaysIntakes(p.getPatientId())) {
+                if (IntakeDao.fetchLastThreeDaysIntakes(p.getPatientId())) {
                     error.append("• Il paziente ")
                          .append(p.getUsername())
                          .append(" non ha assunto i farmaci negli ultimi 3 giorni.\n");

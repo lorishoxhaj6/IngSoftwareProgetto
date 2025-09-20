@@ -52,12 +52,12 @@
                   </HBox>
                   <HBox prefHeight="90.0" prefWidth="348.0">
                      <children>
-                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="il medico a cui puoi fare riferimento" wrappingWidth="289.599951171875">
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="il medico a cui puoi fare riferimento" wrappingWidth="294.3999389648437">
                            <font>
                               <Font size="18.0" />
                            </font>
                         </Text>
-                        <Label fx:id="doctorLabel" prefHeight="27.0" prefWidth="303.0" style="-fx-text-fill: Black;">
+                        <Label fx:id="doctorLabel" prefHeight="27.0" prefWidth="349.0" style="-fx-text-fill: Black;">
                            <font>
                               <Font size="18.0" />
                            </font>

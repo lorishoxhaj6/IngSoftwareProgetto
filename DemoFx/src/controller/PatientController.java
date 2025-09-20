@@ -291,7 +291,7 @@ public class PatientController extends UserController<Patient> implements Initia
 	public void enterSymptoms() {
 
 		// 1) Validazioni preliminari
-		if (symptomsListView.getItems().isEmpty()) {
+		if (symptomsListView.getItems().isEmpty() && symptomsNotes.getText().isBlank()) {
 			AppUtils.showError("No Symptoms Available", "Unable to enter the symptoms",
 					"Please add at least one symptom before attempting to enter.");
 			return;
@@ -325,7 +325,7 @@ public class PatientController extends UserController<Patient> implements Initia
 			if (symptomsNotes != null)
 				symptomsNotes.clear();
 
-			AppUtils.showConfirmation("Perfect!", "right data", "symptoms successfully recorded!");
+			AppUtils.showInfo("Perfect!", "right data", "symptoms successfully recorded!");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			AppUtils.showError("DB Error", "Insert failed", e.getMessage());
@@ -362,33 +362,27 @@ public class PatientController extends UserController<Patient> implements Initia
 	// modica la colonna che dice se ha preso o no il medicinale
 	public void preso(ActionEvent event) throws SQLException {
 		Prescription pSelected = therapyTableAsController.getSelectedItem();
-
-		String newPreso = "Yes";
-		int rows;
-		if (pSelected != null) {
-
-			if (pSelected.getTaken().equals(newPreso))
-				newPreso = "No";
-
-			rows = clinic.updatePrescriptionPreso(newPreso, pSelected.getIdPrescription());
-			if ("Yes".equals(newPreso)) {
-				AppUtils.showConfirmation("Perfetto", "assunzione registrata con successo", "");
-			} else {
-				AppUtils.showConfirmation("Perfetto", "assunzione eliminata", "");
-			}
-
-			if (rows > 0) {
-				clinic.updatePrescriptionPreso(newPreso, rows);
-				// aggiorno l'oggetto in memoria attraverso i metodi set
-				pSelected.setTaken(newPreso);
-			}
-
-		} else {
-			AppUtils.showError("Error", "you must select an Item",
-					"Please, select an item if you would like to modify it");
-			return;
+		
+		if(pSelected == null) {
+			AppUtils.showError("Errore", "Devi selezionare un elemento",
+	                "Perfavore, seleziona un elemento se vuoi modificarlo");
+	        return;
 		}
-		therapyTableAsController.refresh();
+		  String newPreso = "Yes";
+		    if ("Yes".equals(pSelected.getTaken())) newPreso = "No";
+
+		    int rows = clinic.updatePrescriptionPreso(newPreso, pSelected.getIdPrescription());
+		    if (rows > 0) {
+		        pSelected.setTaken(newPreso); // aggiorna modello in memoria
+		        therapyTableAsController.refresh();
+		        if ("Yes".equals(newPreso)) {
+		            AppUtils.showInfo("Perfetto", "assunzione registrata con successo", "");
+		        } else {
+		            AppUtils.showInfo("Perfetto", "assunzione eliminata", "");
+		        }
+		    } else {
+		        AppUtils.showError("Error", "impossible to update", "Please try another item");
+		    }
 	}
 
 	private void loadAndShowDoctorInfo() {
