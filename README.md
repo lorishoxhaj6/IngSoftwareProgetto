@@ -8,7 +8,7 @@ Per un'analisi dettagliata dei requisiti, dei diagrammi UML e delle scelte imple
 
 ---
 
-## 🚀 Caratteristiche Principali
+## Caratteristiche Principali
 
 Il sistema si concentra sul monitoraggio proattivo e sulla prevenzione di crisi glicemiche:
 * **Monitoraggio Glicemico**: Registrazione giornaliera dei livelli di glucosio con sistema di alert automatico in caso di parametri fuori norma[cite: 3].
@@ -17,7 +17,7 @@ Il sistema si concentra sul monitoraggio proattivo e sulla prevenzione di crisi 
 * **Diario Clinico**: Segnalazione di sintomi, patologie concomitanti e note cliniche aggiornabili dai medici[cite: 5, 13].
 * **Tracciabilità**: Sistema di logging integrato che registra quale medico ha effettuato modifiche ai dati in tempo reale[cite: 26].
 
-## 🏗️ Architettura e Design Pattern
+##  Architettura e Design Pattern
 
 Il progetto segue una progettazione orientata agli oggetti con una netta separazione delle responsabilità attraverso i seguenti pattern[cite: 18]:
 
