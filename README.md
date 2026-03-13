@@ -4,7 +4,7 @@
 
 ## 📄 Documentazione Ufficiale
 Per un'analisi dettagliata dei requisiti, dei diagrammi UML e delle scelte implementative, consultare la:
-👉 **[Relazione Tecnica del Progetto (PDF)](Relazione.pdf)**
+👉 **[Relazione Tecnica del Progetto (PDF)](file:///C:/Users/loris/AppData/Local/Packages/5319275A.WhatsAppDesktop_cv1g1gvanyjgm/LocalState/sessions/175725DBF518BFC7AD1E9A9A018599020967C09C/transfers/2026-11/RELAZIONE_PROGETTO_INGEGNERIA_DEL_SOFTWARE.pdf)**
 
 ---
 
