@@ -4,7 +4,7 @@ Sistema clinico informativo per la gestione e il monitoraggio di pazienti affett
 
 ## 📄 Documentazione Ufficiale
 Per un'analisi dettagliata dei requisiti, dei diagrammi UML e delle scelte implementative, consultare la:
-👉 **[Relazione Tecnica (PDF)](Relazione.pdf)**
+👉 **[Relazione Tecnica (PDF)](RELAZIONE_PROGETTO_INGEGNERIA_DEL_SOFTWARE_.pdf)**
 
 ---
 
